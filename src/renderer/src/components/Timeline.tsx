@@ -787,6 +787,8 @@ function ClipBlock({
           isImage={isImage}
           aspect={aspect}
           peaks={waveH > 0 && source?.peaks ? source.peaks : null}
+          volume={clip.kind === 'media' ? clip.volume : 1}
+          muted={clip.kind === 'media' ? !!clip.mutedAudio : false}
           left={left}
           width={width}
           view={view}
@@ -829,6 +831,8 @@ function ClipMedia({
   view,
   thumbH,
   waveH,
+  volume,
+  muted,
   startFrac,
   endFrac
 }: {
@@ -837,6 +841,8 @@ function ClipMedia({
   isImage: boolean
   aspect: number
   peaks: number[] | null
+  volume: number
+  muted: boolean
   left: number
   width: number
   view: { left: number; width: number }
@@ -960,18 +966,21 @@ function ClipMedia({
       const n = peaks.length
       const mid = top + waveH / 2
       const maxH = waveH - 2
-      // faint center line + bright mint waveform; quiet parts lifted with sqrt.
+      // The waveform height tracks the VOLUME (CapCut-style): louder = taller,
+      // muted/0 = a thin flat line. Capped a bit above 1 so it never overflows.
+      const volF = muted ? 0 : Math.min(1.6, Math.max(0, volume))
+      // faint center line + mint waveform (dimmed when muted), quiet parts lifted with sqrt.
       ctx.fillStyle = 'rgba(255,255,255,0.12)'
       ctx.fillRect(0, Math.round(mid), cssW, 1)
-      ctx.fillStyle = 'rgba(223,255,250,0.92)'
+      ctx.fillStyle = muted ? 'rgba(223,255,250,0.4)' : 'rgba(223,255,250,0.92)'
       for (let x = 0; x < cssW; x++) {
         const idx = Math.min(n - 1, Math.max(0, Math.floor(fracAt(x) * (n - 1))))
         const p = peaks[idx] ?? 0
-        const h = Math.max(1, Math.sqrt(Math.max(0, p)) * maxH)
+        const h = Math.max(volF <= 0.02 ? 0.5 : 1, Math.sqrt(Math.max(0, p)) * maxH * volF)
         ctx.fillRect(x, mid - h / 2, 1, h)
       }
     }
-  }, [stripUrl, thumbCols, isImage, aspect, peaks, left, width, vis0, visW, thumbH, waveH, startFrac, endFrac, clipH, tick])
+  }, [stripUrl, thumbCols, isImage, aspect, peaks, volume, muted, left, width, vis0, visW, thumbH, waveH, startFrac, endFrac, clipH, tick])
 
   if (visW <= 0) return null
   return (
