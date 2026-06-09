@@ -665,46 +665,59 @@ function ClipBlock({
     if (!el) return
     const points = snapPoints(store.project, store.playhead, clip.id)
     const startX = e.clientX
+    const startY = e.clientY
     const origStart = clip.timelineStart
     const dur = clip.timelineEnd - clip.timelineStart
     let finalStart = origStart
     let finalTrackId = clip.trackId
     let moved = false
+    let dropEl: HTMLElement | null = null // highlighted destination track
     // Drag the whole selection together when multi-selected, else just this clip.
     const moveEls = multi
       ? (sel.map((id) => document.querySelector(`[data-clip-id="${id}"]`)).filter(Boolean) as HTMLElement[])
       : [el]
     for (const m of moveEls) {
       m.style.pointerEvents = 'none'
-      m.style.zIndex = '10'
+      m.style.zIndex = '30'
+      m.classList.add('dragging')
     }
 
     const onMove = (ev: PointerEvent): void => {
       const dx = ev.clientX - startX
-      if (Math.abs(dx) > 2) moved = true
+      const dy = ev.clientY - startY
+      if (Math.abs(dx) > 2 || Math.abs(dy) > 2) moved = true
       let ns = Math.max(0, origStart + dx / pxPerSec)
       ns = snap(ns, points, pxPerSec)
       ns = snap(ns + dur, points, pxPerSec) - dur // also snap the end edge
       finalStart = Math.max(0, ns)
       const tx = (finalStart - origStart) * pxPerSec
-      for (const m of moveEls) m.style.transform = `translateX(${tx}px)`
+      // Single clip follows the cursor in BOTH axes (so you can drag it onto another
+      // track and SEE it move there); a multi-selection only slides horizontally.
+      for (const m of moveEls) m.style.transform = multi ? `translateX(${tx}px)` : `translateX(${tx}px) translateY(${dy}px)`
 
       if (!multi) {
         const under = document.elementFromPoint(ev.clientX, ev.clientY)?.closest('[data-track-id]') as HTMLElement | null
-        if (under) {
-          const tid = under.getAttribute('data-track-id')
-          const ttype = under.getAttribute('data-track-type')
-          if (tid && ttype === track.type) finalTrackId = tid
+        const tid = under?.getAttribute('data-track-id')
+        const ttype = under?.getAttribute('data-track-type')
+        if (under && tid && ttype === track.type) finalTrackId = tid
+        // Highlight the destination track lane under the cursor.
+        const hi = under && ttype === track.type ? under : null
+        if (hi !== dropEl) {
+          dropEl?.classList.remove('track--drop')
+          hi?.classList.add('track--drop')
+          dropEl = hi
         }
       }
     }
     const onUp = (): void => {
       document.removeEventListener('pointermove', onMove)
       document.removeEventListener('pointerup', onUp)
+      dropEl?.classList.remove('track--drop')
       for (const m of moveEls) {
         m.style.pointerEvents = ''
         m.style.transform = ''
         m.style.zIndex = ''
+        m.classList.remove('dragging')
       }
       if (moved) {
         const st = useEditor.getState()
