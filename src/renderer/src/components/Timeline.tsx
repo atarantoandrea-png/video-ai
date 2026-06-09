@@ -650,7 +650,7 @@ function ClipBlock({
   // band at the bottom. Audio-only clips show just the waveform filling the clip.
   const isAudioOnly = track.type === 'audio'
   const clipH = trackHeight(track.type, scale) - 8
-  const waveH = showWave ? (isAudioOnly ? clipH : 44) : 0
+  const waveH = showWave ? (isAudioOnly ? clipH : 30) : 0
   const thumbH = isAudioOnly ? 0 : clipH - waveH
   const isImage = source?.kind === 'image'
   const stripUrl =

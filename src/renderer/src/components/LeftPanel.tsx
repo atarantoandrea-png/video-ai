@@ -10,7 +10,7 @@ import { AiPanel } from './AiPanel'
 type Tab = 'ai' | 'media' | 'audio' | 'text' | 'effects' | 'transitions' | 'filters'
 
 const TABS: { id: Tab; label: string }[] = [
-  { id: 'ai', label: '✦ AI' },
+  { id: 'ai', label: 'AI' },
   { id: 'media', label: 'Media' },
   { id: 'audio', label: 'Audio' },
   { id: 'text', label: 'Testo' },
@@ -18,6 +18,54 @@ const TABS: { id: Tab; label: string }[] = [
   { id: 'transitions', label: 'Transizioni' },
   { id: 'filters', label: 'Filtri' }
 ]
+
+/** Thin line icon (stroke-only, no emoji) for each tab. Colour/width come from CSS. */
+function TabIcon({ id }: { id: Tab }): JSX.Element {
+  const path = (d: string): JSX.Element => (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d={d} />
+    </svg>
+  )
+  switch (id) {
+    case 'ai':
+      return (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 3l1.6 4.9 4.9 1.6-4.9 1.6L12 16l-1.6-4.9L5.5 9.5l4.9-1.6z" />
+          <path d="M18.5 3.5v3M17 5h3" />
+        </svg>
+      )
+    case 'media':
+      return (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="3" y="4" width="18" height="16" rx="2" />
+          <circle cx="8.5" cy="9.5" r="1.6" />
+          <path d="M21 16l-5-5L6 21" />
+        </svg>
+      )
+    case 'audio':
+      return path('M4 9v6M8 6v12M12 10v4M16 7v10M20 11v2')
+    case 'text':
+      return path('M5 6h14M12 6v13M9 19h6')
+    case 'effects':
+      return (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M12 3l1.3 3.7 3.7 1.3-3.7 1.3L12 13l-1.3-3.7L7 8l3.7-1.3z" />
+          <path d="M18 13l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z" />
+        </svg>
+      )
+    case 'transitions':
+      return path('M4 8h12M14 5l3 3-3 3M20 16H8M11 19l-3-3 3-3')
+    case 'filters':
+      return (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h16" />
+          <circle cx="9" cy="7" r="2" />
+          <circle cx="15" cy="12" r="2" />
+          <circle cx="7" cy="17" r="2" />
+        </svg>
+      )
+  }
+}
 
 function useSelectedMediaClipId(): string | null {
   return useEditor((s) => {
@@ -38,6 +86,7 @@ export function LeftPanel(): JSX.Element {
             className={`tab ${tab === t.id ? 'tab--active' : ''}`}
             onClick={() => setTab(t.id)}
           >
+            <TabIcon id={t.id} />
             {t.label}
           </button>
         ))}
