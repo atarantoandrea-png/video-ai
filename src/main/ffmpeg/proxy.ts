@@ -30,16 +30,17 @@ export async function generateProxy(srcPath: string): Promise<string> {
     const vcodec = caps.hasVideoToolboxH264
       ? ['h264_videotoolbox', '-b:v', '5000k']
       : ['libx264', '-crf', '23', '-preset', 'veryfast']
+    // Hardware-decode the source (e.g. HEVC) only where VideoToolbox exists (macOS).
+    // On Windows/Linux `-hwaccel videotoolbox` ERRORS and aborts the whole proxy job
+    // (→ no preview/thumbnails); there we decode in software.
+    const hwDecode = caps.hasVideoToolboxH264 ? ['-hwaccel', 'videotoolbox'] : []
     await new Promise<void>((resolve, reject) => {
       execFile(
         ffmpeg,
         [
           '-y',
           '-hide_banner',
-          // Hardware-decode the source (e.g. HEVC) on Apple Silicon; frames are
-          // downloaded to system memory so the scale filter works.
-          '-hwaccel',
-          'videotoolbox',
+          ...hwDecode,
           '-i',
           srcPath,
           '-vf',

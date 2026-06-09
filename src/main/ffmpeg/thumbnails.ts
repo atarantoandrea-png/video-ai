@@ -106,12 +106,15 @@ export async function generateThumbnails(
     const gridRows = Math.max(1, Math.ceil(frames / gridCols))
     const total = gridCols * gridRows // full grid: fps targets exactly this many
     const posterAt = Math.min(dur * 0.1, Math.max(0, dur - 0.1))
+    // Hardware-decode (HEVC originals stay fast) ONLY on macOS — `videotoolbox` is
+    // Apple-only and a Windows/Linux ffmpeg ERRORS on it, which previously killed the
+    // whole thumbnail job (so the timeline showed NO frames on Windows). Elsewhere:
+    // plain software decode.
+    const hwDecode = process.platform === 'darwin' ? ['-hwaccel', 'videotoolbox'] : []
     await run(ffmpeg, [
       '-y',
       '-hide_banner',
-      // Hardware-decode so reading an HEVC original directly is still fast.
-      '-hwaccel',
-      'videotoolbox',
+      ...hwDecode,
       '-ss',
       String(posterAt),
       '-i',

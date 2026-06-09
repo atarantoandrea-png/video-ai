@@ -22,7 +22,8 @@ const TRANSITION_PRESETS: { preset: TransitionPreset; label: string }[] = [
 ]
 
 function trackHeight(type: Track['type'], scale = 1): number {
-  const base = type === 'video' ? 120 : type === 'audio' ? 68 : 42
+  // Audio a touch taller (CapCut-like) so the waveform reads clearly.
+  const base = type === 'video' ? 120 : type === 'audio' ? 80 : 42
   return Math.round(base * scale)
 }
 
@@ -933,15 +934,21 @@ function ClipMedia({
 
     if (waveH > 0 && peaks && peaks.length) {
       const top = thumbH
-      ctx.fillStyle = 'rgba(0,0,0,0.22)'
+      const audioOnly = thumbH <= 0
+      // CapCut-style: a contrasting band, a faint center baseline, and a BRIGHT,
+      // tall, symmetric waveform (quiet parts lifted with sqrt so they stay visible).
+      ctx.fillStyle = audioOnly ? 'rgba(0,0,0,0.16)' : 'rgba(0,0,0,0.24)'
       ctx.fillRect(0, top, cssW, waveH)
-      ctx.fillStyle = 'rgba(255,255,255,0.82)'
       const n = peaks.length
       const mid = top + waveH / 2
+      const maxH = waveH - 3
+      ctx.fillStyle = 'rgba(255,255,255,0.14)'
+      ctx.fillRect(0, Math.round(mid), cssW, 1) // center baseline
+      ctx.fillStyle = audioOnly ? 'rgba(150,248,230,0.95)' : 'rgba(235,252,250,0.9)'
       for (let x = 0; x < cssW; x++) {
         const idx = Math.min(n - 1, Math.max(0, Math.floor(fracAt(x) * (n - 1))))
         const p = peaks[idx] ?? 0
-        const h = Math.max(1, p * (waveH - 2))
+        const h = Math.max(1.5, Math.sqrt(Math.max(0, p)) * maxH)
         ctx.fillRect(x, mid - h / 2, 1, h)
       }
     }

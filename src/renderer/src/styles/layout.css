@@ -1039,7 +1039,7 @@ input[type='range']:hover::-webkit-slider-thumb {
   border-bottom: 1px solid var(--border);
 }
 .track--audio {
-  height: 48px;
+  height: 80px; /* kept in sync with trackHeight('audio') in Timeline.tsx (inline style wins) */
 }
 .clip {
   position: absolute;
@@ -1054,8 +1054,8 @@ input[type='range']:hover::-webkit-slider-thumb {
   cursor: grab;
 }
 .clip--audio {
-  background: linear-gradient(180deg, #1d3b35, #16302b);
-  border-color: #2a5c4e;
+  background: linear-gradient(180deg, #1f4f44, #163a31);
+  border-color: #2f7d66;
 }
 .clip--text {
   background: linear-gradient(180deg, #34384a, #272b38);
