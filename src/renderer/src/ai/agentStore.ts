@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { runAgent, DEFAULT_MODEL, type AgentStep } from './agent'
+import { runTool, type ToolContext } from './tools'
 import { useEditor } from '../state/store'
 
 export type AiMsg =
@@ -21,6 +22,9 @@ interface AiState {
   _curAsst: number | null
   /** Parse + execute a pasted Reel Build Brief with the chosen model. */
   run: (brief: string, model?: string) => Promise<void>
+  /** Execute a pasted JSON tool-call plan deterministically — NO Anthropic API, NO
+   *  credits (used by the /reel-ai2 Claude skill, which generates the plan for free). */
+  runFreePlan: (planText: string) => Promise<void>
   /** Answer the agent's pending question, resuming the loop. */
   answer: (a: string) => void
   /** Abort the in-flight run. */
@@ -104,6 +108,83 @@ export const useAi = create<AiState>((set, get) => {
             })
         })
         bump({ role: 'done', text: summary })
+      } catch (e) {
+        bump({ role: 'error', text: e instanceof Error ? e.message : String(e) })
+      } finally {
+        useEditor.getState().endAiBuild()
+        set({ running: false, _abort: null, pendingQuestion: null, _resolver: null, _curAsst: null })
+      }
+    },
+
+    runFreePlan: async (planText) => {
+      if (get().running) return
+      let plan: Array<{ tool: string; input?: Record<string, unknown> }>
+      try {
+        const parsed = JSON.parse(planText.trim())
+        const arr = Array.isArray(parsed) ? parsed : parsed.plan ?? parsed.steps
+        if (!Array.isArray(arr) || arr.length === 0) throw new Error('vuoto')
+        plan = arr.filter((c) => c && typeof c.tool === 'string')
+        if (plan.length === 0) throw new Error('nessun tool valido')
+      } catch (e) {
+        bump({ role: 'error', text: `Piano non valido (serve un array JSON di {tool,input}): ${e instanceof Error ? e.message : e}` })
+        return
+      }
+      const abort = new AbortController()
+      set({ running: true, _abort: abort, _curAsst: null })
+      bump({ role: 'user', text: `Piano da Claude — ${plan.length} azioni. Monto il reel GRATIS (senza crediti API)…` })
+      useEditor.getState().beginAiBuild()
+      const ctx: ToolContext = {
+        askUser: (question, options) =>
+          new Promise<string>((resolve) => {
+            bump({ role: 'question', text: question, options })
+            set({ pendingQuestion: { question, options }, _resolver: resolve, _curAsst: null })
+          })
+      }
+      // Declarative refs so Claude needn't know internal ids: `sourceFile` → the matching
+      // imported source's id; `clipId:"@last"`/`"@N"` → the Nth add_segment's clipId.
+      const addedClips: string[] = []
+      const resolveInput = (input: Record<string, unknown>): Record<string, unknown> => {
+        const out = { ...input }
+        if (typeof out.sourceFile === 'string' && !out.sourceId) {
+          const want = (out.sourceFile as string).toLowerCase()
+          const sources = useEditor.getState().project.sources
+          const src =
+            sources.find((s) => s.fileName.toLowerCase() === want) ||
+            sources.find((s) => s.fileName.toLowerCase().includes(want) || want.includes(s.fileName.toLowerCase())) ||
+            (sources.length === 1 ? sources[0] : undefined)
+          if (src) out.sourceId = src.id
+          delete out.sourceFile
+        }
+        if (typeof out.clipId === 'string' && (out.clipId as string).startsWith('@')) {
+          const ref = (out.clipId as string).slice(1)
+          out.clipId = ref === 'last' ? addedClips[addedClips.length - 1] : addedClips[parseInt(ref, 10)] ?? ''
+        }
+        return out
+      }
+      try {
+        for (const call of plan) {
+          if (abort.signal.aborted) throw new Error('Interrotto')
+          const input = resolveInput((call.input ?? {}) as Record<string, unknown>)
+          let result: unknown
+          let error: string | undefined
+          try {
+            result = await runTool(call.tool, input, ctx)
+            if (result && typeof result === 'object' && 'error' in (result as Record<string, unknown>))
+              error = String((result as Record<string, unknown>).error)
+          } catch (e) {
+            error = e instanceof Error ? e.message : String(e)
+          }
+          const line = stepLine({ tool: call.tool, input, result, error })
+          bump({ role: 'tool', text: line.text, error: line.error })
+          if (call.tool === 'add_segment' && result && typeof result === 'object' && 'clipId' in (result as Record<string, unknown>))
+            addedClips.push(String((result as Record<string, unknown>).clipId))
+          if (call.tool === 'finish' && !error) {
+            const sum = (result as Record<string, unknown> | undefined)?.summary
+            bump({ role: 'done', text: (typeof sum === 'string' && sum) || 'Reel montato (gratis).' })
+            return
+          }
+        }
+        bump({ role: 'done', text: 'Reel montato GRATIS dal piano di Claude (zero crediti API).' })
       } catch (e) {
         bump({ role: 'error', text: e instanceof Error ? e.message : String(e) })
       } finally {

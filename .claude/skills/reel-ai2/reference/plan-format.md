@@ -1,0 +1,64 @@
+# Il PIANO — formato esatto + i tool
+
+Il "piano" è un **array JSON di tool-call** che l'app esegue **gratis** (senza API) quando lo incolli nel pannello AI e premi «⚡ Costruisci GRATIS». Ogni elemento è `{ "tool": "<nome>", "input": { … } }`. L'app li esegue **in ordine**, dall'alto in basso.
+
+## Scorciatoie (così non servono gli id interni dell'app)
+
+- **`sourceFile`**: in `add_segment`, invece di `sourceId` (che non conosci) scrivi `"sourceFile": "<nome del video>"` — anche **parziale**. L'esecutore lo abbina al media importato (match esatto → contiene → se c'è un solo media, quello).
+- **`clipId: "@last"`**: la clip aggiunta dall'**ultimo** `add_segment`. Usalo per `reframe_vertical`, `set_speed`, ecc. subito dopo aver aggiunto un segmento.
+- **`clipId: "@N"`**: la clip dell'N-esimo `add_segment` (0 = il primo). Utile per tornare su una clip precedente.
+
+## I tool (nome → input)
+
+- **`set_format`** `{ "aspect": "9:16" | "1:1" | "4:5" | "16:9" }` — formato del canvas. Reel → `"9:16"`. Primo passo.
+- **`start_fresh`** `{}` — svuota la timeline (mantiene i media). Solo se serve, dopo conferma utente.
+- **`add_segment`** `{ "sourceFile": "video.mp4", "sourceIn": <s>, "sourceOut": <s> }` — accoda un taglio sulla traccia video principale. Tempi in **secondi nel sorgente**. Una chiamata per segmento, nell'ordine del brief.
+- **`reframe_vertical`** `{ "clipId": "@last", "mode": "...", "faceIndex"?: <n>, "blur"?: "none|top|bottom|both", "cropRect"?: {x,y,w,h} }` — reframe orizzontale→verticale.
+  - `mode`: `"two-person-stack"` (due affiancati → impila), `"center-face"` (una persona, zoom sul volto), `"auto"` (decide dai volti), `"fit-contain"` (intero con barre — evita con persone), `"manual-crop"` (con `cropRect` 0..1).
+  - `blur` SOLO con `two-person-stack`: `"bottom"`=persona destra/in basso, `"top"`=sinistra/in alto, `"both"`. Usa solo dopo conferma utente.
+- **`detect_people`** `{ "clipId": "@last", "timeSec"?: <s> }` — quante persone/volti e dove (per decidere il layout con 3+ persone).
+- **`blur_person`** `{ "clipId": "@last", "faceIndex"?: <n> }` oppure `{ "clipId":"@last", "region": {x,y,w,h} }` — sfoca una persona/area. Solo dopo conferma utente.
+- **`add_transition`** `{ "clipId": "@last", "preset"?: "fade|wipeleft|...|dissolve", "durSec"?: 0.4 }` — transizione verso la clip successiva.
+- **`set_speed`** `{ "clipId": "@last", "speed": <0.1..10> }` · **`set_fade`** `{ "clipId":"@last","edge":"in|out","sec":<s> }` · **`set_volume`** `{ "clipId":"@last","volume":<0..4> }` · **`mute_clip`** `{ "clipId":"@last","muted":true }` · **`trim_clip`** `{ "clipId":"@last","edge":"start|end","deltaSec":<s> }`.
+- **`add_caption`** `{ "text","startSec","endSec","style":"caption|title" }` / **`add_captions_bulk`** `{ "segments":[{start,end,text}] }` — **NON usarli** per i reel (il testo lo mette l'utente dopo), salvo richiesta esplicita.
+- **`ask_user`** `{ "question", "options"?:[...] }` — di norma NON serve nel piano: le domande le fai TU all'utente in chat **prima** di generare il piano (es. conferma blur). Mettilo solo se vuoi che l'app chieda a metà esecuzione.
+- **`finish`** `{ "summary": "riepilogo in italiano" }` — ultimo elemento.
+
+## Regole per un buon piano
+
+1. **`set_format` per primo**, poi i segmenti **nell'ordine del brief**.
+2. Dopo OGNI `add_segment`, un `reframe_vertical` con `clipId:"@last"`.
+3. Reframe: due persone affiancate (Zoom: consulto/intervista) → `"two-person-stack"`; una persona → `"center-face"`; in dubbio → `"auto"`; mai `"fit-contain"` con persone.
+4. **Niente captions/titoli** salvo richiesta esplicita.
+5. **Niente timecode inventati**: usa quelli del brief.
+6. Chiudi con `finish`.
+
+## Esempio — consulto a due (griglia tipo Zoom), 3 segmenti
+
+```json
+[
+  { "tool": "set_format", "input": { "aspect": "9:16" } },
+  { "tool": "add_segment", "input": { "sourceFile": "consulto.mp4", "sourceIn": 723.4, "sourceOut": 751.0 } },
+  { "tool": "reframe_vertical", "input": { "clipId": "@last", "mode": "two-person-stack" } },
+  { "tool": "add_segment", "input": { "sourceFile": "consulto.mp4", "sourceIn": 192.0, "sourceOut": 228.5 } },
+  { "tool": "reframe_vertical", "input": { "clipId": "@last", "mode": "two-person-stack" } },
+  { "tool": "add_segment", "input": { "sourceFile": "consulto.mp4", "sourceIn": 2360.0, "sourceOut": 2392.0 } },
+  { "tool": "reframe_vertical", "input": { "clipId": "@last", "mode": "two-person-stack" } },
+  { "tool": "finish", "input": { "summary": "3 segmenti, ~96s, 9:16, stack due-persone su tutti." } }
+]
+```
+
+## Esempio — un solo relatore (intervista a camera singola)
+
+```json
+[
+  { "tool": "set_format", "input": { "aspect": "9:16" } },
+  { "tool": "add_segment", "input": { "sourceFile": "talk.mp4", "sourceIn": 95.0, "sourceOut": 128.0 } },
+  { "tool": "reframe_vertical", "input": { "clipId": "@last", "mode": "center-face" } },
+  { "tool": "add_segment", "input": { "sourceFile": "talk.mp4", "sourceIn": 410.0, "sourceOut": 447.0 } },
+  { "tool": "reframe_vertical", "input": { "clipId": "@last", "mode": "center-face" } },
+  { "tool": "finish", "input": { "summary": "2 segmenti, ~70s, 9:16, center-face." } }
+]
+```
+
+> Privacy: se il brief chiede di sfocare una persona nello stack, **chiedi conferma all'utente in chat**, poi aggiungi `"blur":"bottom"` (o `"top"`/`"both"`) all'`input` del `reframe_vertical` di quel segmento — non serve un tool separato.

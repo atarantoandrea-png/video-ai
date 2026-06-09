@@ -26,11 +26,26 @@ function bridgeReady(): boolean {
   return !!api && typeof api.hasApiKey === 'function' && typeof api.setApiKey === 'function'
 }
 
+/** A pasted "plan" (JSON array of {tool,input}) is built for FREE (no API key/credits)
+ *  by the /reel-ai2 skill; a prose brief uses the in-app AI. Distinguish the two. */
+function looksLikePlan(text: string): boolean {
+  const t = text.trim()
+  if (!t.startsWith('[') && !t.startsWith('{')) return false
+  try {
+    const p = JSON.parse(t)
+    const arr = Array.isArray(p) ? p : p.plan ?? p.steps
+    return Array.isArray(arr) && arr.length > 0 && arr.every((c: unknown) => !!c && typeof (c as { tool?: unknown }).tool === 'string')
+  } catch {
+    return false
+  }
+}
+
 function AiPanelInner(): JSX.Element {
   const messages = useAi((s) => s.messages)
   const running = useAi((s) => s.running)
   const pending = useAi((s) => s.pendingQuestion)
   const run = useAi((s) => s.run)
+  const runFreePlan = useAi((s) => s.runFreePlan)
   const answer = useAi((s) => s.answer)
   const stop = useAi((s) => s.stop)
   const clearChat = useAi((s) => s.clearChat)
@@ -70,6 +85,8 @@ function AiPanelInner(): JSX.Element {
 
   const needsKey = hasKey === false || editingKey
   const canBuild = apiReady && hasKey !== false && !running
+  // A pasted plan (from /reel-ai2) builds for FREE — no key, no credits.
+  const isPlan = looksLikePlan(brief)
 
   return (
     <div className="scroll" style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: 12, gap: 10 }}>
@@ -113,7 +130,7 @@ function AiPanelInner(): JSX.Element {
 
       <textarea
         className="input"
-        placeholder="Incolla qui il «Reel Build Brief» prodotto dalla skill /reel-ai…"
+        placeholder="Incolla il «Reel Build Brief» (/reel-ai) per montare con l'AI in-app, OPPURE il piano JSON di /reel-ai2 per montare GRATIS (senza crediti)…"
         value={brief}
         onChange={(e) => setBrief(e.target.value)}
         rows={5}
@@ -136,17 +153,34 @@ function AiPanelInner(): JSX.Element {
         </select>
       </div>
 
+      {isPlan && !running && (
+        <div className="empty-hint" style={{ textAlign: 'left', color: 'var(--accent, #1fe6c2)', fontSize: 12 }}>
+          ⚡ Piano da Claude rilevato → costruzione <b>gratuita</b>, senza crediti API.
+        </div>
+      )}
+
       <div style={{ display: 'flex', gap: 6 }}>
         {!running ? (
-          <button
-            className="btn btn--primary"
-            style={{ flex: 1 }}
-            disabled={!canBuild}
-            onClick={() => void run(brief, model)}
-            title={!apiReady ? 'Riavvia il dev server' : hasKey === false ? 'Imposta prima la chiave API' : 'Costruisci il reel dal brief'}
-          >
-            ▶ Costruisci reel
-          </button>
+          isPlan ? (
+            <button
+              className="btn btn--primary"
+              style={{ flex: 1 }}
+              onClick={() => void runFreePlan(brief)}
+              title="Esegui il piano generato dalla skill /reel-ai2 — senza chiave né crediti API"
+            >
+              ⚡ Costruisci GRATIS (senza crediti)
+            </button>
+          ) : (
+            <button
+              className="btn btn--primary"
+              style={{ flex: 1 }}
+              disabled={!canBuild}
+              onClick={() => void run(brief, model)}
+              title={!apiReady ? 'Riavvia il dev server' : hasKey === false ? 'Imposta prima la chiave API' : 'Costruisci il reel dal brief'}
+            >
+              ▶ Costruisci reel
+            </button>
+          )
         ) : (
           <button className="btn" style={{ flex: 1, color: 'var(--danger)' }} onClick={stop}>■ Stop</button>
         )}
@@ -278,9 +312,14 @@ function HelpBox(): JSX.Element {
         riconoscendo i volti, aggiunge le <b>captions</b> e (se lo indichi) <b>sfoca</b> una persona — facendoti domande quando
         serve. Un singolo <b>annulla</b> (⌘Z) ripristina tutto.
       </div>
+      <div style={{ marginBottom: 6 }}>
+        <b>Gratis, senza crediti</b> — in alternativa lancia <b>/reel-ai2</b> in Claude Code: ti chiede il brief, prepara
+        il montaggio e <b>prende il controllo del Mac</b> per importare il video e costruire il reel qui dentro col
+        pulsante <b>«⚡ Costruisci GRATIS»</b>. Stesso risultato dell'AI in-app, ma <b>senza chiave né crediti API</b>.
+      </div>
       <div style={{ color: 'var(--text-dim, #7c8a99)' }}>
-        Promemoria: la skill si invoca digitando <b>/reel-ai</b> in Claude Code. Se non compare, riavvia Claude Code
-        (le skill si caricano all'avvio). Serve una <b>chiave API Anthropic</b> (icona ⚙), salvata cifrata sul tuo Mac.
+        Promemoria: le skill si invocano con <b>/reel-ai</b> e <b>/reel-ai2</b> in Claude Code. Se non compaiono, riavvia
+        Claude Code (le skill si caricano all'avvio). La chiave API (icona ⚙) serve solo per «Costruisci reel» con l'AI in-app.
       </div>
     </div>
   )

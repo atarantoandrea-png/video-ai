@@ -56,12 +56,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Impacchetta la skill così com'è nel repo → reel-ai-skill.zip (cartella reel-ai/ in cima).
-      # L'updater dell'app la scarica da releases/latest/download/reel-ai-skill.zip.
-      - name: Pacchetto skill /reel-ai
+      # Impacchetta ENTRAMBE le skill (reel-ai + reel-ai2) → reel-ai-skill.zip (cartelle
+      # reel-ai/ e reel-ai2/ in cima). L'updater scarica releases/latest/download/reel-ai-skill.zip
+      # e lo estrae in ~/.claude/skills/, installando entrambe.
+      - name: Pacchetto skill /reel-ai + /reel-ai2
         run: |
           cd .claude/skills
-          zip -r "$GITHUB_WORKSPACE/reel-ai-skill.zip" reel-ai
+          zip -r "$GITHUB_WORKSPACE/reel-ai-skill.zip" reel-ai reel-ai2
 
       - name: Carica la skill + pubblica la release
         env:

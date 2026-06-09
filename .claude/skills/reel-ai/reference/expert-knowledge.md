@@ -11,6 +11,32 @@ Base di conoscenza per la Fase 1B. Sintesi di best-practice 2025–2026 (OpusCli
 - **Qualità del contenuto > ottimizzazione social.** Conta la forza e la completezza del contenuto, non ciò che è "ottimale" per le metriche. Più il contenuto è qualitativo, meglio è.
 - **Durata: minimo 60s, massimo 90s.** Lo spettatore deve potersi fare un'idea completa del contenuto. Non sacrificare il senso/la completezza per la brevità, anche se significa superare il "punto dolce" social classico (20–45s).
 
+## ⓿ Tipo di video → strategia di taglio (RICONOSCI il tipo e CHIEDI sempre)
+
+**Il tipo di contenuto cambia COSA privilegi nei tagli.** Prima di scegliere i segmenti devi (1) **riconoscere** che tipo di video è, e (2) **chiederlo/confermarlo all'utente** — perché lo stesso video può diventare reel diversi a seconda dell'obiettivo.
+
+**Come riconoscere il tipo** (dalla trascrizione + contesto): guarda chi parla, il registro, la presenza di domande/risposte, di spiegazioni, di narrazione, di emozione.
+
+| Tipo | Segnali | **Cosa privilegiare nei tagli** | Hook tipico |
+|---|---|---|---|
+| **Divulgativo / explainer / tutorial** | una voce che spiega, concetti, "come si fa", esempi | le **SPIEGAZIONI chiare** e i concetti "aha" / passaggi azionabili; **meno** enfasi sull'emotivo, **più** sulla chiarezza e completezza del concetto. Togli divagazioni; tieni ciò che fa capire. | la **promessa** di capire qualcosa ("ecco perché X", "il vero motivo per cui…") |
+| **Documentario / narrativo** | racconto, voce narrante, archi temporali, immagini | l'**ARCO narrativo** e la tensione: contesto → sviluppo → rivelazione. Tieni il **filo della storia**, anche a scapito di singole frasi forti isolate. | tensione/mistero ("quello che successe dopo cambiò tutto") |
+| **Consulto / seduta** (es. lettura, coaching, terapia, consulenza) | due persone, domanda del cliente → risposta dell'esperto, tono intimo | lo **SCAMBIO domanda→risposta** e i momenti di **rivelazione/emozione misurati**; tieni l'**interazione** (domanda + risposta), non solo il monologo. **Privacy/consenso**: no cognome, eventuale volto del cliente da sfocare. | la **domanda forte** del cliente o la **rivelazione** dell'esperto |
+| **Intervista / podcast** | host + ospite, botta-risposta | le **RISPOSTE forti** e gli **scambi**, le frasi citabili dell'ospite. Tieni **domanda+risposta** quando la domanda dà senso. | l'**affermazione shock** dell'ospite |
+| **Talk / speech / keynote** | un relatore, pubblico, struttura argomentativa | i punti più **CITABILI**, le frasi a effetto, la tesi. | la **tesi forte** / dato sorprendente |
+| **Vlog / racconto personale** | prima persona, vita/esperienza | i momenti **EMOTIVI** e i colpi di scena personali. | il momento clou anticipato |
+
+> Se il video è un **ibrido** (es. intervista che spiega = intervista+divulgativo), dillo e chiedi su quale **angolo** puntare.
+
+**REGOLA OBBLIGATORIA — dopo la PRIMA analisi della trascrizione, SEMPRE:**
+1. **Dichiara il tipo che hai riconosciuto**: *"Questo mi sembra un **consulto** (due persone, domanda→risposta, tono intimo)."*
+2. **Chiedi che contenuto/risultato vuole l'utente**: *"Che taglio vuoi dare al reel? Es. (a) la rivelazione più forte, (b) lo scambio domanda-risposta completo, (c) il momento più emozionante. O dimmi tu l'angolo."* — offri 2–3 opzioni coerenti col tipo riconosciuto.
+3. **Solo DOPO la sua risposta**, dai i **suggerimenti specifici** per quel tipo+angolo (quali parti privilegiare, quali archi tengono) e procedi alla scelta dei segmenti. Non dare per scontato l'angolo: lo decide l'utente.
+
+Questa domanda è **sempre dovuta**, anche se il tipo ti sembra ovvio: è ciò che fa la differenza tra un reel generico e uno mirato.
+
+---
+
 ## 1. L'hook (i primi 3 secondi decidono tutto)
 
 - **Dato chiave:** il 50–60% di chi abbandona lo fa **entro i primi 3 secondi**. La "intro retention" dovrebbe stare **sopra il 70%**. Se l'inizio è debole, il reel non parte, punto.
