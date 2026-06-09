@@ -213,6 +213,9 @@ export function registerUpdater(): void {
           return { ok: true }
         }
         // Detached script: wait for THIS process to quit, then swap the bundle & relaunch.
+        // The swap is done safely (copy alongside → move into place → restore on any
+        // failure) so a failed/blocked update can never leave a deleted/broken app; the
+        // fallback in every error path is to just open the dmg for a manual drag-install.
         const script = `#!/bin/bash
 DMG=${shq(downloadedFile)}
 DEST=${shq(appBundle)}
@@ -224,14 +227,23 @@ if ! hdiutil attach -nobrowse -noverify -noautoopen -mountpoint "$MNT" "$DMG" >/
   open "$DMG"; exit 1
 fi
 SRC="$(ls -d "$MNT"/*.app 2>/dev/null | head -1)"
+REPLACED=0
 if [ -n "$SRC" ]; then
-  rm -rf "$DEST"
-  ditto "$SRC" "$DEST"
-  xattr -dr com.apple.quarantine "$DEST" >/dev/null 2>&1
+  rm -rf "$DEST.new" "$DEST.old"
+  if ditto "$SRC" "$DEST.new"; then
+    if mv "$DEST" "$DEST.old" 2>/dev/null && mv "$DEST.new" "$DEST" 2>/dev/null; then
+      xattr -dr com.apple.quarantine "$DEST" >/dev/null 2>&1
+      rm -rf "$DEST.old"
+      REPLACED=1
+    else
+      [ -d "$DEST.old" ] && [ ! -d "$DEST" ] && mv "$DEST.old" "$DEST" 2>/dev/null
+      rm -rf "$DEST.new"
+    fi
+  fi
 fi
 hdiutil detach "$MNT" >/dev/null 2>&1
 rmdir "$MNT" >/dev/null 2>&1
-open "$DEST"
+if [ "$REPLACED" = "1" ]; then open "$DEST"; else open "$DMG"; fi
 `
         const sp = join(tmpdir(), `videoai-update-${Date.now()}.sh`)
         await fsp.writeFile(sp, script, { mode: 0o755 })
