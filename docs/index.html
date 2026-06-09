@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Video AI — Editor reel con AI · Download</title>
+<meta name="description" content="Editor video desktop con AI di taglio reel. Trasforma una registrazione in un reel verticale 9:16 pronto per i social. Per Mac e Windows." />
+<link rel="icon" href="icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#070b16; --bg2:#0a1224; --card:rgba(20,28,48,.55);
+    --accent:#1fe6c2; --accent2:#5cf3da; --glow:rgba(31,230,194,.45);
+    --text:#eaf0f7; --dim:#9fb0c6; --line:rgba(255,255,255,.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Inter',system-ui,sans-serif;color:var(--text);background:var(--bg);
+    overflow-x:hidden;line-height:1.6;-webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.brand{font-family:'Space Grotesk',sans-serif;letter-spacing:-.02em}
+  a{color:inherit;text-decoration:none}
+  #bg-canvas{position:fixed;inset:0;z-index:0;display:block}
+  .wrap{position:relative;z-index:1;max-width:1120px;margin:0 auto;padding:0 24px}
+  .glow-text{text-shadow:0 0 40px var(--glow)}
+
+  /* NAV */
+  nav{position:fixed;top:0;left:0;right:0;z-index:10;backdrop-filter:blur(12px);
+    background:linear-gradient(180deg,rgba(7,11,22,.85),rgba(7,11,22,0));border-bottom:1px solid var(--line)}
+  .navin{max-width:1120px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:14px}
+  .logo{width:34px;height:34px;border-radius:9px;box-shadow:0 0 22px var(--glow)}
+  .brand{font-weight:700;font-size:18px}
+  .nav-spacer{flex:1}
+  .nav-link{color:var(--dim);font-size:14px;font-weight:500;margin:0 10px;transition:.2s}
+  .nav-link:hover{color:var(--text)}
+  .nav-cta{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#04221c;
+    font-weight:700;padding:9px 16px;border-radius:10px;font-size:14px;box-shadow:0 6px 20px var(--glow)}
+
+  /* HERO */
+  header{min-height:100vh;display:flex;align-items:center;padding:120px 0 80px;position:relative}
+  .badge{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);
+    background:rgba(255,255,255,.03);padding:7px 14px;border-radius:100px;font-size:13px;color:var(--dim);margin-bottom:26px}
+  .badge .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent)}
+  h1{font-size:clamp(40px,7vw,82px);font-weight:700;line-height:1.02}
+  h1 .grad{background:linear-gradient(120deg,var(--accent2),var(--accent) 60%,#7aa8ff);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .sub{font-size:clamp(17px,2.2vw,22px);color:var(--dim);max-width:620px;margin:24px 0 38px}
+  .dl-row{display:flex;gap:16px;flex-wrap:wrap;align-items:center}
+  .dl{display:flex;align-items:center;gap:14px;padding:16px 24px;border-radius:16px;
+    font-weight:600;font-size:16px;transition:.25s;border:1px solid var(--line)}
+  .dl svg{width:26px;height:26px;flex:none}
+  .dl .small{display:block;font-size:12px;font-weight:500;color:var(--dim);margin-top:1px}
+  .dl-primary{background:linear-gradient(135deg,var(--accent2),var(--accent));color:#04221c;
+    box-shadow:0 14px 40px var(--glow);border:none}
+  .dl-primary .small{color:#0a3d33}
+  .dl-primary:hover{transform:translateY(-3px);box-shadow:0 20px 54px var(--glow)}
+  .dl-ghost{background:rgba(255,255,255,.04);color:var(--text)}
+  .dl-ghost:hover{background:rgba(255,255,255,.08);transform:translateY(-3px)}
+  .hint{margin-top:18px;font-size:13px;color:var(--dim)}
+  .hint a{color:var(--accent);border-bottom:1px dashed var(--glow)}
+
+  /* SECTIONS */
+  section{padding:90px 0;position:relative}
+  .eyebrow{color:var(--accent);font-weight:600;font-size:14px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px}
+  h2{font-size:clamp(28px,4vw,44px);font-weight:700;margin-bottom:14px}
+  .lead{color:var(--dim);font-size:18px;max-width:680px;margin-bottom:46px}
+
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:26px;
+    backdrop-filter:blur(10px);transition:.25s;position:relative;overflow:hidden}
+  .step:hover{transform:translateY(-5px);border-color:var(--glow)}
+  .step .n{font-family:'Space Grotesk';font-weight:700;font-size:14px;color:#04221c;
+    width:34px;height:34px;display:grid;place-items:center;border-radius:10px;
+    background:linear-gradient(135deg,var(--accent2),var(--accent));margin-bottom:16px}
+  .step h3{font-size:19px;margin-bottom:8px}
+  .step p{color:var(--dim);font-size:15px}
+
+  .grid2{display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:start}
+  @media(max-width:820px){.grid2{grid-template-columns:1fr}}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:30px;backdrop-filter:blur(10px)}
+  .panel h3{font-size:22px;margin-bottom:8px}
+  .panel ol,.panel ul{margin:14px 0 0 2px;padding-left:20px;color:var(--dim)}
+  .panel li{margin:10px 0}
+  .panel li b{color:var(--text)}
+  code,.code{font-family:'SF Mono',ui-monospace,Menlo,monospace;font-size:13.5px}
+  .code{display:block;background:#04070f;border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px;color:#bfeee4;margin:12px 0;white-space:pre-wrap;word-break:break-word;position:relative}
+  code.inline{background:rgba(31,230,194,.12);color:var(--accent2);padding:2px 7px;border-radius:6px}
+  .copy{position:absolute;top:8px;right:8px;background:rgba(255,255,255,.06);border:1px solid var(--line);
+    color:var(--dim);font-size:11px;padding:4px 9px;border-radius:7px;cursor:pointer}
+  .copy:hover{color:var(--text)}
+
+  .feat{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+  .fcard{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px;backdrop-filter:blur(10px);transition:.2s}
+  .fcard:hover{border-color:var(--glow);transform:translateY(-4px)}
+  .fcard .ic{font-size:26px;margin-bottom:12px}
+  .fcard h3{font-size:17px;margin-bottom:6px}
+  .fcard p{color:var(--dim);font-size:14px}
+
+  .callout{display:flex;gap:14px;align-items:flex-start;background:rgba(31,230,194,.06);
+    border:1px solid var(--glow);border-radius:14px;padding:18px 20px;margin-top:18px}
+  .callout .ic{font-size:20px}
+  .callout p{font-size:14.5px;color:var(--text)}
+
+  /* step-by-step guide */
+  .guide{display:flex;flex-direction:column}
+  .gstep{display:grid;grid-template-columns:60px 1fr;gap:22px;padding:30px 0;border-top:1px solid var(--line)}
+  .gstep:first-child{border-top:none}
+  .gnum{font-family:'Space Grotesk';font-weight:700;font-size:20px;color:#04221c;
+    width:52px;height:52px;display:grid;place-items:center;border-radius:14px;align-self:start;
+    background:linear-gradient(135deg,var(--accent2),var(--accent));box-shadow:0 8px 24px var(--glow)}
+  .gstep h3{font-size:21px;margin-bottom:6px}
+  .gstep>div>p{color:var(--dim);margin-bottom:6px}
+  .gsub{list-style:none;padding:0;margin:8px 0 0}
+  .gsub>li{position:relative;padding:6px 0 6px 24px;font-size:15px}
+  .gsub>li:before{content:'';position:absolute;left:5px;top:14px;width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--glow)}
+  .gsub b{color:#fff}
+  .tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 9px;border-radius:100px;margin-right:7px}
+  .tag-mac{background:rgba(122,168,255,.18);color:#a8c6ff}
+  .tag-win{background:rgba(31,230,194,.16);color:var(--accent2)}
+  @media(max-width:560px){.gstep{grid-template-columns:1fr;gap:12px}.gnum{width:44px;height:44px}}
+
+  footer{padding:50px 0;border-top:1px solid var(--line);color:var(--dim);font-size:14px}
+  .footrow{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px}
+  .reveal{opacity:0;transform:translateY(24px);transition:.7s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+
+<nav>
+  <div class="navin">
+    <img src="icon.png" class="logo" alt="Video AI" />
+    <span class="brand">Video AI</span>
+    <span class="nav-spacer"></span>
+    <a class="nav-link" href="#come">Guida</a>
+    <a class="nav-link" href="#skill">Le 2 AI</a>
+    <a class="nav-link" href="#feature">Funzioni</a>
+    <a class="nav-cta" href="#download">Scarica</a>
+  </div>
+</nav>
+
+<header id="download">
+  <div class="wrap">
+    <span class="badge"><span class="dot"></span> v<span id="ver">1.0.0</span> · macOS &amp; Windows · gratis</span>
+    <h1>Da una registrazione<br/>a un <span class="grad glow-text">reel verticale</span><br/>montato dall'AI.</h1>
+    <p class="sub">Editor video desktop professionale con un'AI che legge la trascrizione, sceglie i momenti migliori, riquadra in 9:16 impilando le persone e monta il reel sulla timeline. Tu rifinisci ed esporti.</p>
+    <div class="dl-row" id="dlrow">
+      <a class="dl dl-primary" id="dl-primary" href="#" target="_blank" rel="noopener">
+        <svg id="dl-icon" viewBox="0 0 24 24" fill="currentColor"></svg>
+        <span><span id="dl-label">Scarica per il tuo computer</span><span class="small" id="dl-sub">rilevo il sistema…</span></span>
+      </a>
+      <a class="dl dl-ghost" id="dl-secondary" href="#" target="_blank" rel="noopener">
+        <svg id="dl-icon2" viewBox="0 0 24 24" fill="currentColor"></svg>
+        <span><span id="dl-label2">Altra piattaforma</span><span class="small" id="dl-sub2"></span></span>
+      </a>
+    </div>
+    <p class="hint">Installazione gratuita e senza account. Al primo avvio il sistema mostra un avviso (app non firmata): <a href="#primo-avvio">come aprirla in 5 secondi ↓</a></p>
+  </div>
+</header>
+
+<section id="come">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="eyebrow">Guida completa</div>
+      <h2>Dal nulla al tuo primo reel</h2>
+      <p class="lead">Non hai mai usato Claude o il «terminale»? Nessun problema. Segui i passi <b>nell'ordine</b>, usa il pulsante «copia» sui comandi, e in circa 15 minuti hai finito. Lo fai <b>una volta sola</b>: dopo bastano 2 minuti a reel.</p>
+    </div>
+    <div class="guide">
+
+      <div class="gstep reveal"><div class="gnum">1</div><div>
+        <h3>Installa Video AI</h3>
+        <p>Scarica il programma dal pulsante in cima alla pagina.</p>
+        <ul class="gsub">
+          <li><span class="tag tag-mac">Mac</span> Apri il file <b>.dmg</b> scaricato e <b>trascina “Video AI”</b> nella cartella <b>Applicazioni</b>.</li>
+          <li><span class="tag tag-win">Windows</span> Apri il file <b>…setup.exe</b> e fai <b>Avanti → Avanti → Fine</b>.</li>
+          <li>Al <b>primo avvio</b> il sistema mostra un avviso (l'app non è “firmata”): è normale, la apri in 5 secondi — vedi <a href="#primo-avvio" style="color:var(--accent)">in fondo</a>.</li>
+        </ul>
+      </div></div>
+
+      <div class="gstep reveal"><div class="gnum">2</div><div>
+        <h3>Crea la “chiave AI” di Anthropic</h3>
+        <p>L'AI <b>dentro l'app</b> (quella che monta il reel) usa una chiave personale per funzionare. Si fa in un minuto.</p>
+        <ul class="gsub">
+          <li>Vai su <b>console.anthropic.com</b> e <b>registrati</b> (o accedi) con la tua email.</li>
+          <li>In <b>Billing</b> aggiungi un piccolo credito (es. 5$): ogni reel costa pochi centesimi.</li>
+          <li>Apri <b>API Keys → Create Key</b>, dai un nome e <b>Copia</b> la chiave (inizia con <code class="inline">sk-ant-…</code>). Mettila da parte.</li>
+          <li>La incollerai nell'app (passo 6) nella tab <b>✦ AI</b> col tasto <b>⚙</b>. Resta solo sul tuo computer, cifrata.</li>
+        </ul>
+      </div></div>
+
+      <div class="gstep reveal"><div class="gnum">3</div><div>
+        <h3>Installa “Claude Code”, il cervello che legge il video</h3>
+        <p>Claude Code è un programma <b>gratuito</b> di Anthropic che fa ragionare l'AI dal <b>Terminale</b> (la finestra dove si scrivono comandi). Serve a creare il “piano” del reel.</p>
+        <ul class="gsub">
+          <li><b>3a · Installa Node.js</b> (un componente che serve): vai su <b>nodejs.org</b>, scarica il pulsante <b>“LTS”</b> e installalo (Avanti → Fine).</li>
+          <li><b>3b · Apri il Terminale.</b> <span class="tag tag-mac">Mac</span> premi <code class="inline">Cmd</code>+<code class="inline">Spazio</code>, scrivi <b>Terminale</b>, Invio. &nbsp; <span class="tag tag-win">Windows</span> premi <b>Start</b>, scrivi <b>PowerShell</b>, Invio.</li>
+          <li><b>3c · Installa Claude Code:</b> incolla questo comando e premi Invio:
+            <div class="code"><button class="copy">copia</button>npm install -g @anthropic-ai/claude-code</div></li>
+          <li><b>3d · Avvialo:</b> scrivi <code class="inline">claude</code> e Invio. La prima volta ti chiede di <b>accedere</b> col tuo account Anthropic: segui il link che appare.</li>
+        </ul>
+      </div></div>
+
+      <div class="gstep reveal"><div class="gnum">4</div><div>
+        <h3>Installa la skill <code class="inline">/reel-ai</code></h3>
+        <p>La “skill” è il pacchetto di istruzioni che insegna a Claude a progettare reel. Va messa in una cartella speciale di Claude.</p>
+        <ul class="gsub">
+          <li><b>4a ·</b> Scarica e <b>decomprimi</b> (doppio clic): <a href="reel-ai-skill.zip" style="color:var(--accent)"><b>reel-ai-skill.zip ↓</b></a>. Ottieni una cartella chiamata <b>reel-ai</b>.</li>
+          <li><b>4b · Apri la cartella delle skill di Claude.</b>
+            <br/><span class="tag tag-mac">Mac</span> nel <b>Finder</b>: menu <b>Vai</b> (in alto) → <b>Vai alla cartella…</b>, incolla <code class="inline">~/.claude/skills</code>, Invio.
+            <br/><span class="tag tag-win">Windows</span> apri <b>Esplora file</b>, clic nella barra indirizzo in alto, incolla <code class="inline">%USERPROFILE%\.claude\skills</code>, Invio.</li>
+          <li><b>4c · Se la cartella non esiste</b>, creala con un comando nel Terminale:
+            <div class="code"><button class="copy">copia</button>mkdir -p ~/.claude/skills && open ~/.claude/skills</div>
+            <span style="color:var(--dim);font-size:13px">(Windows: <code class="inline">mkdir %USERPROFILE%\.claude\skills</code>, poi aprila in Esplora file)</span></li>
+          <li><b>4d ·</b> <b>Trascina la cartella “reel-ai”</b> dentro la cartella <b>skills</b>. Risultato: <code class="inline">…/.claude/skills/reel-ai/SKILL.md</code></li>
+          <li><b>4e ·</b> <b>Chiudi e riapri Claude Code</b> così riconosce la nuova skill.</li>
+        </ul>
+      </div></div>
+
+      <div class="gstep reveal"><div class="gnum">5</div><div>
+        <h3>Crea il piano del reel (il «brief»)</h3>
+        <ul class="gsub">
+          <li><b>5a ·</b> Metti il tuo video in una cartella (es. una cartella <b>Reel</b> sul Desktop).</li>
+          <li><b>5b · Apri Claude in quella cartella:</b> nel Terminale scrivi <code class="inline">cd </code> (con uno spazio), <b>trascina la cartella</b> dentro il Terminale, Invio. Poi scrivi <code class="inline">claude</code> e Invio.</li>
+          <li><b>5c ·</b> Scrivi <code class="inline">/reel-ai</code> e Invio. Rispondi alle domande (quanti reel, durata, tono…).</li>
+          <li><b>5d ·</b> Alla fine Claude ti mostra il <b>«Reel Build Brief»</b>: <b>selezionalo tutto e copialo</b>.</li>
+        </ul>
+      </div></div>
+
+      <div class="gstep reveal"><div class="gnum">6</div><div>
+        <h3>Costruisci il reel nell'app</h3>
+        <ul class="gsub">
+          <li>Apri <b>Video AI</b> e trascina il <b>video</b> nel pannello <b>Media</b>.</li>
+          <li>Vai sulla tab <b>✦ AI</b>; col tasto <b>⚙</b> incolla la <b>chiave</b> del passo 2 (solo la prima volta).</li>
+          <li><b>Incolla il brief</b> nel riquadro e premi <b>▶ Costruisci reel</b>.</li>
+          <li>L'AI accoda i segmenti, mette le persone <b>in verticale impilate</b>, sfoca chi indichi e cura l'audio.</li>
+        </ul>
+      </div></div>
+
+      <div class="gstep reveal"><div class="gnum">7</div><div>
+        <h3>Rifinisci ed esporta</h3>
+        <ul class="gsub">
+          <li>Sistema a mano quello che vuoi: ogni modifica si annulla con <code class="inline">Cmd/Ctrl</code>+<code class="inline">Z</code>.</li>
+          <li>Premi <b>Esporta</b> in alto a destra → scegli <b>1080p</b> o <b>4K</b> → ottieni il video pronto per i social. 🎉</li>
+        </ul>
+      </div></div>
+
+    </div>
+    <div class="callout reveal"><span class="ic">🔒</span><p>La chiave AI e i tuoi video <b>restano sul tuo computer</b>. L'app non carica nulla su server esterni (solo le chiamate AI che fai tu, verso Anthropic).</p></div>
+  </div>
+</section>
+
+<section id="skill">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="eyebrow">In due parti</div>
+      <h2>Come “ragiona” l'AI</h2>
+      <p class="lead">Due AI che collaborano: una <b>pensa</b> il reel, l'altra lo <b>monta</b>. Tu sei sempre al comando.</p>
+    </div>
+    <div class="grid2">
+      <div class="panel reveal">
+        <h3>1 · La skill <code class="inline">/reel-ai</code> — in Claude Code</h3>
+        <p style="color:var(--dim)">Legge la trascrizione del tuo video, individua i momenti più forti, li mette in ordine e scrive il <b>«brief»</b>: il piano dettagliato del reel. È la parte <b>creativa</b>. (La installi nel passo 4 qui sopra.)</p>
+      </div>
+      <div class="panel reveal">
+        <h3>2 · L'AI dentro l'app</h3>
+        <p style="color:var(--dim)">Legge il brief e <b>monta tutto sulla timeline</b>: taglia i segmenti, riquadra in 9:16 impilando le persone, sfoca chi serve, cura l'audio. È la parte <b>esecutiva</b>. Poi rifinisci tu ed esporti.</p>
+      </div>
+    </div>
+    <div class="callout reveal"><span class="ic">📥</span><p>La skill è inclusa qui: <a href="reel-ai-skill.zip" style="color:var(--accent)"><b>reel-ai-skill.zip ↓</b></a> — la installazione passo-passo è il <a href="#come" style="color:var(--accent)">punto 4 della guida</a>.</p></div>
+  </div>
+</section>
+
+<section id="feature">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="eyebrow">Dentro l'app</div>
+      <h2>Un editor vero, non un giocattolo</h2>
+      <p class="lead">Tutto quello che serve per un reel curato, in locale e veloce anche su Mac M1 / 8 GB.</p>
+    </div>
+    <div class="feat">
+      <div class="fcard reveal"><div class="ic">🤖</div><h3>Montaggio AI</h3><p>Dalla trascrizione al reel: scelta dei momenti, riquadro 9:16, persone impilate, audio curato.</p></div>
+      <div class="fcard reveal"><div class="ic">✂️</div><h3>Timeline pro</h3><p>Multi-selezione, ripple-trim, split, transizioni, velocità/reverse, keyframe, marker.</p></div>
+      <div class="fcard reveal"><div class="ic">🎭</div><h3>Volti &amp; privacy</h3><p>Riconoscimento volti, sfocatura di una persona, stack verticale di 2+ interlocutori.</p></div>
+      <div class="fcard reveal"><div class="ic">🎨</div><h3>Effetti &amp; LUT</h3><p>Sfocatura, luminosità, contrasto, saturazione, filtri rapidi, LUT .cube, chroma key.</p></div>
+      <div class="fcard reveal"><div class="ic">🅰️</div><h3>Testo &amp; sottotitoli</h3><p>Testo in stile Canva con animazioni, template, import SRT/VTT.</p></div>
+      <div class="fcard reveal"><div class="ic">📤</div><h3>Export hi-fi</h3><p>MP4/MOV/GIF, 720p→4K, modalità alta fedeltà fotogramma-per-fotogramma.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="primo-avvio">
+  <div class="wrap">
+    <div class="grid2">
+      <div class="panel reveal">
+        <h3>🍎 Primo avvio su macOS</h3>
+        <p style="color:var(--dim)">L'app non è firmata Apple, quindi al primo avvio macOS chiede conferma. Una volta sola:</p>
+        <ol>
+          <li>Apri <b>Applicazioni</b>, <b>tasto destro</b> (o Ctrl-clic) su <b>Video AI</b> → <b>Apri</b>.</li>
+          <li>Nella finestra che appare, premi di nuovo <b>Apri</b>. Fatto: le volte successive parte normale.</li>
+          <li>Se dice "danneggiata", esegui una volta:
+            <div class="code"><button class="copy">copia</button>xattr -dr com.apple.quarantine "/Applications/Video AI.app"</div>
+          </li>
+        </ol>
+      </div>
+      <div class="panel reveal">
+        <h3>🪟 Primo avvio su Windows</h3>
+        <p style="color:var(--dim)">SmartScreen può mostrare un avviso perché l'installer non è firmato. Una volta sola:</p>
+        <ol>
+          <li>Lancia <b>Video-AI-…-setup.exe</b>.</li>
+          <li>Se appare "Windows ha protetto il PC": clic su <b>Ulteriori informazioni</b> → <b>Esegui comunque</b>.</li>
+          <li>Segui l'installer e avvia Video AI dal menu Start.</li>
+        </ol>
+      </div>
+    </div>
+    <div class="callout reveal"><span class="ic">⟳</span><p><b>Aggiornamenti automatici:</b> non dovrai riscaricare tutto. Dentro l'app, il pulsante <b>⟳</b> in alto controlla se c'è una nuova versione e la scarica e installa da solo.</p></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap footrow">
+    <div style="display:flex;align-items:center;gap:10px"><img src="icon.png" class="logo" style="width:26px;height:26px" alt=""/> <b>Video AI</b> · v<span class="vf">1.0.0</span></div>
+    <div>Editor video + AI di taglio reel · macOS &amp; Windows · <a href="#download" style="color:var(--accent)">Scarica</a></div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ---------- config ---------- */
+const REPO = "atarantoandrea-png/video-ai";
+const APPLE_SVG = '<path d="M16.36 12.9c-.02-2.06 1.68-3.05 1.76-3.1-.96-1.4-2.45-1.6-2.98-1.62-1.27-.13-2.48.75-3.12.75-.64 0-1.64-.73-2.7-.71-1.39.02-2.67.81-3.38 2.05-1.44 2.5-.37 6.2 1.03 8.23.69.99 1.5 2.1 2.57 2.06 1.03-.04 1.42-.66 2.67-.66 1.24 0 1.6.66 2.7.64 1.11-.02 1.82-1.01 2.5-2 .79-1.15 1.11-2.26 1.13-2.32-.02-.01-2.17-.83-2.19-3.31zM14.3 6.6c.57-.69.95-1.65.85-2.6-.82.03-1.81.55-2.39 1.23-.52.6-.98 1.58-.86 2.5.91.07 1.84-.46 2.4-1.13z"/>';
+const WIN_SVG  = '<path d="M3 5.5 10.2 4.5v6.8H3V5.5zm0 13L10.2 19.5v-6.7H3v5.7zM11.3 4.3 21 3v8.3h-9.7V4.3zm0 8.4H21V21l-9.7-1.3v-7z"/>';
+
+const releasesPage = `https://github.com/${REPO}/releases/latest`;
+const platform = navigator.platform.toLowerCase() + ' ' + navigator.userAgent.toLowerCase();
+const isWin = platform.includes('win');
+const isMac = platform.includes('mac');
+
+const MAC = {label:'Scarica per macOS', sub:'.dmg · Apple Silicon & Intel', svg:APPLE_SVG, href:releasesPage};
+const WIN = {label:'Scarica per Windows', sub:'.exe · installer 64-bit', svg:WIN_SVG, href:releasesPage};
+
+function apply(primary, secondary){
+  document.getElementById('dl-icon').innerHTML = primary.svg;
+  document.getElementById('dl-label').textContent = primary.label;
+  document.getElementById('dl-sub').textContent = primary.sub;
+  document.getElementById('dl-primary').href = primary.href;
+  document.getElementById('dl-icon2').innerHTML = secondary.svg;
+  document.getElementById('dl-label2').textContent = secondary.label;
+  document.getElementById('dl-sub2').textContent = secondary.sub;
+  document.getElementById('dl-secondary').href = secondary.href;
+}
+apply(isWin?WIN:MAC, isWin?MAC:WIN);
+
+/* Try to resolve the exact asset links from the latest GitHub release. */
+fetch(`https://api.github.com/repos/${REPO}/releases/latest`).then(r=>r.ok?r.json():null).then(rel=>{
+  if(!rel || !rel.assets) return;
+  if(rel.tag_name){const v=rel.tag_name.replace(/^v/,''); document.getElementById('ver').textContent=v; document.querySelectorAll('.vf').forEach(e=>e.textContent=v);}
+  const find=(re)=>{const a=rel.assets.find(x=>re.test(x.name)); return a?a.browser_download_url:null;};
+  const dmg=find(/mac.*\.dmg$/i)||find(/\.dmg$/i);
+  const exe=find(/win.*setup.*\.exe$/i)||find(/\.exe$/i);
+  if(dmg){MAC.href=dmg; MAC.sub='.dmg · Apple Silicon & Intel';}
+  if(exe){WIN.href=exe; WIN.sub='.exe · installer 64-bit';}
+  apply(isWin?WIN:MAC, isWin?MAC:WIN);
+}).catch(()=>{});
+
+/* copy buttons */
+document.querySelectorAll('.copy').forEach(b=>b.addEventListener('click',()=>{
+  const t=b.parentElement.textContent.replace(/^copia/,'').trim();
+  navigator.clipboard.writeText(t); const o=b.textContent; b.textContent='copiato ✓'; setTimeout(()=>b.textContent=o,1200);
+}));
+
+/* reveal on scroll */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')}),{threshold:.12});
+document.querySelectorAll('.reveal').forEach(e=>io.observe(e));
+
+/* ---------- Three.js futuristic hero ---------- */
+(function(){
+  const canvas=document.getElementById('bg-canvas');
+  if(!window.THREE) return;
+  const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  const scene=new THREE.Scene();
+  const cam=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,100);
+  cam.position.z=8;
+
+  // glowing wireframe icosahedron
+  const geo=new THREE.IcosahedronGeometry(2.6,1);
+  const mat=new THREE.MeshBasicMaterial({color:0x1fe6c2,wireframe:true,transparent:true,opacity:.55});
+  const mesh=new THREE.Mesh(geo,mat); scene.add(mesh);
+  const inner=new THREE.Mesh(new THREE.IcosahedronGeometry(1.7,0),new THREE.MeshBasicMaterial({color:0x5cf3da,wireframe:true,transparent:true,opacity:.18}));
+  scene.add(inner);
+
+  // particle field
+  const N=900, pos=new Float32Array(N*3);
+  for(let i=0;i<N;i++){const r=10+Math.random()*22; const th=Math.random()*6.28, ph=Math.acos(2*Math.random()-1);
+    pos[i*3]=r*Math.sin(ph)*Math.cos(th); pos[i*3+1]=r*Math.sin(ph)*Math.sin(th); pos[i*3+2]=r*Math.cos(ph);}
+  const pg=new THREE.BufferGeometry(); pg.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  const pts=new THREE.Points(pg,new THREE.PointsMaterial({color:0x9fb0c6,size:.05,transparent:true,opacity:.7}));
+  scene.add(pts);
+
+  let mx=0,my=0;
+  addEventListener('mousemove',e=>{mx=(e.clientX/innerWidth-.5); my=(e.clientY/innerHeight-.5);});
+  function resize(){renderer.setSize(innerWidth,innerHeight); cam.aspect=innerWidth/innerHeight; cam.updateProjectionMatrix();}
+  addEventListener('resize',resize); resize();
+  let t=0;
+  (function loop(){t+=.0035;
+    mesh.rotation.x=t; mesh.rotation.y=t*1.3; inner.rotation.y=-t*1.1; inner.rotation.x=t*.7;
+    pts.rotation.y=t*.15;
+    cam.position.x += (mx*2.2 - cam.position.x)*.04;
+    cam.position.y += (-my*1.6 - cam.position.y)*.04;
+    cam.lookAt(0,0,0);
+    renderer.render(scene,cam); requestAnimationFrame(loop);})();
+})();
+</script>
+</body>
+</html>

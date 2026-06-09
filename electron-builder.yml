@@ -1,0 +1,47 @@
+appId: com.videoai.desktop
+productName: Video AI
+copyright: © 2026 Video AI
+
+directories:
+  output: release
+  buildResources: build
+
+# Ship the compiled app (out/**) plus package.json. asar is DISABLED so the
+# face-api model files (loaded via fetch) and the ffmpeg/ffprobe binaries are
+# real on-disk files — fetch()/exec from inside an asar archive is unreliable.
+asar: false
+files:
+  - out/**/*
+  - package.json
+
+# ---- macOS (.dmg, Apple Silicon + Intel) ----
+mac:
+  category: public.app-category.video
+  icon: build/icon.png
+  target:
+    - target: dmg
+      arch: [arm64]
+  artifactName: "Video-AI-${version}-mac-${arch}.${ext}"
+  # Unsigned for now: allow the app to run (the website explains the first-open step).
+  identity: null
+dmg:
+  title: "Video AI ${version}"
+
+# ---- Windows (.exe NSIS installer) ----
+win:
+  icon: build/icon.png
+  target:
+    - target: nsis
+      arch: [x64]
+  artifactName: "Video-AI-${version}-win-${arch}.${ext}"
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  artifactName: "Video-AI-${version}-win-x64-setup.${ext}"
+
+# ---- Auto-update feed (electron-updater reads GitHub Releases) ----
+publish:
+  provider: github
+  owner: atarantoandrea-png
+  repo: video-ai

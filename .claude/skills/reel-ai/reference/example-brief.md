@@ -1,0 +1,82 @@
+# Esempio lavorato (few-shot) — da intervista a reel
+
+Esempio realistico end-to-end: mostra il ragionamento (mappa dei contesti) e il **brief finale** nel formato del contratto. Usalo come riferimento di stile/qualità per il tuo output. *Numeri e testo sono inventati a scopo illustrativo.*
+
+## Input (estratto di trascrizione con tempi, 2 speaker)
+
+```
+[00:03:10] S1 (Marco): Quando avete iniziato, qualcuno credeva nel progetto?
+[00:03:14] S2 (Giulia): No, zero. Mi dicevano tutti di lasciar perdere e trovarmi un lavoro vero.
+[00:03:48] S2 (Giulia): Però io avevo una cosa in testa e basta.
+[00:11:55] S1 (Marco): Qual è stato il momento più duro?
+[00:12:03] S2 (Giulia): Ho rischiato tutto. Per sei mesi ho dormito in macchina, senza dire niente a nessuno.
+[00:12:31] S2 (Giulia): ...e ogni mattina mi truccavo allo specchietto per andare agli appuntamenti.
+[00:31:40] S2 (Giulia): Il punto di svolta è stato quando ho smesso di vergognarmi della mia storia.
+[00:39:20] S2 (Giulia): Oggi quella stessa macchina dove dormivo è il logo dell'azienda. L'abbiamo messa in vetrina.
+```
+
+## Ragionamento (mappa dei contesti) — interno, non è l'output
+
+```
+Tema "nessuno ci credeva":  OPEN 03:14 → (sviluppo) 03:48
+Tema "il momento più duro": OPEN 12:03 (← HOOK: shock + curiosità) → 12:31
+Tema "svolta/orgoglio":     OPEN 31:40
+Tema "il pagamento":        CLOSE 39:20 (← chiude il loop "rischio/macchina")
+```
+Hook = "Ho rischiato tutto… dormito in macchina" (12:03–12:31): forte, emotivo, apre il loop "macchina".
+Arco ricucito: **HOOK (la macchina)** → **CONTESTO (nessuno ci credeva)** → **CHIUSURA (la macchina in vetrina = paga il loop)**. Durata ~ 27+34+? → punto a ~45–50s. Speaker quasi tutto S2 → `center-face(S2)`.
+
+## Output — il brief (questo è ciò che si incolla nell'app)
+
+````markdown
+# Reel Build Brief
+
+## Meta
+- formato: 9:16
+- durata_target_s: 48
+- piattaforma: Instagram Reels
+- tono: ispirazionale / storia di rivincita
+- lingua: it
+- model: claude-sonnet-4-6
+
+## Speakers
+- S1: Marco — host
+- S2: Giulia — ospite (protagonista del reel)
+
+## Sources
+- src_main: intervista_giulia.mp4 — orizzontale 1920x1080, durata 2700.0 (45:00)
+
+## Segments
+1. [HOOK] src=src_main in=723.0 (12:03.0) out=751.0 (12:31.0) speaker=S2
+   text: "Ho rischiato tutto. Per sei mesi ho dormito in macchina, senza dire niente a nessuno... e ogni mattina mi truccavo allo specchietto per andare agli appuntamenti."
+   reason: shock + immagine vivida; apre il loop "la macchina" da chiudere alla fine
+   reframe: center-face(S2)
+   blur: none
+2. [PUNTO] src=src_main in=194.0 (03:14.0) out=228.0 (03:48.0) speaker=S2
+   text: "No, zero. Mi dicevano tutti di lasciar perdere e trovarmi un lavoro vero. Però io avevo una cosa in testa e basta."
+   reason: contesto che alza la posta (tutti contro) e crea empatia
+   reframe: center-face(S2)
+   blur: none
+3. [CHIUSURA] src=src_main in=2360.0 (39:20.0) out=2384.0 (39:44.0) speaker=S2
+   text: "Oggi quella stessa macchina dove dormivo è il logo dell'azienda. L'abbiamo messa in vetrina."
+   reason: paga e CHIUDE il loop dell'hook (la macchina) — finale memorabile
+   reframe: center-face(S2)
+   blur: none
+
+# (niente testo a schermo nel brief: captions e titolo li aggiunge l'utente dopo)
+
+## Privacy
+- none
+
+## Carosello
+- Seg.1 (HOOK): "Ho rischiato tutto... dormito in macchina... mi truccavo allo specchietto."
+- Seg.2 (PUNTO): "Nessuno ci credeva, mi dicevano di trovarmi un lavoro vero."
+- Seg.3 (CHIUSURA): "Oggi quella macchina è il logo dell'azienda, in vetrina."
+````
+
+## Perché funziona (per autovalutarti)
+
+- Hook entro il 1° secondo, immagine forte, apre un loop chiaro ("la macchina").
+- L'ordine NON è cronologico (12:03 → 03:14 → 39:20): è **ricucito** per senso ed emozione.
+- La chiusura **richiama e paga** l'hook → loop chiuso.
+- ~48s, tutto S2 → reframe semplice e coerente; UNA storia sola (pochi segmenti coerenti, non micro-tagli); nessun testo a schermo (lo mette l'utente dopo).

@@ -1,0 +1,45 @@
+name: Release
+
+# Compila e pubblica gli installer su GitHub Releases quando pubblichi un tag vX.Y.Z
+# (es. `git tag v1.0.1 && git push origin v1.0.1`), oppure manualmente da Actions.
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write # serve per creare la Release e caricare gli asset
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest # Apple Silicon (arm64) — ffmpeg-static nativo
+            platform: mac
+          - os: windows-latest # Windows x64 — ffmpeg-static nativo
+            platform: win
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Installa dipendenze
+        run: npm ci
+
+      - name: Compila + pubblica (macOS)
+        if: matrix.platform == 'mac'
+        run: npm run build && npx electron-builder --mac --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compila + pubblica (Windows)
+        if: matrix.platform == 'win'
+        run: npm run build && npx electron-builder --win --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

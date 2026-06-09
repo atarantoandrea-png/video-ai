@@ -1,0 +1,99 @@
+import { useState } from 'react'
+import { useEditor } from '../state/store'
+
+/**
+ * Export settings popover: resolution (720p/1080p/4K), fps, quality and container
+ * (MP4/MOV/GIF). Confirms with the real export. Resolution is a scale on the canvas
+ * (whose minor side is 1080), so 0.667 = 720p, 1 = 1080p, 2 = 4K-class.
+ */
+export function ExportMenu({ onClose }: { onClose: () => void }): JSX.Element {
+  const startExport = useEditor((s) => s.startExport)
+  const startHifiExport = useEditor((s) => s.startHifiExport)
+  const canvasW = useEditor((s) => s.project.canvas.width)
+  const canvasH = useEditor((s) => s.project.canvas.height)
+  const [scale, setScale] = useState(1)
+  const [fps, setFps] = useState(0) // 0 = keep project fps
+  const [quality, setQuality] = useState<'low' | 'medium' | 'high'>('high')
+  const [format, setFormat] = useState<'mp4' | 'mov' | 'gif'>('mp4')
+  const [hifi, setHifi] = useState(false)
+
+  const outW = Math.round((canvasW * scale) / 2) * 2
+  const outH = Math.round((canvasH * scale) / 2) * 2
+
+  const run = (): void => {
+    onClose()
+    const s = { outputScale: scale, fps: fps || undefined, quality, format }
+    if (hifi && format !== 'gif') void startHifiExport(s)
+    else void startExport(s)
+  }
+
+  return (
+    <div className="export-menu" onPointerDown={(e) => e.stopPropagation()}>
+      <div className="export-title">Impostazioni export</div>
+
+      <label className="export-row">
+        <span>Risoluzione</span>
+        <select className="select" value={scale} onChange={(e) => setScale(parseFloat(e.target.value))}>
+          <option value={0.6667}>720p</option>
+          <option value={1}>1080p</option>
+          <option value={1.3333}>2K (1440p)</option>
+          <option value={2}>4K</option>
+        </select>
+      </label>
+
+      <label className="export-row">
+        <span>FPS</span>
+        <select className="select" value={fps} onChange={(e) => setFps(parseInt(e.target.value, 10))}>
+          <option value={0}>Originale</option>
+          <option value={24}>24</option>
+          <option value={25}>25</option>
+          <option value={30}>30</option>
+          <option value={60}>60</option>
+        </select>
+      </label>
+
+      <label className="export-row">
+        <span>Qualità</span>
+        <select
+          className="select"
+          value={quality}
+          onChange={(e) => setQuality(e.target.value as 'low' | 'medium' | 'high')}
+        >
+          <option value="low">Bassa</option>
+          <option value="medium">Media</option>
+          <option value="high">Alta</option>
+        </select>
+      </label>
+
+      <label className="export-row">
+        <span>Formato</span>
+        <select
+          className="select"
+          value={format}
+          onChange={(e) => setFormat(e.target.value as 'mp4' | 'mov' | 'gif')}
+        >
+          <option value="mp4">MP4 (H.264)</option>
+          <option value="mov">MOV (QuickTime)</option>
+          <option value="gif">GIF animata</option>
+        </select>
+      </label>
+
+      {format !== 'gif' && (
+        <label className="export-row" style={{ cursor: 'pointer' }} title="Renderizza ogni fotogramma col motore dell'anteprima: identico ma molto più lento">
+          <span>Alta fedeltà (lento)</span>
+          <input type="checkbox" checked={hifi} onChange={(e) => setHifi(e.target.checked)} />
+        </label>
+      )}
+
+      <div className="export-out">
+        {outW}×{outH} · {format.toUpperCase()}
+        {format === 'gif' && <span className="export-note"> (senza audio)</span>}
+        {hifi && format !== 'gif' && <span className="export-note"> · alta fedeltà</span>}
+      </div>
+
+      <button className="btn btn--primary" style={{ width: '100%' }} onClick={run}>
+        Esporta
+      </button>
+    </div>
+  )
+}
