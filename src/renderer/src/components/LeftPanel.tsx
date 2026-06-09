@@ -347,6 +347,7 @@ function EffectsPanel(): JSX.Element {
         <button className="chip" onClick={() => addEffect(clipId, 'grayscale')}>B/N</button>
         <button className="chip" onClick={() => addEffect(clipId, 'vignette')}>Vignettatura</button>
         <button className="chip" onClick={() => addEffect(clipId, 'grain')}>Grana</button>
+        <button className="chip" onClick={() => addEffect(clipId, 'invert')}>Negativo</button>
       </div>
       <p className="field-label" style={{ marginTop: 12 }}>Regola i valori nel pannello Proprietà (a destra).</p>
     </div>

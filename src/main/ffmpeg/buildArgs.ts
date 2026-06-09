@@ -257,6 +257,7 @@ function effectFilters(clip: MediaClip): string[] {
     } else if (fx.type === 'sharpen') out.push(`unsharp=5:5:${(fx.params.value ?? 1).toFixed(2)}:5:5:0`)
     else if (fx.type === 'vignette') out.push(`vignette=PI/${(5 - cl01(fx.params.value ?? 0.5) * 3).toFixed(2)}`)
     else if (fx.type === 'grain') out.push(`noise=alls=${Math.round((fx.params.value ?? 0.3) * 60)}:allf=t`)
+    else if (fx.type === 'invert' && (fx.params.value ?? 1) >= 0.5) out.push('negate')
   }
   return out
 }

@@ -20,6 +20,19 @@ export function ExportMenu({ onClose }: { onClose: () => void }): JSX.Element {
   const outW = Math.round((canvasW * scale) / 2) * 2
   const outH = Math.round((canvasH * scale) / 2) * 2
 
+  const PRESETS: {
+    label: string
+    s: number
+    fps: number
+    q: 'low' | 'medium' | 'high'
+    fmt: 'mp4' | 'mov' | 'gif'
+  }[] = [
+    { label: 'Social 1080p', s: 1, fps: 30, q: 'high', fmt: 'mp4' },
+    { label: 'Social leggero', s: 0.6667, fps: 30, q: 'medium', fmt: 'mp4' },
+    { label: 'Max 4K', s: 2, fps: 60, q: 'high', fmt: 'mp4' },
+    { label: 'GIF', s: 0.6667, fps: 15, q: 'medium', fmt: 'gif' }
+  ]
+
   const run = (): void => {
     onClose()
     const s = { outputScale: scale, fps: fps || undefined, quality, format }
@@ -30,6 +43,24 @@ export function ExportMenu({ onClose }: { onClose: () => void }): JSX.Element {
   return (
     <div className="export-menu" onPointerDown={(e) => e.stopPropagation()}>
       <div className="export-title">Impostazioni export</div>
+
+      <div className="chip-row" style={{ marginBottom: 8 }}>
+        {PRESETS.map((p) => (
+          <button
+            key={p.label}
+            className="chip"
+            title={`Imposta ${p.label}`}
+            onClick={() => {
+              setScale(p.s)
+              setFps(p.fps)
+              setQuality(p.q)
+              setFormat(p.fmt)
+            }}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
 
       <label className="export-row">
         <span>Risoluzione</span>

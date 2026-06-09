@@ -93,6 +93,7 @@ export type EffectType =
   | 'sharpen'
   | 'vignette'
   | 'grain'
+  | 'invert'
 
 export interface Effect {
   id: string

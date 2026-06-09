@@ -50,7 +50,8 @@ const EFFECT_DEFS: Partial<Record<EffectType, EffectDef>> = {
   sepia: { label: 'Seppia', param: 'value', min: 0, max: 1, step: 0.05 },
   grayscale: { label: 'B/N', param: 'value', min: 0, max: 1, step: 0.05 },
   vignette: { label: 'Vignettatura', param: 'value', min: 0, max: 1, step: 0.05 },
-  grain: { label: 'Grana', param: 'value', min: 0, max: 1, step: 0.05 }
+  grain: { label: 'Grana', param: 'value', min: 0, max: 1, step: 0.05 },
+  invert: { label: 'Negativo', param: 'value', min: 0, max: 1, step: 1 }
 }
 const FALLBACK_DEF: EffectDef = { label: 'Effetto', param: 'value', min: -1, max: 1, step: 0.05 }
 const EFFECT_TYPES = Object.keys(EFFECT_DEFS) as EffectType[]

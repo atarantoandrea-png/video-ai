@@ -174,6 +174,7 @@ function buildFilter(clip: MediaClip): string {
     else if (fx.type === 'hue') parts.push(`hue-rotate(${fx.params.value ?? 0}deg)`)
     else if (fx.type === 'sepia') parts.push(`sepia(${clamp01(fx.params.value ?? 0.6)})`)
     else if (fx.type === 'grayscale') parts.push(`grayscale(${clamp01(fx.params.value ?? 1)})`)
+    else if (fx.type === 'invert') parts.push(`invert(${clamp01(fx.params.value ?? 1)})`)
   }
   return parts.length ? parts.join(' ') : 'none'
 }
