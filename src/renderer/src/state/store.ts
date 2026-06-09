@@ -30,6 +30,7 @@ import { mediaUrl } from '@shared/media'
 import { buildFaceTrack, detectFacesAt, type NormFace } from '../preview/faceDetect'
 import { compositor } from '../preview/Compositor'
 import { genId } from '@shared/ids'
+import { REEL_TEMPLATES } from '@shared/templates'
 import { parseSubtitles } from '@shared/subtitles'
 import {
   recommendTier,
@@ -218,6 +219,8 @@ interface Actions {
   importLut: (clipId: string) => Promise<void>
   /** Apply a one-click colour "look" (id from shared/looks.ts), or 'none'/null to clear. */
   setLook: (clipId: string, id: string | null, intensity?: number) => void
+  /** Apply a reel "Modello" (id from shared/templates.ts) to EVERY video clip: look + transitions. */
+  applyReelTemplate: (id: string) => void
   addTextClip: (text: string, stylePatch?: Partial<TextStyle>) => void
   /** Add many timed subtitle clips at once (from manual entry or an imported file). */
   addSubtitles: (segments: { start: number; end: number; text: string }[]) => void
@@ -1463,6 +1466,27 @@ export const useEditor = create<EditorStore>()(
             if (!loc || !isMediaClip(loc.clip)) continue
             if (!id || id === 'none') delete loc.clip.look
             else loc.clip.look = { id, intensity: intensity ?? loc.clip.look?.intensity ?? 1 }
+          }
+        })
+      },
+
+      applyReelTemplate: (id) => {
+        const tpl = REEL_TEMPLATES.find((t) => t.id === id)
+        if (!tpl) return
+        commit((s) => {
+          for (const track of s.project.timeline.tracks) {
+            if (track.type !== 'video') continue
+            const clips = [...track.clips].sort((a, b) => a.timelineStart - b.timelineStart)
+            clips.forEach((c, i) => {
+              if (!isMediaClip(c)) return
+              if (tpl.look) c.look = { id: tpl.look, intensity: 1 }
+              else delete c.look
+              const isLast = i === clips.length - 1
+              c.transitionOut =
+                !isLast && tpl.transition
+                  ? { type: 'xfade', preset: tpl.transition, durationSec: tpl.transDur }
+                  : null
+            })
           }
         })
       },

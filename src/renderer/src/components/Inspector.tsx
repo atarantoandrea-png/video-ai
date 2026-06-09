@@ -12,6 +12,7 @@ import {
 import { resolveTransformAt } from '@shared/anim'
 import { FONTS } from '@shared/fonts'
 import { LOOKS } from '@shared/looks'
+import { REEL_TEMPLATES } from '@shared/templates'
 import { CropBox } from './CropBox'
 
 type LayoutKind = 'fill' | 'top' | 'bottom' | 'cropLeft' | 'cropRight'
@@ -83,6 +84,7 @@ function MediaInspector({ clip }: { clip: MediaClip }): JSX.Element {
   const removeEffect = useEditor((s) => s.removeEffect)
   const updateEffect = useEditor((s) => s.updateEffect)
   const setLook = useEditor((s) => s.setLook)
+  const applyReelTemplate = useEditor((s) => s.applyReelTemplate)
   const selCount = useEditor((s) => s.selectedClipIds.length)
   const setFade = useEditor((s) => s.setFade)
   const makeBlur = useEditor((s) => s.makeBlurRegion)
@@ -395,6 +397,25 @@ function MediaInspector({ clip }: { clip: MediaClip }): JSX.Element {
             </label>
           </>
         )}
+      </div>
+
+      <div className="field">
+        <div className="section-title">Modelli reel</div>
+        <div className="chip-row">
+          {REEL_TEMPLATES.map((tpl) => (
+            <button
+              key={tpl.id}
+              className="chip"
+              title={`Applica il modello «${tpl.label}» a TUTTO il reel (colore + transizioni)`}
+              onClick={() => applyReelTemplate(tpl.id)}
+            >
+              {tpl.label}
+            </button>
+          ))}
+        </div>
+        <span className="field-label" style={{ opacity: 0.7 }}>
+          Stilizza l'intero reel in un click. Annulla con ⌘Z.
+        </span>
       </div>
 
       <div className="field">
