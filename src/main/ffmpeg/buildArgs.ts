@@ -10,6 +10,7 @@ import {
 import { resolveClipLayout } from '@shared/geometry'
 import { activeKeyframes, pwlExpr } from '@shared/anim'
 import { fontFileForCss } from '@shared/fonts'
+import { lookFfmpeg } from '@shared/looks'
 
 export interface ExportOptions {
   outPath: string
@@ -235,12 +236,27 @@ function animatedMaskFilter(
 
 function effectFilters(clip: MediaClip): string[] {
   const out: string[] = []
+  const cl01 = (v: number): number => Math.max(0, Math.min(1, v))
   for (const fx of clip.effects) {
     if (!fx.enabled) continue
+    const v = fx.params.value ?? 0
     if (fx.type === 'gblur') out.push(`gblur=sigma=${(fx.params.sigma ?? 8).toFixed(2)}`)
-    else if (fx.type === 'brightness') out.push(`eq=brightness=${(fx.params.value ?? 0).toFixed(3)}`)
-    else if (fx.type === 'contrast') out.push(`eq=contrast=${(1 + (fx.params.value ?? 0)).toFixed(3)}`)
-    else if (fx.type === 'saturation') out.push(`eq=saturation=${(1 + (fx.params.value ?? 0)).toFixed(3)}`)
+    else if (fx.type === 'brightness') out.push(`eq=brightness=${v.toFixed(3)}`)
+    else if (fx.type === 'contrast') out.push(`eq=contrast=${(1 + v).toFixed(3)}`)
+    else if (fx.type === 'saturation') out.push(`eq=saturation=${(1 + v).toFixed(3)}`)
+    else if (fx.type === 'hue') out.push(`hue=h=${v.toFixed(2)}`)
+    else if (fx.type === 'grayscale') out.push(`eq=saturation=${(1 - cl01(v)).toFixed(3)}`)
+    else if (fx.type === 'sepia') {
+      const a = cl01(fx.params.value ?? 0.6)
+      const mix = (id1: number, sp: number): string => (id1 * (1 - a) + sp * a).toFixed(3)
+      out.push(
+        `colorchannelmixer=${mix(1, 0.393)}:${mix(0, 0.769)}:${mix(0, 0.189)}:0:` +
+          `${mix(0, 0.349)}:${mix(1, 0.686)}:${mix(0, 0.168)}:0:` +
+          `${mix(0, 0.272)}:${mix(0, 0.534)}:${mix(1, 0.131)}:0`
+      )
+    } else if (fx.type === 'sharpen') out.push(`unsharp=5:5:${(fx.params.value ?? 1).toFixed(2)}:5:5:0`)
+    else if (fx.type === 'vignette') out.push(`vignette=PI/${(5 - cl01(fx.params.value ?? 0.5) * 3).toFixed(2)}`)
+    else if (fx.type === 'grain') out.push(`noise=alls=${Math.round((fx.params.value ?? 0.3) * 60)}:allf=t`)
   }
   return out
 }
@@ -426,6 +442,7 @@ export function buildFfmpegArgs(project: Project, opts: ExportOptions): string[]
       }
 
       chain.push('setsar=1')
+      chain.push(...lookFfmpeg(clip.look?.id, clip.look?.intensity ?? 1))
       chain.push(...effectFilters(clip))
       if (clip.lut) chain.push(`lut3d=file=${clip.lut.replace(/([:\\'])/g, '\\$1')}`)
 

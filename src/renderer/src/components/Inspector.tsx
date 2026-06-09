@@ -11,6 +11,7 @@ import {
 } from '@shared/projectSchema'
 import { resolveTransformAt } from '@shared/anim'
 import { FONTS } from '@shared/fonts'
+import { LOOKS } from '@shared/looks'
 import { CropBox } from './CropBox'
 
 type LayoutKind = 'fill' | 'top' | 'bottom' | 'cropLeft' | 'cropRight'
@@ -38,12 +39,19 @@ function applyLayout(kind: LayoutKind): (cl: MediaClip) => void {
   }
 }
 
-const EFFECT_DEFS: Record<EffectType, { label: string; param: string; min: number; max: number; step: number }> = {
+type EffectDef = { label: string; param: string; min: number; max: number; step: number }
+const EFFECT_DEFS: Partial<Record<EffectType, EffectDef>> = {
   gblur: { label: 'Sfocatura', param: 'sigma', min: 0, max: 40, step: 1 },
   brightness: { label: 'Luminosità', param: 'value', min: -1, max: 1, step: 0.05 },
   contrast: { label: 'Contrasto', param: 'value', min: -1, max: 1, step: 0.05 },
-  saturation: { label: 'Saturazione', param: 'value', min: -1, max: 1, step: 0.05 }
+  saturation: { label: 'Saturazione', param: 'value', min: -1, max: 1, step: 0.05 },
+  hue: { label: 'Tinta', param: 'value', min: -180, max: 180, step: 5 },
+  sepia: { label: 'Seppia', param: 'value', min: 0, max: 1, step: 0.05 },
+  grayscale: { label: 'B/N', param: 'value', min: 0, max: 1, step: 0.05 },
+  vignette: { label: 'Vignettatura', param: 'value', min: 0, max: 1, step: 0.05 },
+  grain: { label: 'Grana', param: 'value', min: 0, max: 1, step: 0.05 }
 }
+const FALLBACK_DEF: EffectDef = { label: 'Effetto', param: 'value', min: -1, max: 1, step: 0.05 }
 const EFFECT_TYPES = Object.keys(EFFECT_DEFS) as EffectType[]
 
 export function Inspector(): JSX.Element {
@@ -74,6 +82,7 @@ function MediaInspector({ clip }: { clip: MediaClip }): JSX.Element {
   const addEffect = useEditor((s) => s.addEffect)
   const removeEffect = useEditor((s) => s.removeEffect)
   const updateEffect = useEditor((s) => s.updateEffect)
+  const setLook = useEditor((s) => s.setLook)
   const selCount = useEditor((s) => s.selectedClipIds.length)
   const setFade = useEditor((s) => s.setFade)
   const makeBlur = useEditor((s) => s.makeBlurRegion)
@@ -390,6 +399,41 @@ function MediaInspector({ clip }: { clip: MediaClip }): JSX.Element {
 
       <div className="field">
         <div className="section-title">
+          Filtri
+          {selCount > 1 && <span className="multi-hint multi-hint--inline">✦ {selCount} clip</span>}
+        </div>
+        <div className="chip-row">
+          {LOOKS.map((lk) => {
+            const active = (clip.look?.id ?? 'none') === lk.id
+            return (
+              <button
+                key={lk.id}
+                className={`chip ${active ? 'chip--active' : ''}`}
+                title={lk.id === 'none' ? 'Nessun filtro' : `Applica «${lk.label}»`}
+                onClick={() => setLook(clip.id, lk.id)}
+              >
+                {lk.label}
+              </button>
+            )
+          })}
+        </div>
+        {clip.look && clip.look.id !== 'none' && (
+          <div className="field" style={{ marginTop: 6 }}>
+            <span className="field-label">Intensità {Math.round((clip.look.intensity ?? 1) * 100)}%</span>
+            <input
+              type="range"
+              min={0}
+              max={1}
+              step={0.05}
+              value={clip.look.intensity ?? 1}
+              onChange={(e) => setLook(clip.id, clip.look?.id ?? null, parseFloat(e.target.value))}
+            />
+          </div>
+        )}
+      </div>
+
+      <div className="field">
+        <div className="section-title">
           Effetti
           {selCount > 1 && <span className="multi-hint multi-hint--inline">✦ {selCount} clip</span>}
         </div>
@@ -404,7 +448,7 @@ function MediaInspector({ clip }: { clip: MediaClip }): JSX.Element {
                 onClick={() => (existing ? removeEffect(clip.id, existing.id) : addEffect(clip.id, type))}
               >
                 {existing ? '● ' : '+ '}
-                {EFFECT_DEFS[type].label}
+                {(EFFECT_DEFS[type] ?? FALLBACK_DEF).label}
               </button>
             )
           })}
@@ -482,7 +526,7 @@ function EffectControl({
   onChange: (params: Record<string, number>) => void
   onRemove: () => void
 }): JSX.Element {
-  const def = EFFECT_DEFS[fx.type]
+  const def = EFFECT_DEFS[fx.type] ?? FALLBACK_DEF
   const value = fx.params[def.param] ?? 0
   return (
     <div className="field" style={{ background: 'var(--bg-1)', padding: 8, borderRadius: 8 }}>

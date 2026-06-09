@@ -17,8 +17,17 @@ const TRANSITION_PRESETS: { preset: TransitionPreset; label: string }[] = [
   { preset: 'wiperight', label: 'Tendina →' },
   { preset: 'wipeup', label: 'Tendina ↑' },
   { preset: 'wipedown', label: 'Tendina ↓' },
-  { preset: 'zoomin', label: 'Zoom' },
-  { preset: 'circleopen', label: 'Cerchio' }
+  { preset: 'zoomin', label: 'Zoom avanti' },
+  { preset: 'zoomout', label: 'Zoom indietro' },
+  { preset: 'spin', label: 'Rotazione' },
+  { preset: 'circleopen', label: 'Cerchio' },
+  { preset: 'irisbox', label: 'Riquadro' },
+  { preset: 'splith', label: 'Apri ↔' },
+  { preset: 'splitv', label: 'Apri ↕' },
+  { preset: 'wipetl', label: 'Diagonale ↖' },
+  { preset: 'wipetr', label: 'Diagonale ↗' },
+  { preset: 'wipebl', label: 'Diagonale ↙' },
+  { preset: 'wipebr', label: 'Diagonale ↘' }
 ]
 
 function trackHeight(type: Track['type'], scale = 1): number {
@@ -641,7 +650,7 @@ function ClipBlock({
   // band at the bottom. Audio-only clips show just the waveform filling the clip.
   const isAudioOnly = track.type === 'audio'
   const clipH = trackHeight(track.type, scale) - 8
-  const waveH = showWave ? (isAudioOnly ? clipH : 20) : 0
+  const waveH = showWave ? (isAudioOnly ? clipH : 22) : 0
   const thumbH = isAudioOnly ? 0 : clipH - waveH
   const isImage = source?.kind === 'image'
   const stripUrl =
@@ -935,20 +944,30 @@ function ClipMedia({
     if (waveH > 0 && peaks && peaks.length) {
       const top = thumbH
       const audioOnly = thumbH <= 0
-      // CapCut-style: a contrasting band, a faint center baseline, and a BRIGHT,
-      // tall, symmetric waveform (quiet parts lifted with sqrt so they stay visible).
-      ctx.fillStyle = audioOnly ? 'rgba(0,0,0,0.16)' : 'rgba(0,0,0,0.24)'
-      ctx.fillRect(0, top, cssW, waveH)
+      // CapCut audio look: a TEAL body with a bright mint, dense, SYMMETRIC waveform.
+      // Audio-only clips already have a teal body (.clip--audio) — just add depth;
+      // video clips get a teal audio strip painted under the frames.
+      if (audioOnly) {
+        ctx.fillStyle = 'rgba(0,0,0,0.10)'
+        ctx.fillRect(0, top, cssW, waveH)
+      } else {
+        const g = ctx.createLinearGradient(0, top, 0, top + waveH)
+        g.addColorStop(0, '#1bb6a6')
+        g.addColorStop(1, '#159389')
+        ctx.fillStyle = g
+        ctx.fillRect(0, top, cssW, waveH)
+      }
       const n = peaks.length
       const mid = top + waveH / 2
-      const maxH = waveH - 3
-      ctx.fillStyle = 'rgba(255,255,255,0.14)'
-      ctx.fillRect(0, Math.round(mid), cssW, 1) // center baseline
-      ctx.fillStyle = audioOnly ? 'rgba(150,248,230,0.95)' : 'rgba(235,252,250,0.9)'
+      const maxH = waveH - 2
+      // faint center line + bright mint waveform; quiet parts lifted with sqrt.
+      ctx.fillStyle = 'rgba(255,255,255,0.12)'
+      ctx.fillRect(0, Math.round(mid), cssW, 1)
+      ctx.fillStyle = 'rgba(223,255,250,0.92)'
       for (let x = 0; x < cssW; x++) {
         const idx = Math.min(n - 1, Math.max(0, Math.floor(fracAt(x) * (n - 1))))
         const p = peaks[idx] ?? 0
-        const h = Math.max(1.5, Math.sqrt(Math.max(0, p)) * maxH)
+        const h = Math.max(1, Math.sqrt(Math.max(0, p)) * maxH)
         ctx.fillRect(x, mid - h / 2, 1, h)
       }
     }

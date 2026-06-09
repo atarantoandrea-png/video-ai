@@ -216,6 +216,8 @@ interface Actions {
   setLut: (clipId: string, path: string | null) => void
   /** Pick a .cube LUT file and apply it to the clip. */
   importLut: (clipId: string) => Promise<void>
+  /** Apply a one-click colour "look" (id from shared/looks.ts), or 'none'/null to clear. */
+  setLook: (clipId: string, id: string | null, intensity?: number) => void
   addTextClip: (text: string, stylePatch?: Partial<TextStyle>) => void
   /** Add many timed subtitle clips at once (from manual entry or an imported file). */
   addSubtitles: (segments: { start: number; end: number; text: string }[]) => void
@@ -262,6 +264,16 @@ function defaultEffectParams(type: EffectType): Record<string, number> {
   switch (type) {
     case 'gblur':
       return { sigma: 8 }
+    case 'sepia':
+      return { value: 0.6 }
+    case 'grayscale':
+      return { value: 1 }
+    case 'sharpen':
+      return { value: 1 }
+    case 'vignette':
+      return { value: 0.5 }
+    case 'grain':
+      return { value: 0.3 }
     default:
       return { value: 0 }
   }
@@ -1440,6 +1452,17 @@ export const useEditor = create<EditorStore>()(
             if (!loc || !isMediaClip(loc.clip)) continue
             if (path) loc.clip.lut = path
             else delete loc.clip.lut
+          }
+        })
+      },
+
+      setLook: (clipId, id, intensity) => {
+        commit((s) => {
+          for (const cid of bulkTargetIds(s.selectedClipIds, clipId)) {
+            const loc = locateClip(s.project, cid)
+            if (!loc || !isMediaClip(loc.clip)) continue
+            if (!id || id === 'none') delete loc.clip.look
+            else loc.clip.look = { id, intensity: intensity ?? loc.clip.look?.intensity ?? 1 }
           }
         })
       },

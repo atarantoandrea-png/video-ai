@@ -82,7 +82,17 @@ export interface Transform {
   flipV: boolean
 }
 
-export type EffectType = 'gblur' | 'brightness' | 'contrast' | 'saturation'
+export type EffectType =
+  | 'gblur'
+  | 'brightness'
+  | 'contrast'
+  | 'saturation'
+  | 'hue'
+  | 'sepia'
+  | 'grayscale'
+  | 'sharpen'
+  | 'vignette'
+  | 'grain'
 
 export interface Effect {
   id: string
@@ -105,6 +115,16 @@ export type TransitionPreset =
   | 'zoomin'
   | 'circleopen'
   | 'dissolve'
+  // extended library (preview via canvas transforms; hi-fi export reproduces exactly)
+  | 'zoomout'
+  | 'spin'
+  | 'irisbox'
+  | 'splith'
+  | 'splitv'
+  | 'wipetl'
+  | 'wipetr'
+  | 'wipebl'
+  | 'wipebr'
 
 export interface Transition {
   type: 'xfade'
@@ -189,6 +209,8 @@ export interface MediaClip extends ClipBase {
   chroma?: { keyColor: string; similarity: number; blend: number }
   /** Absolute path to a 3D LUT (.cube) colour-grade applied on export. */
   lut?: string
+  /** One-click colour "look" preset (see shared/looks.ts). Applied in preview AND export. */
+  look?: { id: string; intensity: number }
   /** Reserved for the future AI cutting layer; inert until then. */
   aiMeta?: { reason?: string; isHook?: boolean }
 }

@@ -10,6 +10,7 @@ import {
 } from '@shared/projectSchema'
 import { resolveTransformAt, resolveMaskAt } from '@shared/anim'
 import { resolveTextMotion } from '@shared/textAnim'
+import { lookCss } from '@shared/looks'
 import { mediaUrl } from '@shared/media'
 import { clamp01, hexWithAlpha, hexToNum } from '../util/color'
 
@@ -88,6 +89,63 @@ function applyTransitionClip(
       ctx.clip()
       break
     }
+    case 'zoomout': {
+      const sc = 1.6 - 0.6 * e
+      ctx.translate(W / 2, H / 2)
+      ctx.scale(sc, sc)
+      ctx.translate(-W / 2, -H / 2)
+      break
+    }
+    case 'spin': {
+      const sc = 0.5 + 0.5 * e
+      ctx.translate(W / 2, H / 2)
+      ctx.rotate((1 - e) * -Math.PI)
+      ctx.scale(sc, sc)
+      ctx.translate(-W / 2, -H / 2)
+      break
+    }
+    case 'irisbox': {
+      const w = e * W
+      const h = e * H
+      ctx.beginPath()
+      ctx.rect((W - w) / 2, (H - h) / 2, w, h)
+      ctx.clip()
+      break
+    }
+    case 'splith': {
+      const w = e * W
+      ctx.beginPath()
+      ctx.rect((W - w) / 2, 0, w, H)
+      ctx.clip()
+      break
+    }
+    case 'splitv': {
+      const h = e * H
+      ctx.beginPath()
+      ctx.rect(0, (H - h) / 2, W, h)
+      ctx.clip()
+      break
+    }
+    case 'wipetl':
+      ctx.beginPath()
+      ctx.rect(0, 0, e * W, e * H)
+      ctx.clip()
+      break
+    case 'wipetr':
+      ctx.beginPath()
+      ctx.rect((1 - e) * W, 0, e * W, e * H)
+      ctx.clip()
+      break
+    case 'wipebl':
+      ctx.beginPath()
+      ctx.rect(0, (1 - e) * H, e * W, e * H)
+      ctx.clip()
+      break
+    case 'wipebr':
+      ctx.beginPath()
+      ctx.rect((1 - e) * W, (1 - e) * H, e * W, e * H)
+      ctx.clip()
+      break
     default:
       break
   }
@@ -104,12 +162,18 @@ function fadeAlpha(clip: MediaClip, playhead: number): number {
 
 function buildFilter(clip: MediaClip): string {
   const parts: string[] = []
+  // One-click colour look first (so manual effects layer on top of the grade).
+  const lk = lookCss(clip.look?.id, clip.look?.intensity ?? 1)
+  if (lk) parts.push(lk)
   for (const fx of clip.effects) {
     if (!fx.enabled) continue
     if (fx.type === 'gblur') parts.push(`blur(${fx.params.sigma ?? 8}px)`)
     else if (fx.type === 'brightness') parts.push(`brightness(${1 + (fx.params.value ?? 0)})`)
     else if (fx.type === 'contrast') parts.push(`contrast(${1 + (fx.params.value ?? 0)})`)
     else if (fx.type === 'saturation') parts.push(`saturate(${1 + (fx.params.value ?? 0)})`)
+    else if (fx.type === 'hue') parts.push(`hue-rotate(${fx.params.value ?? 0}deg)`)
+    else if (fx.type === 'sepia') parts.push(`sepia(${clamp01(fx.params.value ?? 0.6)})`)
+    else if (fx.type === 'grayscale') parts.push(`grayscale(${clamp01(fx.params.value ?? 1)})`)
   }
   return parts.length ? parts.join(' ') : 'none'
 }
@@ -586,7 +650,58 @@ export class Compositor {
     } catch {
       /* frame not ready */
     }
+    // Overlay effects that aren't CSS filters (export-faithful): vignette + grain.
+    const vig = clip.effects.find((e) => e.enabled && e.type === 'vignette')
+    const grn = clip.effects.find((e) => e.enabled && e.type === 'grain')
+    if (vig || grn) {
+      target.filter = 'none'
+      const bx = cb.x * s, by = cb.y * s, bw = cb.w * s, bh = cb.h * s
+      if (vig) {
+        const amt = clamp01(vig.params.value ?? 0.5)
+        const g = target.createRadialGradient(
+          bx + bw / 2, by + bh / 2, Math.min(bw, bh) * 0.28,
+          bx + bw / 2, by + bh / 2, Math.hypot(bw, bh) / 2
+        )
+        g.addColorStop(0, 'rgba(0,0,0,0)')
+        g.addColorStop(1, `rgba(0,0,0,${(0.85 * amt).toFixed(3)})`)
+        target.fillStyle = g
+        target.fillRect(bx, by, bw, bh)
+      }
+      if (grn) {
+        const amt = clamp01(grn.params.value ?? 0.3)
+        const pat = target.createPattern(this.grainTexture(), 'repeat')
+        if (pat) {
+          target.globalAlpha = 0.1 + 0.4 * amt
+          target.globalCompositeOperation = 'overlay'
+          target.fillStyle = pat
+          target.fillRect(bx, by, bw, bh)
+          target.globalAlpha = 1
+          target.globalCompositeOperation = 'source-over'
+        }
+      }
+    }
     target.restore()
+  }
+
+  private grainCanvas: HTMLCanvasElement | null = null
+  /** A small monochrome-noise tile reused as a repeating grain pattern. */
+  private grainTexture(): HTMLCanvasElement {
+    if (this.grainCanvas) return this.grainCanvas
+    const c = document.createElement('canvas')
+    c.width = 96
+    c.height = 96
+    const cx = c.getContext('2d')
+    if (cx) {
+      const img = cx.createImageData(96, 96)
+      for (let i = 0; i < img.data.length; i += 4) {
+        const v = (Math.random() * 255) | 0
+        img.data[i] = img.data[i + 1] = img.data[i + 2] = v
+        img.data[i + 3] = 255
+      }
+      cx.putImageData(img, 0, 0)
+    }
+    this.grainCanvas = c
+    return c
   }
 
   /** Per-pixel chroma key into an offscreen canvas (only used when a clip keys). */

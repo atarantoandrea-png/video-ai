@@ -1054,8 +1054,8 @@ input[type='range']:hover::-webkit-slider-thumb {
   cursor: grab;
 }
 .clip--audio {
-  background: linear-gradient(180deg, #1f4f44, #163a31);
-  border-color: #2f7d66;
+  background: linear-gradient(180deg, #1bb6a6, #14897f);
+  border-color: #4fe0cf;
 }
 .clip--text {
   background: linear-gradient(180deg, #34384a, #272b38);
