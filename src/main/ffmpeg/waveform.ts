@@ -1,8 +1,12 @@
 import { execFile } from 'child_process'
 import { getFfmpegPath } from './paths'
 
-const SAMPLE_RATE = 1000
-const MAX_PEAKS = 4000
+const SAMPLE_RATE = 2000
+// ~50 peaks/second so even a short clip taken from a LONG source still has a
+// detailed, readable waveform (the old 4000-total gave ~1 peak/sec on a 45-min
+// source → a few blobs per clip). Capped so a multi-hour file stays bounded.
+const PEAKS_PER_SEC = 50
+const MAX_PEAKS = 240000
 
 /**
  * Extract normalized audio peaks (0..1) for waveform display by decoding the
@@ -14,14 +18,15 @@ export async function extractPeaks(filePath: string): Promise<number[]> {
     execFile(
       ffmpeg,
       ['-v', 'error', '-i', filePath, '-ac', '1', '-ar', String(SAMPLE_RATE), '-f', 's16le', '-'],
-      { encoding: 'buffer', maxBuffer: 1 << 28 },
+      { encoding: 'buffer', maxBuffer: 1 << 30 },
       (err, stdout) => (err ? reject(err) : resolve(stdout as Buffer))
     )
   })
 
   const samples = Math.floor(pcm.length / 2)
   if (samples <= 0) return []
-  const buckets = Math.min(MAX_PEAKS, samples)
+  const durationSec = samples / SAMPLE_RATE
+  const buckets = Math.min(MAX_PEAKS, samples, Math.max(64, Math.round(durationSec * PEAKS_PER_SEC)))
   const per = samples / buckets
   const peaks: number[] = new Array(buckets)
   for (let i = 0; i < buckets; i++) {

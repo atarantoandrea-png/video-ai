@@ -650,7 +650,7 @@ function ClipBlock({
   // band at the bottom. Audio-only clips show just the waveform filling the clip.
   const isAudioOnly = track.type === 'audio'
   const clipH = trackHeight(track.type, scale) - 8
-  const waveH = showWave ? (isAudioOnly ? clipH : 30) : 0
+  const waveH = showWave ? (isAudioOnly ? clipH : 44) : 0
   const thumbH = isAudioOnly ? 0 : clipH - waveH
   const isImage = source?.kind === 'image'
   const stripUrl =
@@ -950,33 +950,40 @@ function ClipMedia({
     if (waveH > 0 && peaks && peaks.length) {
       const top = thumbH
       const audioOnly = thumbH <= 0
-      // CapCut audio look: a TEAL body with a bright mint, dense, SYMMETRIC waveform.
-      // Audio-only clips already have a teal body (.clip--audio) — just add depth;
-      // video clips get a teal audio strip painted under the frames.
+      // CapCut-style audio: a DARK teal lane so the bright waveform reads clearly,
+      // drawn at REAL amplitude (loud = tall, quiet = short) so you can read the
+      // dynamics, sampling the MAX peak per pixel (true envelope, not 1 random sample).
+      const g = ctx.createLinearGradient(0, top, 0, top + waveH)
       if (audioOnly) {
-        ctx.fillStyle = 'rgba(0,0,0,0.10)'
-        ctx.fillRect(0, top, cssW, waveH)
+        g.addColorStop(0, 'rgba(7,46,42,0.55)')
+        g.addColorStop(1, 'rgba(5,33,30,0.55)')
       } else {
-        const g = ctx.createLinearGradient(0, top, 0, top + waveH)
-        g.addColorStop(0, '#1bb6a6')
-        g.addColorStop(1, '#159389')
-        ctx.fillStyle = g
-        ctx.fillRect(0, top, cssW, waveH)
+        g.addColorStop(0, '#0e5751')
+        g.addColorStop(1, '#0a3f3a')
       }
+      ctx.fillStyle = g
+      ctx.fillRect(0, top, cssW, waveH)
       const n = peaks.length
       const mid = top + waveH / 2
-      const maxH = waveH - 2
-      // The waveform height tracks the VOLUME (CapCut-style): louder = taller,
-      // muted/0 = a thin flat line. Capped a bit above 1 so it never overflows.
+      const maxH = waveH - 3
+      // Height tracks the VOLUME (louder = taller; muted/0 = flat), capped above 1.
       const volF = muted ? 0 : Math.min(1.6, Math.max(0, volume))
-      // faint center line + mint waveform (dimmed when muted), quiet parts lifted with sqrt.
-      ctx.fillStyle = 'rgba(255,255,255,0.12)'
-      ctx.fillRect(0, Math.round(mid), cssW, 1)
-      ctx.fillStyle = muted ? 'rgba(223,255,250,0.4)' : 'rgba(223,255,250,0.92)'
+      ctx.fillStyle = 'rgba(255,255,255,0.10)'
+      ctx.fillRect(0, Math.round(mid), cssW, 1) // center baseline
+      ctx.fillStyle = muted ? 'rgba(126,247,225,0.45)' : 'rgba(126,247,225,0.98)'
       for (let x = 0; x < cssW; x++) {
-        const idx = Math.min(n - 1, Math.max(0, Math.floor(fracAt(x) * (n - 1))))
-        const p = peaks[idx] ?? 0
-        const h = Math.max(volF <= 0.02 ? 0.5 : 1, Math.sqrt(Math.max(0, p)) * maxH * volF)
+        let a = Math.floor(fracAt(x) * (n - 1))
+        let b = Math.floor(fracAt(x + 1) * (n - 1))
+        if (a > b) [a, b] = [b, a]
+        a = Math.max(0, Math.min(n - 1, a))
+        b = Math.max(0, Math.min(n - 1, b))
+        let mx = 0
+        for (let k = a; k <= b; k++) {
+          const v = peaks[k] ?? 0
+          if (v > mx) mx = v
+        }
+        const amp = Math.pow(mx, 0.82) // near-linear: keeps loud/quiet distinct (readable)
+        const h = Math.max(volF <= 0.02 ? 0.6 : 1, amp * maxH * volF)
         ctx.fillRect(x, mid - h / 2, 1, h)
       }
     }

@@ -452,7 +452,11 @@ export const useEditor = create<EditorStore>()(
           console.error('init() failed', e)
         }
         for (const src of get().project.sources) {
-          if (!src.hasAudio || src.peaks) continue
+          // (Re)fetch peaks if missing OR too low-res for the duration: old projects
+          // stored ~1 peak/sec (a few blobs per clip) — we now want a detailed,
+          // readable waveform (~50/sec), so upgrade stale peaks automatically.
+          const minPeaks = Math.min(20000, Math.round(src.durationSec * 8))
+          if (!src.hasAudio || (src.peaks && src.peaks.length >= minPeaks)) continue
           window.api
             .getPeaks(src.path)
             .then((peaks) => {
