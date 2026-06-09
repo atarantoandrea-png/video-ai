@@ -112,7 +112,9 @@ const api = {
   ): Promise<Anthropic.Message | { __error: { status: number; message: string } }> =>
     ipcRenderer.invoke('ai:createMessage', body),
 
-  // ---- Auto-update (GitHub Releases via electron-updater) ----
+  // ---- Auto-update (custom updater over GitHub Releases) ----
+  /** Open a URL in the user's default browser (validated http/https in main). */
+  openExternal: (url: string): Promise<void> => ipcRenderer.invoke('app:openExternal', url),
   /** Ask main to check GitHub Releases for a newer version. */
   updateCheck: (): Promise<UpdateStatus> => ipcRenderer.invoke('update:check'),
   /** Download the available update (progress arrives via onUpdateStatus). */
@@ -134,7 +136,7 @@ export type UpdateStatus =
   | { state: 'none' }
   | { state: 'available'; version?: string }
   | { state: 'downloading'; percent?: number }
-  | { state: 'downloaded'; version?: string }
+  | { state: 'downloaded'; version?: string; skill?: boolean }
   | { state: 'error'; message?: string }
 
 export type Api = typeof api

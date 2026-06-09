@@ -45,7 +45,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # electron-builder carica gli installer in una Release "bozza": dopo che ENTRAMBE
-  # le build sono pronte, la rendiamo pubblica (e "latest") in automatico.
+  # le build sono pronte, alleghiamo la skill /reel-ai aggiornata e rendiamo la
+  # release pubblica (e "latest") in automatico.
   publish:
     needs: build
     if: startsWith(github.ref, 'refs/tags/')
@@ -53,7 +54,18 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Pubblica la release (da bozza a pubblica)
+      - uses: actions/checkout@v4
+
+      # Impacchetta la skill così com'è nel repo → reel-ai-skill.zip (cartella reel-ai/ in cima).
+      # L'updater dell'app la scarica da releases/latest/download/reel-ai-skill.zip.
+      - name: Pacchetto skill /reel-ai
+        run: |
+          cd .claude/skills
+          zip -r "$GITHUB_WORKSPACE/reel-ai-skill.zip" reel-ai
+
+      - name: Carica la skill + pubblica la release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release edit "${{ github.ref_name }}" --repo "${{ github.repository }}" --draft=false --latest
+        run: |
+          gh release upload "${{ github.ref_name }}" "$GITHUB_WORKSPACE/reel-ai-skill.zip" --repo "${{ github.repository }}" --clobber
+          gh release edit "${{ github.ref_name }}" --repo "${{ github.repository }}" --draft=false --latest

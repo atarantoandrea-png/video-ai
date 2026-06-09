@@ -7,8 +7,10 @@ type Status =
   | { state: 'none' }
   | { state: 'available'; version?: string }
   | { state: 'downloading'; percent?: number }
-  | { state: 'downloaded'; version?: string }
+  | { state: 'downloaded'; version?: string; skill?: boolean }
   | { state: 'error'; message?: string }
+
+const SITE_URL = 'https://atarantoandrea-png.github.io/video-ai/'
 
 /**
  * "Cerca aggiornamenti" button. Click → check GitHub Releases (via main/electron-updater).
@@ -49,35 +51,43 @@ export function UpdateButton(): JSX.Element {
               Disponibile la versione <b>{status.version}</b> 🎉
             </p>
             <button className="btn btn--primary" style={{ width: '100%' }} onClick={() => void window.api.updateDownload()}>
-              Scarica aggiornamento
+              Scarica e installa
             </button>
+            <p className="update-sub">Si aggiorna da solo e riavvia. Aggiorna anche la skill /reel-ai.</p>
           </>
         )
       case 'downloading':
         return (
           <>
-            <p className="update-line">Scarico… {Math.round(status.percent ?? 0)}%</p>
+            <p className="update-line">Scarico l'aggiornamento… {Math.round(status.percent ?? 0)}%</p>
             <div className="progress">
               <div className="progress-bar" style={{ width: `${status.percent ?? 0}%` }} />
             </div>
+            <p className="update-sub">Non chiudere l'app: al termine si riavvia da sola.</p>
           </>
         )
       case 'downloaded':
         return (
           <>
             <p className="update-line">
-              Versione <b>{status.version}</b> pronta. Riavvia per applicarla.
+              Versione <b>{status.version}</b> pronta{status.skill ? ' (skill /reel-ai aggiornata ✓)' : ''}.
             </p>
             <button className="btn btn--primary" style={{ width: '100%' }} onClick={() => void window.api.updateInstall()}>
-              Riavvia e installa
+              Installa e riavvia
             </button>
+            <p className="update-sub">L'app si chiude, si aggiorna e si riapre da sola.</p>
           </>
         )
       case 'error':
         return (
-          <p className="update-line" style={{ color: 'var(--danger)' }}>
-            Errore aggiornamento: {status.message}
-          </p>
+          <>
+            <p className="update-line" style={{ color: 'var(--danger)' }}>
+              Non riesco ad aggiornare in automatico: {status.message}
+            </p>
+            <button className="btn" style={{ width: '100%' }} onClick={() => void window.api.openExternal(SITE_URL)}>
+              Scarica l'ultima versione dal sito
+            </button>
+          </>
         )
       default:
         return <p className="update-line">Cerca aggiornamenti dell'app.</p>
