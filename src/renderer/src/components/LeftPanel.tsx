@@ -1,6 +1,8 @@
 import { useState, type DragEvent } from 'react'
 import { locateClip, useEditor } from '../state/store'
-import { isMediaClip, type Source } from '@shared/projectSchema'
+import { isMediaClip, type MediaClip, type Source } from '@shared/projectSchema'
+import { LOOKS } from '@shared/looks'
+import { REEL_TEMPLATES } from '@shared/templates'
 import { mediaUrl } from '@shared/media'
 import { formatClock } from '../util/format'
 import { AiPanel } from './AiPanel'
@@ -291,8 +293,13 @@ function EffectsPanel(): JSX.Element {
         <button className="chip" onClick={() => addEffect(clipId, 'brightness')}>Luminosità</button>
         <button className="chip" onClick={() => addEffect(clipId, 'contrast')}>Contrasto</button>
         <button className="chip" onClick={() => addEffect(clipId, 'saturation')}>Saturazione</button>
+        <button className="chip" onClick={() => addEffect(clipId, 'hue')}>Tinta</button>
+        <button className="chip" onClick={() => addEffect(clipId, 'sepia')}>Seppia</button>
+        <button className="chip" onClick={() => addEffect(clipId, 'grayscale')}>B/N</button>
+        <button className="chip" onClick={() => addEffect(clipId, 'vignette')}>Vignettatura</button>
+        <button className="chip" onClick={() => addEffect(clipId, 'grain')}>Grana</button>
       </div>
-      <p className="field-label" style={{ marginTop: 12 }}>Regola i valori nel pannello Proprietà.</p>
+      <p className="field-label" style={{ marginTop: 12 }}>Regola i valori nel pannello Proprietà (a destra).</p>
     </div>
   )
 }
@@ -342,77 +349,69 @@ function TransitionsPanel(): JSX.Element {
 
 function FiltersPanel(): JSX.Element {
   const clipId = useSelectedMediaClipId()
-  const addEffect = useEditor((s) => s.addEffect)
-  if (!clipId) return <div className="empty-hint">Seleziona una clip per applicare un filtro.</div>
-  const presets: { label: string; apply: () => void }[] = [
-    { label: 'Bianco e nero', apply: () => addEffect(clipId, 'saturation', { value: -1 }) },
-    {
-      label: 'Vivido',
-      apply: () => {
-        addEffect(clipId, 'saturation', { value: 0.4 })
-        addEffect(clipId, 'contrast', { value: 0.15 })
-      }
-    },
-    {
-      label: 'Caldo',
-      apply: () => {
-        addEffect(clipId, 'brightness', { value: 0.05 })
-        addEffect(clipId, 'saturation', { value: 0.2 })
-      }
-    },
-    { label: 'Sfocatura', apply: () => addEffect(clipId, 'gblur', { sigma: 12 }) },
-    {
-      label: 'Freddo',
-      apply: () => {
-        addEffect(clipId, 'saturation', { value: 0.1 })
-        addEffect(clipId, 'brightness', { value: -0.03 })
-      }
-    },
-    {
-      label: 'Cinema',
-      apply: () => {
-        addEffect(clipId, 'contrast', { value: 0.25 })
-        addEffect(clipId, 'saturation', { value: -0.15 })
-      }
-    },
-    { label: 'Luminoso', apply: () => addEffect(clipId, 'brightness', { value: 0.12 }) }
-  ]
-  return <FiltersPanelInner clipId={clipId} presets={presets} />
+  if (!clipId) return <div className="empty-hint">Seleziona una clip per applicare un filtro o un modello.</div>
+  return <FiltersPanelInner clipId={clipId} />
 }
 
-function FiltersPanelInner({
-  clipId,
-  presets
-}: {
-  clipId: string
-  presets: { label: string; apply: () => void }[]
-}): JSX.Element {
+function FiltersPanelInner({ clipId }: { clipId: string }): JSX.Element {
+  const setLook = useEditor((s) => s.setLook)
+  const applyReelTemplate = useEditor((s) => s.applyReelTemplate)
   const importLut = useEditor((s) => s.importLut)
   const setLut = useEditor((s) => s.setLut)
   const selCount = useEditor((s) => s.selectedClipIds.length)
+  const look = useEditor((s) => {
+    for (const t of s.project.timeline.tracks)
+      for (const c of t.clips) if (c.id === clipId && c.kind === 'media') return (c as MediaClip).look ?? null
+    return null
+  })
   const hasLut = useEditor((s) => {
     for (const t of s.project.timeline.tracks)
-      for (const c of t.clips) if (c.id === clipId && c.kind === 'media') return !!c.lut
+      for (const c of t.clips) if (c.id === clipId && c.kind === 'media') return !!(c as MediaClip).lut
     return false
   })
   return (
     <div className="scroll" style={{ flex: 1, padding: 12 }}>
-      <div className="section-title" style={{ marginBottom: 8 }}>
-        Filtri rapidi
-      </div>
+      <div className="section-title" style={{ marginBottom: 8 }}>Filtri (look)</div>
       {selCount > 1 && (
-        <div className="multi-hint">✦ Filtro e LUT si applicano a tutte le {selCount} clip selezionate</div>
+        <div className="multi-hint">✦ Si applica a tutte le {selCount} clip selezionate</div>
       )}
       <div className="chip-row">
-        {presets.map((p) => (
-          <button key={p.label} className="chip" onClick={p.apply}>
-            {p.label}
+        {LOOKS.map((lk) => (
+          <button
+            key={lk.id}
+            className={`chip ${(look?.id ?? 'none') === lk.id ? 'chip--active' : ''}`}
+            onClick={() => setLook(clipId, lk.id)}
+          >
+            {lk.label}
           </button>
         ))}
       </div>
-      <div className="section-title" style={{ margin: '16px 0 8px' }}>
-        LUT colore (.cube)
+      {look && look.id !== 'none' && (
+        <div style={{ marginTop: 8 }}>
+          <span className="field-label">Intensità {Math.round((look.intensity ?? 1) * 100)}%</span>
+          <input
+            type="range"
+            min={0}
+            max={1}
+            step={0.05}
+            value={look.intensity ?? 1}
+            style={{ width: '100%' }}
+            onChange={(e) => setLook(clipId, look.id, parseFloat(e.target.value))}
+          />
+        </div>
+      )}
+
+      <div className="section-title" style={{ margin: '16px 0 8px' }}>Modelli reel (1 click)</div>
+      <p className="field-label" style={{ margin: '0 0 8px' }}>Stilizza TUTTO il reel: colore + transizioni.</p>
+      <div className="chip-row">
+        {REEL_TEMPLATES.map((tpl) => (
+          <button key={tpl.id} className="chip" title={`Applica «${tpl.label}» a tutto il reel`} onClick={() => applyReelTemplate(tpl.id)}>
+            {tpl.label}
+          </button>
+        ))}
       </div>
+
+      <div className="section-title" style={{ margin: '16px 0 8px' }}>LUT colore (.cube)</div>
       <button className="btn" style={{ width: '100%' }} onClick={() => void importLut(clipId)}>
         🎨 {hasLut ? 'Sostituisci LUT…' : 'Importa LUT…'}
       </button>
@@ -421,9 +420,6 @@ function FiltersPanelInner({
           Rimuovi LUT
         </button>
       )}
-      <p className="field-label" style={{ marginTop: 12, lineHeight: 1.5 }}>
-        Sticker e musica: importa un PNG o un audio dal pannello Media e trascinalo sulla timeline.
-      </p>
     </div>
   )
 }

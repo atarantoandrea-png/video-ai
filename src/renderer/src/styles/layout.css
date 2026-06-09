@@ -201,8 +201,8 @@ input[type='range']:hover::-webkit-slider-thumb {
   display: flex;
   gap: 4px;
   padding: 8px;
-  flex-wrap: nowrap;
-  overflow-x: auto;
+  flex-wrap: wrap;
+  overflow-x: visible;
   overflow-y: hidden;
   scrollbar-width: thin;
   border-bottom: 1px solid var(--border);
