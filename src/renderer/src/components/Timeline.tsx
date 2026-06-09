@@ -39,7 +39,7 @@ function snapPoints(project: Project, playhead: number, excludeClipId: string): 
   return [...pts]
 }
 
-function snap(value: number, points: number[], pxPerSec: number, thresholdPx = 8): number {
+function snap(value: number, points: number[], pxPerSec: number, thresholdPx = 11): number {
   let best = value
   let bestDist = thresholdPx / pxPerSec
   for (const p of points) {
@@ -547,6 +547,7 @@ function TrackLane({
       style={{ height: trackHeight(track.type, scale) }}
       data-track-id={track.id}
       data-track-type={track.type}
+      onMouseEnter={() => useEditor.getState().setHoverTrack(track.id)}
     >
       {track.clips.map((clip) => (
         <ClipBlock

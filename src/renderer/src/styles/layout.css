@@ -1113,18 +1113,22 @@ input[type='range']:hover::-webkit-slider-thumb {
   top: 0;
   bottom: 0;
   width: 2px;
-  background: var(--danger);
+  background: linear-gradient(to bottom, #ff6275, #ff1e3c 60%, #ff2b48);
+  box-shadow: 0 0 7px rgba(255, 40, 70, 0.6);
+  border-radius: 2px;
   z-index: 4;
   pointer-events: none;
 }
+/* slim glossy downward "pin" at the top of the line */
 .playhead-grip {
   position: absolute;
-  top: 0;
-  left: -7px;
-  width: 16px;
-  height: 16px;
-  background: var(--danger);
-  border-radius: 0 0 8px 8px;
+  top: -2px;
+  left: -5px;
+  width: 12px;
+  height: 14px;
+  background: linear-gradient(150deg, #ff8a98, #ff2540 72%);
+  box-shadow: 0 3px 9px rgba(255, 40, 70, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  clip-path: polygon(0 0, 100% 0, 100% 56%, 50% 100%, 0 56%);
   pointer-events: auto;
   cursor: ew-resize;
 }

@@ -101,6 +101,8 @@ interface State {
    *  is the "primary" of this set and still drives the Inspector / preview overlays. */
   selectedClipIds: string[]
   selectedSourceId: string | null
+  /** Track currently under the mouse in the timeline (so paste lands on it). */
+  hoverTrackId: string | null
   /** Playhead position in seconds. */
   playhead: number
   isPlaying: boolean
@@ -145,6 +147,8 @@ interface Actions {
   setSelectedClips: (ids: string[]) => void
   /** Delete every selected clip in one undoable step. */
   removeSelectedClips: () => void
+  /** Remember which track the mouse is over (paste targets it). */
+  setHoverTrack: (id: string | null) => void
   /** Shift every selected clip by deltaSec on the timeline (one undo). */
   moveSelectedBy: (deltaSec: number) => void
   selectSource: (id: string | null) => void
@@ -279,6 +283,29 @@ function insertTrack(project: Project, type: TrackType): Track {
   return track
 }
 
+/**
+ * Canva-style placement: clips of the same type NEVER overlap on a track. Returns the
+ * first same-type track where [start,end) is free — the preferred one if possible,
+ * else any other same-type track, else a brand-new track (so overlaps stack vertically).
+ */
+function freeTrackFor(
+  project: Project,
+  type: TrackType,
+  start: number,
+  end: number,
+  preferredId?: string,
+  excludeClipId?: string
+): Track {
+  const eps = 0.0015
+  const free = (t: Track): boolean =>
+    t.type === type &&
+    !t.clips.some((c) => c.id !== excludeClipId && c.timelineStart < end - eps && c.timelineEnd > start + eps)
+  const pref = preferredId ? project.timeline.tracks.find((t) => t.id === preferredId) : undefined
+  if (pref && free(pref)) return pref
+  for (const t of project.timeline.tracks) if (t !== pref && free(t)) return t
+  return insertTrack(project, type)
+}
+
 /** Load the last session's project so reloads/restarts don't lose work. */
 function loadPersistedProject(): Project {
   try {
@@ -378,6 +405,7 @@ export const useEditor = create<EditorStore>()(
       selectedClipId: null,
       selectedClipIds: [],
       selectedSourceId: null,
+      hoverTrackId: null,
       playhead: 0,
       isPlaying: false,
       pxPerSec: 60,
@@ -577,6 +605,8 @@ export const useEditor = create<EditorStore>()(
       },
       selectSource: (id) => set((s) => void (s.selectedSourceId = id)),
 
+      setHoverTrack: (id) => set((s) => void (s.hoverTrackId = id)),
+
       updateClip: (clipId, recipe) => {
         commit((s) => {
           const loc = locateClip(s.project, clipId)
@@ -683,14 +713,18 @@ export const useEditor = create<EditorStore>()(
           const loc = locateClip(s.project, clipId)
           if (!loc) return
           const dur = orig.timelineEnd - orig.timelineStart
-          const copy: Clip = {
-            ...orig,
-            id: genId('clp'),
-            timelineStart: orig.timelineEnd,
-            timelineEnd: orig.timelineEnd + dur
-          }
+          const at = orig.timelineEnd
+          // RIPPLE: push every later clip on this track right by `dur` to make room.
+          for (const c of loc.track.clips)
+            if (c.id !== clipId && c.timelineStart >= at - 0.0015) {
+              c.timelineStart += dur
+              c.timelineEnd += dur
+            }
+          const copy: Clip = { ...orig, id: genId('clp'), timelineStart: at, timelineEnd: at + dur }
           loc.track.clips.splice(loc.clipIndex + 1, 0, copy)
+          loc.track.clips.sort((a, b) => a.timelineStart - b.timelineStart)
           s.selectedClipId = copy.id
+          s.selectedClipIds = [copy.id]
         })
       },
 
@@ -702,27 +736,29 @@ export const useEditor = create<EditorStore>()(
       pasteClip: () => {
         const clip = get().clipboard
         if (!clip) return
-        const playhead = get().playhead
+        const start = Math.max(0, get().playhead) // exactly at the red playhead line
+        const hoverId = get().hoverTrackId // the track the mouse is over
         commit((s) => {
-          let track: Track | undefined
-          if (clip.kind === 'text') {
-            track = s.project.timeline.tracks.find((t) => t.type === 'text') ?? insertTrack(s.project, 'text')
-          } else {
-            const so = s.project.sources.find((x) => x.id === (clip as MediaClip).sourceId)
-            const want: TrackType = so && !so.hasVideo ? 'audio' : 'video'
-            track = s.project.timeline.tracks.find((t) => t.type === want) ?? insertTrack(s.project, want)
-          }
+          const type: TrackType =
+            clip.kind === 'text'
+              ? 'text'
+              : s.project.sources.find((x) => x.id === (clip as MediaClip).sourceId)?.hasVideo === false
+                ? 'audio'
+                : 'video'
           const dur = clip.timelineEnd - clip.timelineStart
           const copy: Clip = {
             ...structuredClone(clip),
             id: genId('clp'),
-            trackId: track.id,
-            timelineStart: playhead,
-            timelineEnd: playhead + dur
+            timelineStart: start,
+            timelineEnd: start + dur
           }
-          track.clips.push(copy)
-          track.clips.sort((a, b) => a.timelineStart - b.timelineStart)
+          const hover = hoverId ? s.project.timeline.tracks.find((t) => t.id === hoverId) : undefined
+          const dest = freeTrackFor(s.project, type, start, start + dur, hover?.type === type ? hover.id : undefined)
+          copy.trackId = dest.id
+          dest.clips.push(copy)
+          dest.clips.sort((a, b) => a.timelineStart - b.timelineStart)
           s.selectedClipId = copy.id
+          s.selectedClipIds = [copy.id]
         })
       },
 
@@ -876,18 +912,24 @@ export const useEditor = create<EditorStore>()(
         commit((s) => {
           const loc = locateClip(s.project, clipId)
           if (!loc) return
-          const dur = loc.clip.timelineEnd - loc.clip.timelineStart
+          const c = loc.clip
+          const type = loc.track.type
+          const dur = c.timelineEnd - c.timelineStart
           const start = Math.max(0, newStart)
-          loc.clip.timelineStart = start
-          loc.clip.timelineEnd = start + dur
-          if (newTrackId && newTrackId !== loc.track.id) {
-            const to = s.project.timeline.tracks.find((t) => t.id === newTrackId)
-            if (to && to.type === loc.track.type) {
-              s.project.timeline.tracks[loc.trackIndex].clips.splice(loc.clipIndex, 1)
-              loc.clip.trackId = newTrackId
-              to.clips.push(loc.clip)
-            }
-          }
+          // Pull the clip out, then re-place it WITHOUT overlap: the requested track if
+          // free, otherwise another same-type track, otherwise a new one (Canva-style —
+          // two clips can never sit on top of each other on the same track).
+          loc.track.clips.splice(loc.clipIndex, 1)
+          c.timelineStart = start
+          c.timelineEnd = start + dur
+          const wantId =
+            newTrackId && s.project.timeline.tracks.find((t) => t.id === newTrackId)?.type === type
+              ? newTrackId
+              : loc.track.id
+          const dest = freeTrackFor(s.project, type, start, start + dur, wantId, c.id)
+          c.trackId = dest.id
+          dest.clips.push(c)
+          dest.clips.sort((a, b) => a.timelineStart - b.timelineStart)
         })
       },
 
