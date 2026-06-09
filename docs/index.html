@@ -324,60 +324,84 @@ fetch(`https://api.github.com/repos/${REPO}/releases/latest`).then(r=>r.ok?r.jso
 }).catch(()=>{});
 document.querySelectorAll('.copy').forEach(b=>b.addEventListener('click',()=>{const t=b.parentElement.textContent.replace(/^copia/,'').trim();navigator.clipboard.writeText(t);const o=b.textContent;b.textContent='copiato ✓';setTimeout(()=>b.textContent=o,1200);}));
 
-/* ===== professional scroll-orbit: every card revolves around the centered sphere ===== */
-const cards=[...document.querySelectorAll('.orbit')].map(el=>({el,cur:{x:0,z:0,ry:0,rx:0,op:1,sc:1}}));
+/* ===== TORNADO scroll-orbit: every card swirls hard around the central vortex ===== */
+const cards=[...document.querySelectorAll('.orbit')].map(el=>({el,cur:{x:0,z:0,ry:0,rx:0,rz:0,op:1,sc:1}}));
 const lerp=(a,b,k)=>a+(b-a)*k;
 function frameCards(){
   const vh=innerHeight, mid=vh*0.46;
-  // read all rects first (avoid layout thrash), then write
   const tgt=cards.map(c=>{
     const r=c.el.getBoundingClientRect();
-    let t=(r.top+r.height/2-mid)/vh;              // 0 = active/front
-    t=Math.max(-1.4,Math.min(1.4,t));
-    const dz=0.10, e=Math.abs(t)<dz?0:(t-Math.sign(t)*dz)/(1-dz);
-    const a=e*1.12;                                // orbit angle (rad), faces front at center
-    return {x:Math.sin(a)*350, z:(Math.cos(a)-1)*330-Math.abs(e)*40,
-            ry:a*57.2958*0.95, rx:-e*6,
-            op:1-Math.min(0.7,Math.abs(e)*0.7), sc:1-Math.abs(e)*0.06};
+    let t=(r.top+r.height/2-mid)/vh; t=Math.max(-1.45,Math.min(1.45,t));
+    const dz=0.13, e=Math.abs(t)<dz?0:(t-Math.sign(t)*dz)/(1-dz);  // flat & readable at the centre
+    const a=e*2.15;                                 // BIG swing → cards whip around the vortex
+    return {x:Math.sin(a)*490, z:(Math.cos(a)-1)*470-Math.abs(e)*70,
+            ry:a*57.2958*0.8, rx:-e*8, rz:t*9,      // rz = spiral twist (tornado)
+            op:1-Math.min(0.85,Math.abs(e)*0.85), sc:1-Math.abs(e)*0.11};
   });
   for(let i=0;i<cards.length;i++){
-    const c=cards[i], g=tgt[i], k=0.14;
+    const c=cards[i], g=tgt[i], k=0.17;
     c.cur.x=lerp(c.cur.x,g.x,k); c.cur.z=lerp(c.cur.z,g.z,k); c.cur.ry=lerp(c.cur.ry,g.ry,k);
-    c.cur.rx=lerp(c.cur.rx,g.rx,k); c.cur.op=lerp(c.cur.op,g.op,k); c.cur.sc=lerp(c.cur.sc,g.sc,k);
-    c.el.style.transform=`perspective(1300px) translate3d(${c.cur.x.toFixed(1)}px,0,${c.cur.z.toFixed(1)}px) rotateY(${c.cur.ry.toFixed(2)}deg) rotateX(${c.cur.rx.toFixed(2)}deg) scale(${c.cur.sc.toFixed(3)})`;
+    c.cur.rx=lerp(c.cur.rx,g.rx,k); c.cur.rz=lerp(c.cur.rz,g.rz,k); c.cur.op=lerp(c.cur.op,g.op,k); c.cur.sc=lerp(c.cur.sc,g.sc,k);
+    c.el.style.transform=`perspective(1150px) translate3d(${c.cur.x.toFixed(1)}px,0,${c.cur.z.toFixed(1)}px) rotateY(${c.cur.ry.toFixed(2)}deg) rotateX(${c.cur.rx.toFixed(2)}deg) rotateZ(${c.cur.rz.toFixed(2)}deg) scale(${c.cur.sc.toFixed(3)})`;
     c.el.style.opacity=c.cur.op.toFixed(3);
   }
 }
 
-/* ===== Three.js: a glowing sphere fixed at center; the cards orbit IT ===== */
+/* ===== Three.js: a glowing particle TORNADO; scroll spins the vortex faster ===== */
 (function(){
   const canvas=document.getElementById('bg-canvas'); if(!window.THREE){ (function l(){frameCards();requestAnimationFrame(l);})(); return; }
   const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
   renderer.setPixelRatio(Math.min(devicePixelRatio,2));
   const scene=new THREE.Scene();
-  const cam=new THREE.PerspectiveCamera(58,innerWidth/innerHeight,.1,100); cam.position.z=8.4;
-  const mesh=new THREE.Mesh(new THREE.IcosahedronGeometry(2.55,1),new THREE.MeshBasicMaterial({color:0x1fe6c2,wireframe:true,transparent:true,opacity:.5}));
-  const inner=new THREE.Mesh(new THREE.IcosahedronGeometry(1.65,0),new THREE.MeshBasicMaterial({color:0x5cf3da,wireframe:true,transparent:true,opacity:.18}));
-  const ringG=new THREE.Group();
-  const ring=new THREE.Mesh(new THREE.TorusGeometry(3.7,.015,10,100),new THREE.MeshBasicMaterial({color:0x7aa8ff,transparent:true,opacity:.4})); ring.rotation.x=Math.PI/2.3;
-  const ring2=new THREE.Mesh(new THREE.TorusGeometry(4.4,.012,10,100),new THREE.MeshBasicMaterial({color:0x1fe6c2,transparent:true,opacity:.22})); ring2.rotation.x=Math.PI/3;
-  ringG.add(ring,ring2); scene.add(mesh,inner,ringG);
-  const N=1100,pos=new Float32Array(N*3);
-  for(let i=0;i<N;i++){const rr=12+Math.random()*26,th=Math.random()*6.28,ph=Math.acos(2*Math.random()-1);pos[i*3]=rr*Math.sin(ph)*Math.cos(th);pos[i*3+1]=rr*Math.sin(ph)*Math.sin(th);pos[i*3+2]=rr*Math.cos(ph);}
-  const pg=new THREE.BufferGeometry();pg.setAttribute('position',new THREE.BufferAttribute(pos,3));
-  scene.add(new THREE.Points(pg,new THREE.PointsMaterial({color:0x9fb0c6,size:.05,transparent:true,opacity:.7})));
+  const cam=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,140); cam.position.set(0,0,12);
+
+  // glowing core — the eye of the tornado
+  const core=new THREE.Mesh(new THREE.IcosahedronGeometry(1.15,1),
+    new THREE.MeshBasicMaterial({color:0x5cf3da,wireframe:true,transparent:true,opacity:.6}));
+  scene.add(core);
+
+  // spiral funnel layers of glowing particles
+  const tornado=new THREE.Group(); scene.add(tornado);
+  function spiral(count,turns,rTop,rMin,col,size,op){
+    const p=new Float32Array(count*3);
+    for(let i=0;i<count;i++){
+      const f=i/count, y=-9.5+19*f, r=rMin+Math.pow(f,1.3)*rTop+Math.random()*0.5, ang=f*turns*6.2832+Math.random()*0.25;
+      p[i*3]=Math.cos(ang)*r; p[i*3+1]=y+(Math.random()-.5)*0.4; p[i*3+2]=Math.sin(ang)*r;
+    }
+    const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.BufferAttribute(p,3));
+    return new THREE.Points(g,new THREE.PointsMaterial({color:col,size,transparent:true,opacity:op,blending:THREE.AdditiveBlending,depthWrite:false}));
+  }
+  const L1=spiral(1500,5,3.0,.5,0x1fe6c2,.06,.9), L2=spiral(1200,4,4.6,.8,0x5cf3da,.05,.6), L3=spiral(900,6,6.2,1.2,0x7aa8ff,.045,.4);
+  tornado.add(L1,L2,L3);
+
+  // energy rings
+  const rings=new THREE.Group(); scene.add(rings);
+  for(let i=0;i<3;i++){
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(2.2+i*1.4,.02,10,120),
+      new THREE.MeshBasicMaterial({color:i%2?0x1fe6c2:0x7aa8ff,transparent:true,opacity:.32,blending:THREE.AdditiveBlending}));
+    ring.rotation.x=Math.PI/2; ring.position.y=(i-1)*2.6; rings.add(ring);
+  }
+
+  // starfield
+  const N=900,sp=new Float32Array(N*3);
+  for(let i=0;i<N;i++){const rr=15+Math.random()*32,th=Math.random()*6.28,ph=Math.acos(2*Math.random()-1);sp[i*3]=rr*Math.sin(ph)*Math.cos(th);sp[i*3+1]=rr*Math.sin(ph)*Math.sin(th);sp[i*3+2]=rr*Math.cos(ph);}
+  const sg=new THREE.BufferGeometry();sg.setAttribute('position',new THREE.BufferAttribute(sp,3));
+  scene.add(new THREE.Points(sg,new THREE.PointsMaterial({color:0x8fa0b8,size:.05,transparent:true,opacity:.55})));
+
   let mx=0,my=0; addEventListener('mousemove',e=>{mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5;});
   function resize(){renderer.setSize(innerWidth,innerHeight);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();}
   addEventListener('resize',resize);resize();
   let t=0;
-  (function loop(){t+=.0032;
+  (function loop(){t+=.01;
     const max=Math.max(1,document.body.scrollHeight-innerHeight), prog=Math.min(1,(scrollY||0)/max);
-    mesh.rotation.y=t*1.1+prog*4.5; mesh.rotation.x=t*.6+prog*1.4;
-    inner.rotation.y=-t*1.2; inner.rotation.x=t*.8;
-    ringG.rotation.z=t*.5+prog*2; ringG.rotation.x=prog*0.8;
-    cam.position.x += (mx*1.3 - cam.position.x)*.05;
-    cam.position.y += (-my*1.0 - cam.position.y)*.05;
-    cam.lookAt(0,0,0);
+    const spin=t*0.5+prog*16;                          // scroll dramatically accelerates the vortex
+    L1.rotation.y=spin*1.7; L2.rotation.y=spin*1.2+0.5; L3.rotation.y=spin*0.85;
+    tornado.rotation.z=Math.sin(t*0.3)*0.07;
+    core.rotation.y=t*1.6+prog*5; core.rotation.x=t;
+    rings.rotation.y=spin*0.6; rings.children.forEach((r,i)=>r.rotation.z=spin*(0.5+i*0.25));
+    cam.position.x+=(mx*2.4-cam.position.x)*.04;
+    cam.position.y+=(-my*1.6+prog*1.6-cam.position.y)*.04;
+    cam.lookAt(0,prog*0.7,0);
     renderer.render(scene,cam);
     frameCards();
     requestAnimationFrame(loop);
