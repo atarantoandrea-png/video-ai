@@ -45,7 +45,15 @@ export const LOOKS: LookDef[] = [
   { id: 'sunset', label: 'Tramonto', params: { sep: 0.16, s: 0.3, hue: 6, c: 0.1 } },
   { id: 'teal', label: 'Teal & Orange', params: { hue: -6, s: 0.26, c: 0.16 } },
   { id: 'dreamy', label: 'Sognante', params: { b: 0.06, s: 0.16, blur: 1.2, c: -0.04 } },
-  { id: 'mono-blue', label: 'Blu notte', params: { gray: 0.85, hue: 200, s: 0.4, b: -0.03, c: 0.1 } }
+  { id: 'mono-blue', label: 'Blu notte', params: { gray: 0.85, hue: 200, s: 0.4, b: -0.03, c: 0.1 } },
+  { id: 'matte', label: 'Matte', params: { c: -0.12, s: -0.08, b: 0.05 } },
+  { id: 'film', label: 'Film', params: { c: 0.1, s: 0.06, sep: 0.08, b: -0.01 } },
+  { id: 'gold', label: 'Golden hour', params: { sep: 0.2, s: 0.24, b: 0.05, c: 0.08 } },
+  { id: 'moody', label: 'Moody', params: { b: -0.06, c: 0.18, s: -0.1 } },
+  { id: 'cyber', label: 'Cyber', params: { hue: -20, s: 0.42, c: 0.2 } },
+  { id: 'autumn', label: 'Autunno', params: { sep: 0.18, hue: -8, s: 0.2, c: 0.08 } },
+  { id: 'frost', label: 'Frost', params: { hue: 10, s: -0.05, b: 0.06, c: 0.06 } },
+  { id: 'crisp', label: 'Nitido', params: { c: 0.12, s: 0.18, b: 0.02 } }
 ]
 
 export function lookById(id: string | undefined | null): LookDef | undefined {

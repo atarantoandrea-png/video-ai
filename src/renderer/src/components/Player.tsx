@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useEditor } from '../state/store'
 import { isMediaClip, timelineDuration } from '@shared/projectSchema'
 import { formatTimecode } from '../util/format'
@@ -47,10 +48,21 @@ export function Player(): JSX.Element {
 
   const [stageRef, stage] = useElementSize<HTMLDivElement>()
   const frame = fitWithin(stage.w - 32, stage.h - 32, canvasW, canvasH)
+  const [showSafe, setShowSafe] = useState(false)
 
   return (
     <div className="panel panel--center">
-      <div className="panel-head">Anteprima</div>
+      <div className="panel-head">
+        Anteprima
+        <button
+          className={`chip chip--mini ${showSafe ? 'chip--active' : ''}`}
+          style={{ marginLeft: 'auto' }}
+          title="Mostra le zone coperte dall'interfaccia di TikTok/Reels (nome, caption, pulsanti)"
+          onClick={() => setShowSafe((v) => !v)}
+        >
+          Zone sicure
+        </button>
+      </div>
 
       <div className="player-stage" ref={stageRef}>
         <div className="player-frame" style={{ width: frame.w, height: frame.h }}>
@@ -59,6 +71,15 @@ export function Player(): JSX.Element {
           <MaskOverlay frameW={frame.w} frameH={frame.h} />
           <TextOverlay frameW={frame.w} frameH={frame.h} />
           <FaceSelectOverlay frameW={frame.w} frameH={frame.h} />
+          {showSafe && (
+            <div className="safe-zones">
+              <div className="safe-band safe-band--top" />
+              <div className="safe-band safe-band--bottom" />
+              <div className="safe-box" />
+              <span className="safe-lbl" style={{ top: '3.5%' }}>nome / UI in alto</span>
+              <span className="safe-lbl" style={{ bottom: '3.5%' }}>caption / pulsanti in basso</span>
+            </div>
+          )}
           {optimizing && (
             <div className="optimizing-overlay">
               Ottimizzazione video…
