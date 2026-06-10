@@ -182,6 +182,9 @@ export interface MediaClip extends ClipBase {
   sourceOut: number
   /** Playback speed multiplier (1 = normal). */
   speed: number
+  /** Smooth speed ramp: normalised relative-speed curve over the clip (avg≈1). Null/absent
+   *  = constant speed. Rendered frame-accurately in preview + hi-fi export. */
+  speedRamp?: import('./speedRamp').SpeedKey[] | null
   /** Play the clip backwards. */
   reverse?: boolean
   crop: CropRect

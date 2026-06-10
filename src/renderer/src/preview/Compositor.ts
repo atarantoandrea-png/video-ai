@@ -12,7 +12,28 @@ import { resolveTransformAt, resolveMaskAt } from '@shared/anim'
 import { resolveTextMotion } from '@shared/textAnim'
 import { lookCss } from '@shared/looks'
 import { mediaUrl } from '@shared/media'
+import { rampIntegral, rampSpeedAt } from '@shared/speedRamp'
 import { clamp01, hexWithAlpha, hexToNum } from '../util/color'
+
+/** Source seconds a clip has consumed by output time `atSec` — ramp-aware (variable speed). */
+function rampedInto(clip: MediaClip, atSec: number): number {
+  const base = clip.speed && clip.speed > 0 ? clip.speed : 1
+  const outDur = clip.timelineEnd - clip.timelineStart
+  if (clip.speedRamp && clip.speedRamp.length >= 2 && outDur > 0) {
+    const f = clamp01((atSec - clip.timelineStart) / outDur)
+    return base * outDur * rampIntegral(clip.speedRamp, f)
+  }
+  return (atSec - clip.timelineStart) * base
+}
+/** Instantaneous playback rate at output time `atSec` (for smooth ramped playback). */
+function rampedRate(clip: MediaClip, atSec: number): number {
+  const base = clip.speed && clip.speed > 0 ? clip.speed : 1
+  const outDur = clip.timelineEnd - clip.timelineStart
+  if (clip.speedRamp && clip.speedRamp.length >= 2 && outDur > 0) {
+    return base * rampSpeedAt(clip.speedRamp, clamp01((atSec - clip.timelineStart) / outDur))
+  }
+  return base
+}
 
 interface MediaEl {
   el: HTMLVideoElement | HTMLImageElement
@@ -496,8 +517,7 @@ export class Compositor {
         const m = this.ensureMedia(src)
         if (!m.isVideo) continue
         const vid = m.el as HTMLVideoElement
-        const speed = clip.speed && clip.speed > 0 ? clip.speed : 1
-        const into = (t - clip.timelineStart) * speed
+        const into = rampedInto(clip, t)
         const desired = Math.max(0, clip.reverse ? clip.sourceOut - into : clip.sourceIn + into)
         if (vid.readyState < 2 || Math.abs(vid.currentTime - desired) > 0.005) {
           seeks.push(
@@ -554,14 +574,14 @@ export class Compositor {
     const sh = (vid ? vid.videoHeight : (m.el as HTMLImageElement).naturalHeight) || src.height
 
     if (vid) {
-      const speed = clip.speed && clip.speed > 0 ? clip.speed : 1
-      const into = (playhead - clip.timelineStart) * speed
+      const into = rampedInto(clip, playhead)
+      const instRate = rampedRate(clip, playhead)
       const desired = Math.max(0, clip.reverse ? clip.sourceOut - into : clip.sourceIn + into)
       if (isFinite(desired)) {
         // Reverse can't play() backwards, so scrub it frame-by-frame like a paused clip.
         if (isPlaying && !clip.reverse) {
           if (vid.paused) void vid.play().catch(() => undefined)
-          vid.playbackRate = Math.max(0.0625, Math.min(16, speed))
+          vid.playbackRate = Math.max(0.0625, Math.min(16, instRate))
           // Audio fade in/out, so you HEAR the dissolve in the preview (not only on export).
           const tIn = playhead - clip.timelineStart
           const tEnd = clip.timelineEnd - playhead

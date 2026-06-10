@@ -97,6 +97,7 @@ function MediaInspector({ clip }: { clip: MediaClip }): JSX.Element {
   const flipClip = useEditor((s) => s.flipClip)
   const duplicateClip = useEditor((s) => s.duplicateClip)
   const setSpeed = useEditor((s) => s.setSpeed)
+  const setSpeedRamp = useEditor((s) => s.setSpeedRamp)
   const toggleReverse = useEditor((s) => s.toggleReverse)
   const extractAudio = useEditor((s) => s.extractAudio)
   const toggleClipAudioFlag = useEditor((s) => s.toggleClipAudioFlag)
@@ -204,6 +205,27 @@ function MediaInspector({ clip }: { clip: MediaClip }): JSX.Element {
             onClick={() => toggleReverse(clip.id)}
           >
             ⇄ Inverti
+          </button>
+        </div>
+        <div className="section-title" style={{ marginTop: 12 }}>
+          Speed ramp (velocità morbida)
+        </div>
+        <div className="chip-row" style={{ marginTop: 6 }}>
+          <button
+            className={`chip ${!clip.speedRamp ? 'chip--active' : ''}`}
+            title="Velocità costante (nessun ramp)"
+            onClick={() => setSpeedRamp(clip.id, null)}
+          >
+            Costante
+          </button>
+          <button className="chip" title="Rallenta al centro, veloce ai lati (slow-mo)" onClick={() => setSpeedRamp(clip.id, 'slowmo')}>
+            🐢 Slow-mo
+          </button>
+          <button className="chip" title="Parte piano e accelera" onClick={() => setSpeedRamp(clip.id, 'speedup')}>
+            ⏩ Accelera
+          </button>
+          <button className="chip" title="Parte veloce e rallenta" onClick={() => setSpeedRamp(clip.id, 'slowdown')}>
+            ⏬ Rallenta
           </button>
         </div>
       </div>

@@ -31,6 +31,7 @@ import {
   rippleClose as rippleCloseTrack,
   resolveTrim
 } from '@shared/timelineOps'
+import { normalizeRamp, SPEED_RAMP_PRESETS, type SpeedRampPreset } from '@shared/speedRamp'
 import { mediaUrl } from '@shared/media'
 import { buildFaceTrack, detectFacesAt, type NormFace } from '../preview/faceDetect'
 import { compositor } from '../preview/Compositor'
@@ -254,6 +255,8 @@ interface Actions {
   removeTransition: (clipId: string) => void
   /** Set playback speed (0.1–10); rescales the clip's timeline duration. */
   setSpeed: (clipId: string, speed: number) => void
+  /** Apply a smooth speed-ramp preset to a clip (null = remove → constant speed). */
+  setSpeedRamp: (clipId: string, preset: SpeedRampPreset | null) => void
   toggleReverse: (clipId: string) => void
   /** Detach a video clip's audio onto its own audio track (and mute the video's). */
   extractAudio: (clipId: string) => void
@@ -1507,6 +1510,17 @@ export const useEditor = create<EditorStore>()(
             const srcDur = Math.max(0.05, c.sourceOut - c.sourceIn)
             c.speed = v
             c.timelineEnd = c.timelineStart + srcDur / v
+          }
+        })
+      },
+
+      setSpeedRamp: (clipId, preset) => {
+        commit((s) => {
+          const loc = locateClip(s.project, clipId)
+          if (loc && isMediaClip(loc.clip)) {
+            // Normalised to avg 1 → keeps the clip's source coverage and duration; the ramp
+            // just redistributes speed within (slow-mo wave, ease-in/out).
+            loc.clip.speedRamp = preset ? normalizeRamp(SPEED_RAMP_PRESETS[preset]) : null
           }
         })
       },

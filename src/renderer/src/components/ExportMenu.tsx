@@ -11,6 +11,13 @@ export function ExportMenu({ onClose }: { onClose: () => void }): JSX.Element {
   const startHifiExport = useEditor((s) => s.startHifiExport)
   const canvasW = useEditor((s) => s.project.canvas.width)
   const canvasH = useEditor((s) => s.project.canvas.height)
+  // A smooth speed ramp can only be rendered frame-accurately, so its presence forces the
+  // hi-fi (canvas) export path — otherwise the variable speed would be lost.
+  const hasRamp = useEditor((s) =>
+    s.project.timeline.tracks.some((t) =>
+      t.clips.some((c) => c.kind === 'media' && !!c.speedRamp && c.speedRamp.length >= 2)
+    )
+  )
   const [scale, setScale] = useState(1)
   const [fps, setFps] = useState(0) // 0 = keep project fps
   const [quality, setQuality] = useState<'low' | 'medium' | 'high'>('high')
@@ -36,7 +43,7 @@ export function ExportMenu({ onClose }: { onClose: () => void }): JSX.Element {
   const run = (): void => {
     onClose()
     const s = { outputScale: scale, fps: fps || undefined, quality, format }
-    if (hifi && format !== 'gif') void startHifiExport(s)
+    if ((hifi || hasRamp) && format !== 'gif') void startHifiExport(s)
     else void startExport(s)
   }
 
