@@ -34,10 +34,13 @@ win:
     - target: nsis
       arch: [x64]
   artifactName: "Video-AI-${version}-win-${arch}.${ext}"
+# One-click installer so updates apply automatically (no wizard) and the app
+# relaunches itself — matches the Mac auto-update UX. perMachine:false = per-user
+# install, so no admin/UAC prompt (important since the app is unsigned).
 nsis:
-  oneClick: false
+  oneClick: true
   perMachine: false
-  allowToChangeInstallationDirectory: true
+  runAfterFinish: true
   artifactName: "Video-AI-${version}-win-x64-setup.${ext}"
 
 # ---- Auto-update feed (electron-updater reads GitHub Releases) ----
