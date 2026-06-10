@@ -282,5 +282,18 @@ if [ "$REPLACED" = "1" ]; then open "$DEST"; else open "$DMG"; fi
           /* offline / rate-limited / no release — ignore */
         })
     }, 4000)
+
+    // Re-check every 6h so an app left open for days still notices a new release
+    // (the ⟳ dot lights up on its own — no need to remember to check).
+    setInterval(
+      () => {
+        void doCheck(false)
+          .then((s) => {
+            if (s.state === 'available') broadcast(s)
+          })
+          .catch(() => undefined)
+      },
+      6 * 60 * 60 * 1000
+    )
   }
 }

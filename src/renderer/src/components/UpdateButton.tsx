@@ -12,6 +12,10 @@ type Status =
 
 const SITE_URL = 'https://atarantoandrea-png.github.io/video-ai/'
 
+// Surface a freshly-detected update once per app session (so the user can't miss
+// it), without nagging if they close the popover and keep working.
+let autoOpened = false
+
 /**
  * "Cerca aggiornamenti" button. Click ⟳ → check GitHub Releases (custom updater in main).
  * If a newer version exists, ONE click on "Scarica e installa" does the whole thing:
@@ -22,7 +26,19 @@ export function UpdateButton(): JSX.Element {
   const [status, setStatus] = useState<Status>({ state: 'idle' })
   const [open, setOpen] = useState(false)
 
-  useEffect(() => window.api.onUpdateStatus((s) => setStatus(s as Status)), [])
+  useEffect(
+    () =>
+      window.api.onUpdateStatus((s) => {
+        const st = s as Status
+        setStatus(st)
+        // Pop the panel open the first time an update is found this session.
+        if (st.state === 'available' && !autoOpened) {
+          autoOpened = true
+          setOpen(true)
+        }
+      }),
+    []
+  )
 
   // Fully automatic: as soon as the download finishes, install & relaunch on our
   // own — the user just clicks once and the app updates and restarts by itself.
@@ -103,7 +119,11 @@ export function UpdateButton(): JSX.Element {
 
   return (
     <div style={{ position: 'relative' }}>
-      <button className="iconbtn" title="Cerca aggiornamenti" onClick={() => void check()}>
+      <button
+        className="iconbtn"
+        title={hot ? 'Aggiornamento disponibile — clicca per installarlo' : 'Cerca aggiornamenti'}
+        onClick={() => void check()}
+      >
         ⟳{hot && <span className="update-dot" />}
       </button>
       {open && (
