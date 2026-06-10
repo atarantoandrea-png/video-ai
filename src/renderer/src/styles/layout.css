@@ -366,6 +366,40 @@ input[type='range']:hover::-webkit-slider-thumb {
   cursor: grabbing;
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.55), 0 0 0 1px var(--accent);
 }
+/* floating thumbnail that follows the cursor when dragging a media item from the
+   bin onto the timeline (drag-and-drop preview). */
+.drag-ghost {
+  position: fixed;
+  z-index: 9999;
+  pointer-events: none;
+  width: 128px;
+  height: 72px;
+  border-radius: 8px;
+  background-color: #1a1f2e;
+  background-size: cover;
+  background-position: center;
+  border: 2px solid var(--accent);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.55);
+  opacity: 0.92;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+  transform: translateZ(0) rotate(-2deg);
+}
+.drag-ghost.over {
+  border-color: #5cf3da;
+  box-shadow: 0 0 0 3px rgba(92, 243, 218, 0.35), 0 14px 34px rgba(0, 0, 0, 0.55);
+}
+.drag-ghost span {
+  width: 100%;
+  padding: 3px 6px;
+  font-size: 10px;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.82));
+}
 .media-remove {
   position: absolute;
   top: 5px;
@@ -1133,6 +1167,7 @@ input[type='range']:hover::-webkit-slider-thumb {
   padding: 2px 8px;
   font-size: 11px;
   max-width: 100%;
+  min-width: 0; /* flex item must be allowed to shrink, else the filename overflows */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

@@ -185,33 +185,56 @@ function MediaCard({
   }
 
   // Pointer-based drag from the bin onto a track (HTML5 DnD is unreliable in
-  // Electron). Below the move threshold it stays a plain click (select).
+  // Electron). Below the move threshold it stays a plain click (select). A floating
+  // thumbnail "ghost" follows the cursor so you SEE what you're dragging, and the clip
+  // is dropped exactly at the cursor position.
   const onPointerDown = (e: React.PointerEvent): void => {
     if (e.button !== 0) return
     const startX = e.clientX
     const startY = e.clientY
     let dragging = false
     let hl: HTMLElement | null = null
+    let ghost: HTMLElement | null = null
     const clearHl = (): void => {
       if (hl) hl.classList.remove('track--drop')
       hl = null
     }
+    const makeGhost = (): void => {
+      const g = document.createElement('div')
+      g.className = 'drag-ghost'
+      if (src.thumbnailPath) g.style.backgroundImage = `url(${mediaUrl(src.thumbnailPath)})`
+      const label = document.createElement('span')
+      label.textContent = src.fileName
+      g.appendChild(label)
+      document.body.appendChild(g)
+      ghost = g
+    }
     const onMove = (ev: PointerEvent): void => {
       if (!dragging && Math.hypot(ev.clientX - startX, ev.clientY - startY) < 6) return
-      dragging = true
-      document.body.style.cursor = 'grabbing'
+      if (!dragging) {
+        dragging = true
+        document.body.style.cursor = 'grabbing'
+        makeGhost()
+      }
+      if (ghost) {
+        ghost.style.left = `${ev.clientX + 14}px`
+        ghost.style.top = `${ev.clientY - 26}px`
+      }
       const lane = laneAt(ev.clientX, ev.clientY)
       if (lane !== hl) {
         clearHl()
         hl = lane
         if (hl) hl.classList.add('track--drop')
       }
+      if (ghost) ghost.classList.toggle('over', !!lane)
     }
     const onUp = (ev: PointerEvent): void => {
       document.removeEventListener('pointermove', onMove)
       document.removeEventListener('pointerup', onUp)
       document.body.style.cursor = ''
       clearHl()
+      ghost?.remove()
+      ghost = null
       if (!dragging) return
       const lane = laneAt(ev.clientX, ev.clientY)
       const trackId = lane?.getAttribute('data-track-id')

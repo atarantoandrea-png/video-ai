@@ -26,6 +26,11 @@ import {
 import type { ExportResult, ExportSettings } from '@shared/export'
 import { resolveTransformAt } from '@shared/anim'
 import { resolveClipLayout } from '@shared/geometry'
+import {
+  placeWithRipple as rippleInsertIntoTrack,
+  rippleClose as rippleCloseTrack,
+  resolveTrim
+} from '@shared/timelineOps'
 import { mediaUrl } from '@shared/media'
 import { buildFaceTrack, detectFacesAt, type NormFace } from '../preview/faceDetect'
 import { compositor } from '../preview/Compositor'
@@ -321,42 +326,8 @@ function freeTrackFor(
   return insertTrack(project, type)
 }
 
-/**
- * CapCut-style MAGNETIC insert: drop `clip` into `track` at `dropStart`, slotting it
- * between the existing clips (by drop position) and re-packing the whole track gap-free
- * so the others shift to make room — never an overlap, never a new track. `clip` must
- * already be removed from its old track. Mutates `track` in place.
- */
-function rippleInsertIntoTrack(track: Track, clip: Clip, dropStart: number): void {
-  const others = track.clips
-    .filter((c) => c.id !== clip.id)
-    .sort((a, b) => a.timelineStart - b.timelineStart)
-  // Insert before the first clip whose CENTRE is past the drop point.
-  let idx = others.findIndex((x) => (x.timelineStart + x.timelineEnd) / 2 > dropStart)
-  if (idx < 0) idx = others.length
-  const order = [...others.slice(0, idx), clip, ...others.slice(idx)]
-  // Pack sequentially from the track's original lead-in (or the drop point if empty).
-  let cursor = others.length ? Math.max(0, others[0].timelineStart) : Math.max(0, dropStart)
-  for (const c of order) {
-    const dur = c.timelineEnd - c.timelineStart
-    c.trackId = track.id
-    c.timelineStart = cursor
-    c.timelineEnd = cursor + dur
-    cursor = c.timelineEnd
-  }
-  track.clips = order
-}
-
-/** Ripple-close a track after a clip starting at `fromStart` (duration `dur`) is removed:
- *  every later clip slides left by `dur` to attach to the previous one (CapCut delete). */
-function rippleCloseTrack(track: Track, fromStart: number, dur: number): void {
-  for (const c of track.clips) {
-    if (c.timelineStart >= fromStart - 0.0015) {
-      c.timelineStart = Math.max(0, c.timelineStart - dur)
-      c.timelineEnd = Math.max(0, c.timelineEnd - dur)
-    }
-  }
-}
+// Magnetic placement / ripple / trim math lives in @shared/timelineOps (pure + unit-tested).
+// `rippleInsertIntoTrack` / `rippleCloseTrack` are the store's historical names for them.
 
 /** Load the last session's project so reloads/restarts don't lose work. */
 function loadPersistedProject(): Project {
@@ -590,8 +561,9 @@ export const useEditor = create<EditorStore>()(
             sourceOut: dur,
             timelineStart: Math.max(0, startSec)
           })
-          track.clips.push(clip)
-          track.clips.sort((a, b) => a.timelineStart - b.timelineStart)
+          // Land exactly at the drop point; push only the clips it overlaps (same magnetic
+          // rule as moving a clip), so a new section never drops on top of an existing one.
+          rippleInsertIntoTrack(track, clip, Math.max(0, startSec))
           s.selectedClipId = clip.id
         })
       },
@@ -1007,29 +979,27 @@ export const useEditor = create<EditorStore>()(
           if (!loc || !isMediaClip(loc.clip)) return
           const c = loc.clip
           const siblings = loc.track.clips
-          if (edge === 'start') {
-            // Lengthening leftwards stops at the previous clip on the track (a trim
-            // never creates an overlap — only dragging a clip does); shortening can't
-            // cross this clip's own end.
-            const prevEnd = siblings
-              .filter((x) => x.id !== c.id && x.timelineStart < c.timelineStart)
-              .reduce((m, x) => Math.max(m, x.timelineEnd), 0)
-            const newStart = Math.min(c.timelineEnd - 0.05, Math.max(prevEnd, c.timelineStart + deltaSec))
-            c.sourceIn = Math.max(0, c.sourceIn + (newStart - c.timelineStart) * c.speed)
-            c.timelineStart = newStart
-          } else {
-            const oldEnd = c.timelineEnd
-            const newEnd = Math.max(c.timelineStart + 0.05, oldEnd + deltaSec)
-            const delta = newEnd - oldEnd
-            c.sourceOut = c.sourceOut + delta * c.speed
-            c.timelineEnd = newEnd
-            // RIPPLE: every clip that started at/after this clip's old end shifts by the
-            // same delta, so the following sections move WITH the lengthening/shortening
-            // instead of being overlapped. To overlap on purpose, drag a clip normally.
+          const src = s.project.sources.find((x) => x.id === c.sourceId)
+          // Real footage (video/audio) can't be trimmed past its length; images and other
+          // synthetic stills can be any length, so they get no source-duration bound.
+          const srcDur = src && src.kind !== 'image' ? src.durationSec : Infinity
+          const prevEnd = siblings
+            .filter((x) => x.id !== c.id && x.timelineStart < c.timelineStart)
+            .reduce((m, x) => Math.max(m, x.timelineEnd), 0)
+          const oldEnd = c.timelineEnd
+          const r = resolveTrim(c, edge, deltaSec, { prevEnd, srcDur })
+          c.timelineStart = r.timelineStart
+          c.timelineEnd = r.timelineEnd
+          c.sourceIn = r.sourceIn
+          c.sourceOut = r.sourceOut
+          // RIPPLE (end edge only): clips at/after the OLD end shift by the same amount so
+          // the following sections move WITH the trim — and you can lengthen a clip butted
+          // right up against the next one. To overlap on purpose, drag a clip instead.
+          if (r.rippleDelta) {
             for (const other of siblings) {
               if (other.id !== c.id && other.timelineStart >= oldEnd - 1e-4) {
-                other.timelineStart += delta
-                other.timelineEnd += delta
+                other.timelineStart += r.rippleDelta
+                other.timelineEnd += r.rippleDelta
               }
             }
           }
