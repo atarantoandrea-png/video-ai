@@ -13,15 +13,22 @@ type Status =
 const SITE_URL = 'https://atarantoandrea-png.github.io/video-ai/'
 
 /**
- * "Cerca aggiornamenti" button. Click → check GitHub Releases (via main/electron-updater).
- * If a newer version exists: Scarica → progress → Riavvia e installa. The whole flow is
- * one click each, and the app never re-downloads what it already has (delta over Releases).
+ * "Cerca aggiornamenti" button. Click ⟳ → check GitHub Releases (custom updater in main).
+ * If a newer version exists, ONE click on "Scarica e installa" does the whole thing:
+ * download → install → relaunch, fully automatic, no second click. The skill /reel-ai is
+ * refreshed alongside the app.
  */
 export function UpdateButton(): JSX.Element {
   const [status, setStatus] = useState<Status>({ state: 'idle' })
   const [open, setOpen] = useState(false)
 
   useEffect(() => window.api.onUpdateStatus((s) => setStatus(s as Status)), [])
+
+  // Fully automatic: as soon as the download finishes, install & relaunch on our
+  // own — the user just clicks once and the app updates and restarts by itself.
+  useEffect(() => {
+    if (status.state === 'downloaded') void window.api.updateInstall()
+  }, [status.state])
 
   const check = async (): Promise<void> => {
     setOpen(true)
@@ -70,10 +77,10 @@ export function UpdateButton(): JSX.Element {
         return (
           <>
             <p className="update-line">
-              Versione <b>{status.version}</b> pronta{status.skill ? ' (skill /reel-ai aggiornata ✓)' : ''}.
+              Versione <b>{status.version}</b> pronta{status.skill ? ' (skill /reel-ai aggiornata ✓)' : ''}. Riavvio in corso…
             </p>
             <button className="btn btn--primary" style={{ width: '100%' }} onClick={() => void window.api.updateInstall()}>
-              Installa e riavvia
+              Installa e riavvia ora
             </button>
             <p className="update-sub">L'app si chiude, si aggiorna e si riapre da sola.</p>
           </>

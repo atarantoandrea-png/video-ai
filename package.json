@@ -1,6 +1,6 @@
 {
   "name": "video-ai",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "Editor video desktop con AI di taglio reel",
   "main": "./out/main/index.js",
   "author": "Video AI",

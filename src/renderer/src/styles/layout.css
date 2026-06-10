@@ -1297,7 +1297,10 @@ input[type='range']:hover::-webkit-slider-thumb {
   position: absolute;
   top: 110%;
   right: 0;
-  z-index: 50;
+  /* MUST sit above .popover-backdrop (z-index:900), otherwise the invisible
+     full-screen backdrop swallows every click on the popover's buttons and the
+     popover just closes — i.e. "Scarica e installa" would never fire. */
+  z-index: 950;
   width: 280px;
   padding: 14px;
   border-radius: 12px;
