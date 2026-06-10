@@ -518,19 +518,104 @@ input[type='range']:hover::-webkit-slider-thumb {
 }
 .reframe-hint {
   position: absolute;
-  left: 50%;
-  bottom: 7px;
-  transform: translateX(-50%);
-  max-width: 92%;
+  left: 8px;
+  top: 8px;
+  max-width: 46%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   pointer-events: none;
-  font-size: 10.5px;
+  font-size: 10px;
   color: #cfd6e0;
   background: rgba(10, 13, 18, 0.72);
-  padding: 3px 9px;
+  padding: 3px 8px;
   border-radius: 8px;
+}
+/* faint 9:16 output bounds shown behind the shape mask */
+.reframe-frameoutline {
+  position: absolute;
+  z-index: 6;
+  pointer-events: none;
+  border: 1px dashed rgba(255, 255, 255, 0.4);
+  border-radius: 2px;
+}
+/* the resizable / movable shape mask (rectangle or circle); dims everything outside it */
+.reframe-shape {
+  position: absolute;
+  z-index: 4;
+  border: 2px solid var(--accent, #1fe6c2);
+  box-shadow:
+    0 0 0 9999px rgba(6, 9, 14, 0.66),
+    0 0 14px rgba(31, 230, 194, 0.4);
+  cursor: move;
+  touch-action: none;
+}
+.reframe-shape.is-circle {
+  border-radius: 50%;
+}
+.reframe-mh {
+  position: absolute;
+  z-index: 5;
+  width: 13px;
+  height: 13px;
+  background: #fff;
+  border: 2px solid var(--accent, #1fe6c2);
+  border-radius: 3px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+}
+.reframe-mh-nw {
+  left: -7px;
+  top: -7px;
+  cursor: nwse-resize;
+}
+.reframe-mh-ne {
+  right: -7px;
+  top: -7px;
+  cursor: nesw-resize;
+}
+.reframe-mh-se {
+  right: -7px;
+  bottom: -7px;
+  cursor: nwse-resize;
+}
+.reframe-mh-sw {
+  left: -7px;
+  bottom: -7px;
+  cursor: nesw-resize;
+}
+/* shape selector (Pieno / Rettangolo / Cerchio) pinned bottom-centre, clear of "Fatto" */
+.reframe-shapes {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 7;
+  display: flex;
+  gap: 3px;
+  padding: 3px;
+  border-radius: 9px;
+  background: rgba(10, 13, 18, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5);
+}
+.reframe-shapes button {
+  width: 26px;
+  height: 26px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: #cfd6e0;
+  font-size: 14px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.reframe-shapes button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+.reframe-shapes button.on {
+  background: var(--accent, #1fe6c2);
+  color: #04221c;
 }
 .xform-layer {
   position: absolute;

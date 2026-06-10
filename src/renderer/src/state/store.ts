@@ -175,6 +175,8 @@ interface Actions {
   liveSetClipTransform: (clipId: string, patch: Partial<MediaClip['transform']>) => void
   /** Live crop write WITHOUT history (reframe pan/zoom; after beginHistory). */
   liveSetClipCrop: (clipId: string, patch: Partial<MediaClip['crop']>) => void
+  /** Live mask write WITHOUT history (reframe shape resize/move; after beginHistory). */
+  liveSetClipMask: (clipId: string, patch: Partial<MediaClip['mask']>) => void
   /** Turn the reframe (visual crop) editor on/off; seeds a sensible crop when turning on. */
   setReframeEdit: (on: boolean) => void
   /** Capture a transform keyframe at the playhead. */
@@ -725,6 +727,24 @@ export const useEditor = create<EditorStore>()(
             if (patch.y !== undefined) cr.y = cl01(patch.y)
             if (patch.w !== undefined) cr.w = Math.max(0.02, Math.min(1, patch.w))
             if (patch.h !== undefined) cr.h = Math.max(0.02, Math.min(1, patch.h))
+            s.project.modifiedAt = new Date().toISOString()
+          }
+        })
+      },
+
+      liveSetClipMask: (clipId, patch) => {
+        const cl = (v: number, lo: number, hi: number): number => Math.max(lo, Math.min(hi, v))
+        set((s) => {
+          const loc = locateClip(s.project, clipId)
+          if (loc && isMediaClip(loc.clip)) {
+            const m = loc.clip.mask
+            if (patch.shape !== undefined) m.shape = patch.shape
+            if (patch.x !== undefined) m.x = cl(patch.x, -0.5, 1.5)
+            if (patch.y !== undefined) m.y = cl(patch.y, -0.5, 1.5)
+            if (patch.w !== undefined) m.w = cl(patch.w, 0.05, 2)
+            if (patch.h !== undefined) m.h = cl(patch.h, 0.05, 2)
+            if (patch.feather !== undefined) m.feather = cl(patch.feather, 0, 1)
+            if (patch.invert !== undefined) m.invert = patch.invert
             s.project.modifiedAt = new Date().toISOString()
           }
         })
