@@ -44,10 +44,13 @@ export function TransformOverlay({ frameW, frameH }: { frameW: number; frameH: n
   const beginHistory = useEditor((s) => s.beginHistory)
   const liveSetClipTransform = useEditor((s) => s.liveSetClipTransform)
   const transformEdit = useEditor((s) => s.transformEdit)
+  const reframeEdit = useEditor((s) => s.reframeEdit)
+  const setReframeEdit = useEditor((s) => s.setReframeEdit)
 
   // Handles appear only in edit mode (toggled from the Inspector), so simply
-  // clicking around the timeline never pops up the move/resize squares.
-  if (!transformEdit || frameW < 2 || frameH < 2) return null
+  // clicking around the timeline never pops up the move/resize squares. While the
+  // reframe (crop) editor is open, ITS overlay takes over — hide these handles.
+  if (!transformEdit || reframeEdit || frameW < 2 || frameH < 2) return null
 
   const trOf = (c: MediaClip): MediaClip['transform'] =>
     resolveTransformAt(c, playhead - c.timelineStart)
@@ -186,6 +189,13 @@ export function TransformOverlay({ frameW, frameH }: { frameW: number; frameH: n
             transform: t.rotation ? `rotate(${t.rotation}deg)` : undefined
           }}
           onPointerDown={(e) => startMove(e, clip)}
+          onDoubleClick={(e) => {
+            // CapCut-style: double-click the box → reframe (pick which part of the
+            // source shows, with the whole image visible behind a fixed frame).
+            e.stopPropagation()
+            setReframeEdit(true)
+          }}
+          title="Doppio clic per scegliere l'inquadratura (reframe)"
         >
           {HANDLES.map((h) => (
             <div

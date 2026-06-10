@@ -92,6 +92,7 @@ function MediaInspector({ clip }: { clip: MediaClip }): JSX.Element {
   const setMask = useEditor((s) => s.setMask)
   const transformEdit = useEditor((s) => s.transformEdit)
   const toggleTransformEdit = useEditor((s) => s.toggleTransformEdit)
+  const setReframeEdit = useEditor((s) => s.setReframeEdit)
   const flipClip = useEditor((s) => s.flipClip)
   const duplicateClip = useEditor((s) => s.duplicateClip)
   const setSpeed = useEditor((s) => s.setSpeed)
@@ -127,6 +128,14 @@ function MediaInspector({ clip }: { clip: MediaClip }): JSX.Element {
         title="Mostra/nascondi le maniglie per spostare e ridimensionare sull'anteprima"
       >
         {transformEdit ? '✥ Modifica riquadro: ATTIVA' : '✥ Sposta / ridimensiona sull’anteprima'}
+      </button>
+      <button
+        className="btn"
+        style={{ width: '100%', marginTop: 6 }}
+        onClick={() => setReframeEdit(true)}
+        title="Scegli a occhio quale parte dell'immagine si vede, come su CapCut (anche: doppio clic sul riquadro)"
+      >
+        ⛶ Scegli inquadratura (reframe)
       </button>
       <div className="seg-row">
         <button className={`seg-btn ${clip.transform.flipH ? 'seg-on' : ''}`} title="Specchia orizzontale" onClick={() => flipClip(clip.id, 'h')}>

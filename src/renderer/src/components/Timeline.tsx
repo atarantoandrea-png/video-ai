@@ -290,6 +290,7 @@ export function Timeline(): JSX.Element {
           {tracks.map((track, i) => (
             <TrackHeader key={track.id} track={track} index={i} count={tracks.length} scale={trackScale} />
           ))}
+          <AddTrackButton />
         </div>
 
         <div
@@ -473,6 +474,42 @@ function TrackHeader({
           ✕
         </button>
       </div>
+    </div>
+  )
+}
+
+/** "+" button under the track headers that adds a new track (timeline) below. */
+function AddTrackButton(): JSX.Element {
+  const addTrack = useEditor((s) => s.addTrack)
+  const [open, setOpen] = useState(false)
+  const pick = (type: 'video' | 'audio'): void => {
+    addTrack(type)
+    setOpen(false)
+  }
+  return (
+    <div className="add-track">
+      <button
+        className="add-track-btn"
+        title="Aggiungi una traccia sotto"
+        onClick={() => setOpen((v) => !v)}
+      >
+        <span className="add-track-plus">＋</span> Traccia
+      </button>
+      {open && (
+        <>
+          <div className="popover-backdrop" onPointerDown={() => setOpen(false)} />
+          <div className="add-track-menu">
+            <button onClick={() => pick('video')}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="14" height="14" rx="2"/><path d="M16 9l6-3v12l-6-3"/></svg>
+              Traccia video
+            </button>
+            <button onClick={() => pick('audio')}>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18V6l10-2v12"/><circle cx="6" cy="18" r="3"/><circle cx="16" cy="16" r="3"/></svg>
+              Traccia audio
+            </button>
+          </div>
+        </>
+      )}
     </div>
   )
 }

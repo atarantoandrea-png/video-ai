@@ -5,6 +5,7 @@ import { formatTimecode } from '../util/format'
 import { fitWithin, useElementSize } from '../util/useElementSize'
 import { PreviewCanvas } from '../preview/PreviewCanvas'
 import { TransformOverlay } from './TransformOverlay'
+import { ReframeOverlay } from './ReframeOverlay'
 import { MaskOverlay } from './MaskOverlay'
 import { TextOverlay } from './TextOverlay'
 import { FaceSelectOverlay } from './FaceSelectOverlay'
@@ -68,6 +69,7 @@ export function Player(): JSX.Element {
         <div className="player-frame" style={{ width: frame.w, height: frame.h }}>
           <PreviewCanvas width={frame.w} height={frame.h} />
           <TransformOverlay frameW={frame.w} frameH={frame.h} />
+          <ReframeOverlay frameW={frame.w} frameH={frame.h} />
           <MaskOverlay frameW={frame.w} frameH={frame.h} />
           <TextOverlay frameW={frame.w} frameH={frame.h} />
           <FaceSelectOverlay frameW={frame.w} frameH={frame.h} />

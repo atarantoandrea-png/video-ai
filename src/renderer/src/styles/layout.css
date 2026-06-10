@@ -469,6 +469,69 @@ input[type='range']:hover::-webkit-slider-thumb {
   max-width: 100%;
   max-height: 100%;
 }
+/* ---- CapCut-style reframe (visual crop): fixed output frame, full image behind ---- */
+.reframe-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  overflow: hidden;
+  touch-action: none;
+  cursor: grab;
+}
+.reframe-img {
+  position: absolute;
+  user-select: none;
+  -webkit-user-drag: none;
+  cursor: grab;
+}
+.reframe-img:active {
+  cursor: grabbing;
+}
+.reframe-noimg {
+  background: repeating-linear-gradient(45deg, #2a2f3a, #2a2f3a 12px, #232833 12px, #232833 24px);
+}
+.reframe-frame {
+  position: absolute;
+  pointer-events: none;
+  border: 2px solid var(--accent, #1fe6c2);
+  border-radius: 2px;
+  /* the huge spread shadow dims EVERYTHING outside the frame (clipped to .reframe-layer) */
+  box-shadow:
+    0 0 0 9999px rgba(6, 9, 14, 0.66),
+    0 0 14px rgba(31, 230, 194, 0.4);
+}
+/* compact confirm button pinned top-right so it's always reachable, even on a tiny preview */
+.reframe-done {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 7;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #5cf3da, #1fe6c2);
+  color: #04221c;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(31, 230, 194, 0.4);
+}
+.reframe-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 7px;
+  transform: translateX(-50%);
+  max-width: 92%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+  font-size: 10.5px;
+  color: #cfd6e0;
+  background: rgba(10, 13, 18, 0.72);
+  padding: 3px 9px;
+  border-radius: 8px;
+}
 .xform-layer {
   position: absolute;
   inset: 0;
@@ -1044,6 +1107,71 @@ input[type='range']:hover::-webkit-slider-thumb {
   display: flex;
   gap: 1px;
   flex-shrink: 0;
+}
+/* "+" add-track button under the headers + its video/audio menu */
+.add-track {
+  position: relative;
+  padding: 8px;
+}
+.add-track-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px;
+  border-radius: 8px;
+  border: 1px dashed var(--border);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-dim);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.15s;
+}
+.add-track-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(31, 230, 194, 0.08);
+}
+.add-track-plus {
+  font-size: 14px;
+  line-height: 1;
+}
+.add-track-menu {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: calc(100% - 2px);
+  z-index: 950; /* MUST be above .popover-backdrop (900) or the clicks die */
+  background: var(--bg-2, #15161b);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  padding: 5px;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.55);
+}
+.add-track-menu button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 12.5px;
+  border-radius: 7px;
+  cursor: pointer;
+  text-align: left;
+}
+.add-track-menu button:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.add-track-menu svg {
+  width: 16px;
+  height: 16px;
+  color: var(--accent);
+  flex: none;
 }
 .track-iconbtn {
   width: 22px;

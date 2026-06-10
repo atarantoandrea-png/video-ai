@@ -118,6 +118,8 @@ interface State {
   trackScale: number
   /** Whether the preview's move/resize handles are active. */
   transformEdit: boolean
+  /** Whether the CapCut-style reframe (visual crop) editor is active on the preview. */
+  reframeEdit: boolean
   /** Whether the blur-region (mask) handles are active on the preview. */
   maskEdit: boolean
   past: Project[]
@@ -171,6 +173,10 @@ interface Actions {
   setClipTransform: (clipId: string, patch: Partial<MediaClip['transform']>) => void
   /** Keyframe-aware transform write WITHOUT history (drag; after beginHistory). */
   liveSetClipTransform: (clipId: string, patch: Partial<MediaClip['transform']>) => void
+  /** Live crop write WITHOUT history (reframe pan/zoom; after beginHistory). */
+  liveSetClipCrop: (clipId: string, patch: Partial<MediaClip['crop']>) => void
+  /** Turn the reframe (visual crop) editor on/off; seeds a sensible crop when turning on. */
+  setReframeEdit: (on: boolean) => void
   /** Capture a transform keyframe at the playhead. */
   addKeyframe: (clipId: string) => void
   removeKeyframe: (clipId: string, t: number) => void
@@ -434,6 +440,7 @@ export const useEditor = create<EditorStore>()(
       pxPerSec: 60,
       trackScale: 1,
       transformEdit: false,
+      reframeEdit: false,
       maskEdit: false,
       past: [],
       future: [],
@@ -583,6 +590,7 @@ export const useEditor = create<EditorStore>()(
         set((s) => {
           s.selectedClipId = id
           s.selectedClipIds = id ? [id] : []
+          s.reframeEdit = false // moving to another clip leaves the reframe editor
         }),
       toggleClipInSelection: (id) =>
         set((s) => {
@@ -704,6 +712,21 @@ export const useEditor = create<EditorStore>()(
           const loc = locateClip(s.project, clipId)
           if (loc && isMediaClip(loc.clip)) writeTransform(loc.clip, patch, playhead)
           s.project.modifiedAt = new Date().toISOString()
+        })
+      },
+
+      liveSetClipCrop: (clipId, patch) => {
+        const cl01 = (v: number): number => Math.max(0, Math.min(1, v))
+        set((s) => {
+          const loc = locateClip(s.project, clipId)
+          if (loc && isMediaClip(loc.clip)) {
+            const cr = loc.clip.crop
+            if (patch.x !== undefined) cr.x = cl01(patch.x)
+            if (patch.y !== undefined) cr.y = cl01(patch.y)
+            if (patch.w !== undefined) cr.w = Math.max(0.02, Math.min(1, patch.w))
+            if (patch.h !== undefined) cr.h = Math.max(0.02, Math.min(1, patch.h))
+            s.project.modifiedAt = new Date().toISOString()
+          }
         })
       },
 
@@ -1027,6 +1050,7 @@ export const useEditor = create<EditorStore>()(
           s.project.timeline = { tracks: [createTrack('video', 'Video 1'), createTrack('audio', 'Audio 1')] }
           s.selectedClipId = null
           s.transformEdit = false
+          s.reframeEdit = false
           s.maskEdit = false
         })
         set((s) => void (s.playhead = 0))
@@ -1097,7 +1121,41 @@ export const useEditor = create<EditorStore>()(
 
       setTrackScale: (scale) => set((s) => void (s.trackScale = Math.max(0.55, Math.min(1.8, scale)))),
 
-      toggleTransformEdit: () => set((s) => void (s.transformEdit = !s.transformEdit)),
+      toggleTransformEdit: () =>
+        set((s) => {
+          s.transformEdit = !s.transformEdit
+          if (!s.transformEdit) s.reframeEdit = false // leaving move/resize also leaves reframe
+        }),
+
+      setReframeEdit: (on) =>
+        set((s) => {
+          s.reframeEdit = on
+          if (!on) return
+          s.transformEdit = true // the reframe lives inside the move/resize mode
+          const loc = s.selectedClipId ? locateClip(s.project, s.selectedClipId) : null
+          if (!loc) return
+          const mc = loc.clip
+          if (!isMediaClip(mc)) return
+          const src = s.project.sources.find((x) => x.id === mc.sourceId)
+          const cr = mc.crop
+          // Seed the crop with the centred rect that matches the current cover-fit, so the
+          // reframe frame starts exactly on what's already shown (then pan/zoom from there).
+          if (src && src.width > 0 && src.height > 0 && cr.w > 0.999 && cr.h > 0.999) {
+            const ca = s.project.canvas.width / s.project.canvas.height
+            const sa = src.width / src.height
+            if (sa > ca) {
+              cr.w = ca / sa
+              cr.h = 1
+              cr.x = (1 - cr.w) / 2
+              cr.y = 0
+            } else {
+              cr.h = sa / ca
+              cr.w = 1
+              cr.x = 0
+              cr.y = (1 - cr.h) / 2
+            }
+          }
+        }),
 
       toggleMaskEdit: () => set((s) => void (s.maskEdit = !s.maskEdit)),
 
