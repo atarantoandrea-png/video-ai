@@ -629,7 +629,10 @@ export const useEditor = create<EditorStore>()(
           s.selectedClipId = ids.length ? ids[ids.length - 1] : null
         }),
       removeSelectedClips: () => {
-        const ids = get().selectedClipIds
+        const st = get()
+        // Fall back to the single selection so ⌫ always deletes what's selected (e.g. a
+        // sticker picked by clicking it on the preview).
+        const ids = st.selectedClipIds.length ? st.selectedClipIds : st.selectedClipId ? [st.selectedClipId] : []
         if (!ids.length) return
         commit((s) => {
           const sel = new Set(ids)
@@ -1368,6 +1371,7 @@ export const useEditor = create<EditorStore>()(
           if (stylePatch) Object.assign(clip.style, stylePatch)
           track.clips.push(clip)
           s.selectedClipId = clip.id
+          s.selectedClipIds = [clip.id] // so ⌫ deletes it straight away (delete uses selectedClipIds)
         })
       },
 

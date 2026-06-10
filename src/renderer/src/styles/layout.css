@@ -706,6 +706,15 @@ input[type='range']:hover::-webkit-slider-thumb {
   pointer-events: auto;
   border-style: dashed;
 }
+/* unselected sticker/text: invisible but clickable; a faint outline on hover hints it */
+.text-xform-layer .xform-box.text-hit {
+  border-color: transparent;
+  box-shadow: none;
+  cursor: pointer;
+}
+.text-xform-layer .xform-box.text-hit:hover {
+  border-color: rgba(255, 255, 255, 0.45);
+}
 .xform-handle {
   position: absolute;
   width: 14px;

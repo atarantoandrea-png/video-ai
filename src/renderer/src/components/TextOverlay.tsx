@@ -27,50 +27,42 @@ function measureBox(clip: TextClip, fontPx: number, letterSpPx: number): { w: nu
 }
 
 /**
- * Direct manipulation of a TEXT clip on the preview, Canva-style: drag the body to
- * move it, drag a corner to resize (font size). Appears automatically whenever a
- * text clip is selected and visible at the playhead — no edit-mode toggle needed.
- * One undo step per gesture (beginHistory + liveUpdateTextClip).
+ * Direct manipulation of TEXT clips / stickers on the preview, Canva-style: CLICK any
+ * visible text/sticker to select it, drag the body to move, drag a corner to resize the
+ * font. Once selected, ⌫ deletes it. One undo step per gesture (beginHistory + live).
  */
 export function TextOverlay({ frameW, frameH }: { frameW: number; frameH: number }): JSX.Element | null {
   const layerRef = useRef<HTMLDivElement>(null)
   const playhead = useEditor((s) => s.playhead)
-  const clip = useEditor((s) => {
-    if (!s.selectedClipId) return null
-    for (const t of s.project.timeline.tracks) {
-      for (const c of t.clips) if (c.id === s.selectedClipId && c.kind === 'text') return c as TextClip
-    }
-    return null
-  })
+  const selectedId = useEditor((s) => s.selectedClipId)
+  const tracks = useEditor((s) => s.project.timeline.tracks)
+  const selectClip = useEditor((s) => s.selectClip)
   const beginHistory = useEditor((s) => s.beginHistory)
   const liveUpdateTextClip = useEditor((s) => s.liveUpdateTextClip)
 
-  if (!clip || frameW < 2 || frameH < 2) return null
-  if (playhead < clip.timelineStart || playhead >= clip.timelineEnd) return null
+  if (frameW < 2 || frameH < 2) return null
+  // Every text/sticker clip visible at the playhead gets a clickable box.
+  const clips: TextClip[] = []
+  for (const t of tracks) {
+    if (t.type !== 'text' || t.hidden) continue
+    for (const c of t.clips) {
+      if (c.kind === 'text' && playhead >= c.timelineStart && playhead < c.timelineEnd) clips.push(c as TextClip)
+    }
+  }
+  if (!clips.length) return null
 
-  const st = clip.style
-  const fontPx = st.fontSizeFrac * frameH
-  const { w: tw, h: th } = measureBox(clip, fontPx, (st.letterSpacingFrac || 0) * frameH)
-  const pad = Math.max(6, fontPx * 0.2)
-  const cx = st.posX * frameW
-  const cy = st.posY * frameH
-  const left = (st.align === 'left' ? cx : st.align === 'right' ? cx - tw : cx - tw / 2) - pad
-  const top = cy - th / 2 - pad
-
-  const startMove = (e: React.PointerEvent): void => {
+  const startMove = (e: React.PointerEvent, clip: TextClip): void => {
     e.preventDefault()
     e.stopPropagation()
     beginHistory()
     const sx = e.clientX
     const sy = e.clientY
-    const ox = st.posX
-    const oy = st.posY
+    const ox = clip.style.posX
+    const oy = clip.style.posY
     const onMove = (ev: PointerEvent): void => {
-      const nx = ox + (ev.clientX - sx) / frameW
-      const ny = oy + (ev.clientY - sy) / frameH
       liveUpdateTextClip(clip.id, (c) => {
-        c.style.posX = clamp(nx, -0.2, 1.2)
-        c.style.posY = clamp(ny, -0.2, 1.2)
+        c.style.posX = clamp(ox + (ev.clientX - sx) / frameW, -0.2, 1.2)
+        c.style.posY = clamp(oy + (ev.clientY - sy) / frameH, -0.2, 1.2)
       })
     }
     const onUp = (): void => {
@@ -81,23 +73,20 @@ export function TextOverlay({ frameW, frameH }: { frameW: number; frameH: number
     document.addEventListener('pointerup', onUp)
   }
 
-  const startResize = (e: React.PointerEvent): void => {
+  const startResize = (e: React.PointerEvent, clip: TextClip, cx: number, cy: number): void => {
     e.preventDefault()
     e.stopPropagation()
     const rect = layerRef.current?.getBoundingClientRect()
     if (!rect) return
     beginHistory()
-    // Uniform font scale around the text anchor (its centre): ratio of the cursor's
-    // distance from the centre now vs. at gesture start.
     const centerX = rect.left + cx
     const centerY = rect.top + cy
-    const base = st.fontSizeFrac
+    const base = clip.style.fontSizeFrac
     const startDist = Math.max(8, Math.hypot(e.clientX - centerX, e.clientY - centerY))
     const onMove = (ev: PointerEvent): void => {
       const dist = Math.hypot(ev.clientX - centerX, ev.clientY - centerY)
-      const frac = clamp(base * (dist / startDist), MIN_FONT, MAX_FONT)
       liveUpdateTextClip(clip.id, (c) => {
-        c.style.fontSizeFrac = frac
+        c.style.fontSizeFrac = clamp(base * (dist / startDist), MIN_FONT, MAX_FONT)
       })
     }
     const onUp = (): void => {
@@ -110,15 +99,37 @@ export function TextOverlay({ frameW, frameH }: { frameW: number; frameH: number
 
   return (
     <div ref={layerRef} className="xform-layer text-xform-layer">
-      <div
-        className="xform-box"
-        style={{ left, top, width: tw + pad * 2, height: th + pad * 2 }}
-        onPointerDown={startMove}
-      >
-        {HANDLES.map((h) => (
-          <div key={h} className={`xform-handle xform-${h}`} onPointerDown={startResize} />
-        ))}
-      </div>
+      {clips.map((clip) => {
+        const st = clip.style
+        const fontPx = st.fontSizeFrac * frameH
+        const { w: tw, h: th } = measureBox(clip, fontPx, (st.letterSpacingFrac || 0) * frameH)
+        const pad = Math.max(6, fontPx * 0.2)
+        const cx = st.posX * frameW
+        const cy = st.posY * frameH
+        const left = (st.align === 'left' ? cx : st.align === 'right' ? cx - tw : cx - tw / 2) - pad
+        const top = cy - th / 2 - pad
+        const isSel = clip.id === selectedId
+        return (
+          <div
+            key={clip.id}
+            className={`xform-box ${isSel ? '' : 'text-hit'}`}
+            style={{ left, top, width: tw + pad * 2, height: th + pad * 2 }}
+            title={isSel ? undefined : 'Clic per selezionare · ⌫ per eliminare'}
+            onPointerDown={(e) => {
+              if (isSel) startMove(e, clip)
+              else {
+                e.stopPropagation()
+                e.preventDefault()
+                selectClip(clip.id)
+              }
+            }}
+          >
+            {isSel && HANDLES.map((h) => (
+              <div key={h} className={`xform-handle xform-${h}`} onPointerDown={(e) => startResize(e, clip, cx, cy)} />
+            ))}
+          </div>
+        )
+      })}
     </div>
   )
 }
