@@ -1,6 +1,6 @@
 import { app, BrowserWindow, ipcMain, shell } from 'electron'
 import { spawn, execFile } from 'node:child_process'
-import { createWriteStream, promises as fsp, copyFileSync, mkdirSync } from 'node:fs'
+import { createWriteStream, promises as fsp, copyFileSync, mkdirSync, existsSync } from 'node:fs'
 import { Readable, Transform } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 import { join } from 'node:path'
@@ -266,6 +266,14 @@ if [ "$REPLACED" = "1" ]; then open "$DEST"; else open "$DMG"; fi
   // A quiet check shortly after launch so the ⟳ button can already show the "update" dot.
   if (app.isPackaged) {
     setTimeout(() => {
+      // Fresh install / first run: auto-install the /reel-ai skills if missing, so the
+      // user never has to touch ~/.claude/skills by hand (offline-safe — ignored if no net).
+      try {
+        const skillMd = join(app.getPath('home'), '.claude', 'skills', 'reel-ai', 'SKILL.md')
+        if (!existsSync(skillMd)) void installSkill().catch(() => undefined)
+      } catch {
+        /* ignore */
+      }
       void doCheck(false)
         .then((s) => {
           if (s.state === 'available') broadcast(s)
