@@ -1471,7 +1471,7 @@ input[type='range']:hover::-webkit-slider-thumb {
 }
 .clip-handle {
   position: absolute;
-  top: 0;
+  top: 16px; /* leave the top corners free for the audio fade handles */
   bottom: 0;
   width: 8px;
   cursor: ew-resize;
@@ -1479,6 +1479,44 @@ input[type='range']:hover::-webkit-slider-thumb {
 }
 .clip-handle:hover {
   background: rgba(255, 255, 255, 0.25);
+}
+/* audio fade handles + ramp on a media clip (CapCut-style) */
+.fade-handle {
+  position: absolute;
+  top: 2px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--accent, #1fe6c2);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.6);
+  cursor: ew-resize;
+  z-index: 6;
+}
+.fade-handle.fade-in {
+  transform: translateX(-50%);
+}
+.fade-handle.fade-out {
+  transform: translateX(50%);
+}
+.fade-ramp {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+.fade-ramp-in {
+  left: 0;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.6), transparent);
+  border-top-left-radius: 7px;
+  border-bottom-left-radius: 7px;
+}
+.fade-ramp-out {
+  right: 0;
+  background: linear-gradient(to left, rgba(0, 0, 0, 0.6), transparent);
+  border-top-right-radius: 7px;
+  border-bottom-right-radius: 7px;
 }
 .clip-handle--l {
   left: 0;

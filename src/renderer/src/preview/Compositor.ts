@@ -562,7 +562,13 @@ export class Compositor {
         if (isPlaying && !clip.reverse) {
           if (vid.paused) void vid.play().catch(() => undefined)
           vid.playbackRate = Math.max(0.0625, Math.min(16, speed))
-          const vol = clip.mutedAudio ? 0 : clip.volume
+          // Audio fade in/out, so you HEAR the dissolve in the preview (not only on export).
+          const tIn = playhead - clip.timelineStart
+          const tEnd = clip.timelineEnd - playhead
+          let aFade = 1
+          if (clip.fadeInSec > 0 && tIn < clip.fadeInSec) aFade *= clamp01(tIn / clip.fadeInSec)
+          if (clip.fadeOutSec > 0 && tEnd < clip.fadeOutSec) aFade *= clamp01(tEnd / clip.fadeOutSec)
+          const vol = (clip.mutedAudio ? 0 : clip.volume) * aFade
           if (m.gain) {
             m.gain.gain.value = Math.max(0, Math.min(4, vol))
             if (this.audioCtx?.state === 'suspended') void this.audioCtx.resume()

@@ -828,6 +828,36 @@ function ClipBlock({
     document.addEventListener('pointerup', onUp)
   }
 
+  // CapCut-style AUDIO fade handles: drag the top-corner dot inward to fade in/out.
+  // Live-updates the dot + ramp via DOM during the drag, commits once on release.
+  const beginFade = (edge: 'in' | 'out') => (e: React.PointerEvent): void => {
+    if (e.button !== 0 || clip.kind !== 'media') return
+    e.stopPropagation()
+    e.preventDefault()
+    const el = ref.current
+    if (!el) return
+    const cur = edge === 'in' ? clip.fadeInSec : clip.fadeOutSec
+    const sign = edge === 'in' ? 1 : -1 // dragging inward (right for in, left for out) grows it
+    const maxSec = (width / pxPerSec) * 0.9
+    const startX = e.clientX
+    let sec = cur
+    const handle = el.querySelector(`.fade-${edge}`) as HTMLElement | null
+    const ramp = el.querySelector(`.fade-ramp-${edge}`) as HTMLElement | null
+    const onMove = (ev: PointerEvent): void => {
+      sec = Math.max(0, Math.min(maxSec, cur + ((ev.clientX - startX) * sign) / pxPerSec))
+      const px = `${sec * pxPerSec}px`
+      if (handle) handle.style[edge === 'in' ? 'left' : 'right'] = px
+      if (ramp) ramp.style.width = px
+    }
+    const onUp = (): void => {
+      document.removeEventListener('pointermove', onMove)
+      document.removeEventListener('pointerup', onUp)
+      useEditor.getState().setFade(clip.id, edge, sec)
+    }
+    document.addEventListener('pointermove', onMove)
+    document.addEventListener('pointerup', onUp)
+  }
+
   return (
     <div
       ref={ref}
@@ -857,6 +887,24 @@ function ClipBlock({
       <div className="clip-handle clip-handle--l" onPointerDown={beginTrim('start')} />
       <span className="clip-label">{label}</span>
       <div className="clip-handle clip-handle--r" onPointerDown={beginTrim('end')} />
+      {clip.kind === 'media' && source?.hasAudio && !clip.mutedAudio && (
+        <>
+          <div className="fade-ramp fade-ramp-in" style={{ width: clip.fadeInSec * pxPerSec }} />
+          <div className="fade-ramp fade-ramp-out" style={{ width: clip.fadeOutSec * pxPerSec }} />
+          <div
+            className="fade-handle fade-in"
+            style={{ left: clip.fadeInSec * pxPerSec }}
+            onPointerDown={beginFade('in')}
+            title="Dissolvenza audio in entrata — trascina verso destra"
+          />
+          <div
+            className="fade-handle fade-out"
+            style={{ right: clip.fadeOutSec * pxPerSec }}
+            onPointerDown={beginFade('out')}
+            title="Dissolvenza audio in uscita — trascina verso sinistra"
+          />
+        </>
+      )}
     </div>
   )
 }
