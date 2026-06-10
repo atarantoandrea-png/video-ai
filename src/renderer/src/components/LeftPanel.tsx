@@ -7,13 +7,14 @@ import { mediaUrl } from '@shared/media'
 import { formatClock } from '../util/format'
 import { AiPanel } from './AiPanel'
 
-type Tab = 'ai' | 'media' | 'audio' | 'text' | 'effects' | 'transitions' | 'filters'
+type Tab = 'ai' | 'media' | 'audio' | 'text' | 'stickers' | 'effects' | 'transitions' | 'filters'
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'ai', label: 'AI' },
   { id: 'media', label: 'Media' },
   { id: 'audio', label: 'Audio' },
   { id: 'text', label: 'Testo' },
+  { id: 'stickers', label: 'Adesivi' },
   { id: 'effects', label: 'Effetti' },
   { id: 'transitions', label: 'Transizioni' },
   { id: 'filters', label: 'Filtri' }
@@ -46,6 +47,16 @@ function TabIcon({ id }: { id: Tab }): JSX.Element {
       return path('M4 9v6M8 6v12M12 10v4M16 7v10M20 11v2')
     case 'text':
       return path('M5 6h14M12 6v13M9 19h6')
+    case 'stickers':
+      return (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M15 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8l6-6V5a2 2 0 0 0-2-2z" />
+          <path d="M14 21v-5a1 1 0 0 1 1-1h5" />
+          <circle cx="9" cy="10" r="1" />
+          <circle cx="14" cy="10" r="1" />
+          <path d="M9 14c.8.8 1.9 1 2.5 1s1.7-.2 2.5-1" />
+        </svg>
+      )
     case 'effects':
       return (
         <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -95,6 +106,7 @@ export function LeftPanel(): JSX.Element {
       {tab === 'media' && <MediaPanel />}
       {tab === 'audio' && <MediaPanel only="audio" />}
       {tab === 'text' && <TextPanel />}
+      {tab === 'stickers' && <StickersPanel />}
       {tab === 'effects' && <EffectsPanel />}
       {tab === 'transitions' && <TransitionsPanel />}
       {tab === 'filters' && <FiltersPanel />}
@@ -302,6 +314,50 @@ const TEXT_TEMPLATES: { label: string; text: string; style: Record<string, unkno
   { label: 'Elegante', text: 'Elegante', style: { italic: true, fontFamily: '"Snell Roundhand", cursive', fontSizeFrac: 0.1, effect: 'shadow' } },
   { label: 'Sottotitolo', text: 'Sottotitolo', style: { fontSizeFrac: 0.05, posY: 0.88, effect: 'shadow' } }
 ]
+
+/** Stickers: emoji + unicode shapes/symbols, added as (resizable, recolourable) text overlays. */
+function StickersPanel(): JSX.Element {
+  const addTextClip = useEditor((s) => s.addTextClip)
+  const add = (ch: string, size = 0.2): void => addTextClip(ch, { fontSizeFrac: size, align: 'center' })
+  const EMOJI = [
+    '😀', '😂', '😍', '🥹', '😎', '🤔', '😱', '🥳', '😭', '🤯', '😏', '🥰', '🔥', '❤️', '💯', '✨',
+    '⭐️', '🎉', '💥', '💬', '🚀', '📍', '🎬', '🙌', '👍', '👏', '💪', '👀', '🙏', '🫶', '✅', '❌'
+  ]
+  const SHAPES = ['●', '■', '▲', '▼', '◆', '★', '♥', '➜', '➤', '✔︎', '✖︎', '▬', '⬤', '◯', '□', '➡︎']
+  return (
+    <div className="scroll" style={{ flex: 1, padding: 12 }}>
+      <div className="section-title" style={{ marginBottom: 8 }}>
+        Emoji
+      </div>
+      <div className="sticker-grid">
+        {EMOJI.map((e) => (
+          <button key={e} className="sticker-btn" title="Aggiungi adesivo" onClick={() => add(e)}>
+            {e}
+          </button>
+        ))}
+      </div>
+      <div className="section-title" style={{ margin: '16px 0 8px' }}>
+        Forme & simboli
+      </div>
+      <div className="sticker-grid">
+        {SHAPES.map((s) => (
+          <button
+            key={s}
+            className="sticker-btn sticker-shape"
+            title="Aggiungi forma (ridimensionabile e ricolorabile)"
+            onClick={() => add(s, 0.16)}
+          >
+            {s}
+          </button>
+        ))}
+      </div>
+      <p className="sticker-hint">
+        Clic per aggiungere → poi <b>trascinalo e ridimensionalo</b> sull’anteprima. Colore e dimensione si
+        cambiano dall’Inspector (è un testo).
+      </p>
+    </div>
+  )
+}
 
 function TextPanel(): JSX.Element {
   const addTextClip = useEditor((s) => s.addTextClip)
