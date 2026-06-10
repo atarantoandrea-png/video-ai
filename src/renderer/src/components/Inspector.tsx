@@ -79,7 +79,7 @@ export function Inspector(): JSX.Element {
 
 function MediaInspector({ clip }: { clip: MediaClip }): JSX.Element {
   const updateClip = useEditor((s) => s.updateClip)
-  const removeClip = useEditor((s) => s.removeClip)
+  const removeClip = useEditor((s) => s.rippleDelete) // default delete = close the gap (CapCut)
   const makeStack = useEditor((s) => s.makeTwoPersonStack)
   const addEffect = useEditor((s) => s.addEffect)
   const removeEffect = useEditor((s) => s.removeEffect)
@@ -593,7 +593,7 @@ const EFFECT_HAS_COLOR = new Set<TextEffect>(['shadow', 'outline', 'splice', 'ec
 
 function TextInspector({ clip }: { clip: TextClip }): JSX.Element {
   const updateTextClip = useEditor((s) => s.updateTextClip)
-  const removeClip = useEditor((s) => s.removeClip)
+  const removeClip = useEditor((s) => s.rippleDelete) // default delete = close the gap (CapCut)
   const st = clip.style
   const set = (recipe: (c: TextClip) => void): void => updateTextClip(clip.id, recipe)
 

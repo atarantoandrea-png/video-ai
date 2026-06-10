@@ -145,8 +145,8 @@ export function Timeline(): JSX.Element {
               danger: true,
               onClick: () => st.removeSelectedClips()
             }
-          : { label: 'Elimina', shortcut: '⌫', danger: true, onClick: () => st.removeClip(clipId) },
-        { label: 'Elimina + chiudi spazio', shortcut: '⇧⌫', danger: true, onClick: () => st.rippleDelete(clipId) }
+          : { label: 'Elimina (chiudi spazio)', shortcut: '⌫', danger: true, onClick: () => st.rippleDelete(clipId) },
+        { label: 'Elimina lasciando lo spazio', shortcut: '⇧⌫', danger: true, onClick: () => st.removeClip(clipId) }
       ]
     }
     return [

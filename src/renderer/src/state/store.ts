@@ -321,6 +321,43 @@ function freeTrackFor(
   return insertTrack(project, type)
 }
 
+/**
+ * CapCut-style MAGNETIC insert: drop `clip` into `track` at `dropStart`, slotting it
+ * between the existing clips (by drop position) and re-packing the whole track gap-free
+ * so the others shift to make room — never an overlap, never a new track. `clip` must
+ * already be removed from its old track. Mutates `track` in place.
+ */
+function rippleInsertIntoTrack(track: Track, clip: Clip, dropStart: number): void {
+  const others = track.clips
+    .filter((c) => c.id !== clip.id)
+    .sort((a, b) => a.timelineStart - b.timelineStart)
+  // Insert before the first clip whose CENTRE is past the drop point.
+  let idx = others.findIndex((x) => (x.timelineStart + x.timelineEnd) / 2 > dropStart)
+  if (idx < 0) idx = others.length
+  const order = [...others.slice(0, idx), clip, ...others.slice(idx)]
+  // Pack sequentially from the track's original lead-in (or the drop point if empty).
+  let cursor = others.length ? Math.max(0, others[0].timelineStart) : Math.max(0, dropStart)
+  for (const c of order) {
+    const dur = c.timelineEnd - c.timelineStart
+    c.trackId = track.id
+    c.timelineStart = cursor
+    c.timelineEnd = cursor + dur
+    cursor = c.timelineEnd
+  }
+  track.clips = order
+}
+
+/** Ripple-close a track after a clip starting at `fromStart` (duration `dur`) is removed:
+ *  every later clip slides left by `dur` to attach to the previous one (CapCut delete). */
+function rippleCloseTrack(track: Track, fromStart: number, dur: number): void {
+  for (const c of track.clips) {
+    if (c.timelineStart >= fromStart - 0.0015) {
+      c.timelineStart = Math.max(0, c.timelineStart - dur)
+      c.timelineEnd = Math.max(0, c.timelineEnd - dur)
+    }
+  }
+}
+
 /** Load the last session's project so reloads/restarts don't lose work. */
 function loadPersistedProject(): Project {
   try {
@@ -597,7 +634,19 @@ export const useEditor = create<EditorStore>()(
         commit((s) => {
           const sel = new Set(ids)
           for (const track of s.project.timeline.tracks) {
-            track.clips = track.clips.filter((c) => !sel.has(c.id))
+            const removed = track.clips.filter((c) => sel.has(c.id))
+            if (!removed.length) continue
+            const remaining = track.clips.filter((c) => !sel.has(c.id))
+            // CapCut ripple delete: each survivor slides left by the total duration of
+            // the removed clips that sat before it, so gaps close up.
+            for (const r of remaining) {
+              let shift = 0
+              for (const rm of removed)
+                if (rm.timelineStart < r.timelineStart - 0.0015) shift += rm.timelineEnd - rm.timelineStart
+              r.timelineStart = Math.max(0, r.timelineStart - shift)
+              r.timelineEnd = Math.max(0, r.timelineEnd - shift)
+            }
+            track.clips = remaining
           }
           s.selectedClipId = null
           s.selectedClipIds = []
@@ -772,10 +821,12 @@ export const useEditor = create<EditorStore>()(
             timelineEnd: start + dur
           }
           const hover = hoverId ? s.project.timeline.tracks.find((t) => t.id === hoverId) : undefined
-          const dest = freeTrackFor(s.project, type, start, start + dur, hover?.type === type ? hover.id : undefined)
-          copy.trackId = dest.id
-          dest.clips.push(copy)
-          dest.clips.sort((a, b) => a.timelineStart - b.timelineStart)
+          const dest =
+            hover && hover.type === type
+              ? hover
+              : s.project.timeline.tracks.find((t) => t.type === type) ?? insertTrack(s.project, type)
+          // CapCut MAGNETIC paste: slot at the playhead, pushing later clips to make room.
+          rippleInsertIntoTrack(dest, copy, start)
           s.selectedClipId = copy.id
           s.selectedClipIds = [copy.id]
         })
@@ -934,21 +985,19 @@ export const useEditor = create<EditorStore>()(
           const c = loc.clip
           const type = loc.track.type
           const dur = c.timelineEnd - c.timelineStart
+          const oldStart = c.timelineStart
           const start = Math.max(0, newStart)
-          // Pull the clip out, then re-place it WITHOUT overlap: the requested track if
-          // free, otherwise another same-type track, otherwise a new one (Canva-style —
-          // two clips can never sit on top of each other on the same track).
-          loc.track.clips.splice(loc.clipIndex, 1)
-          c.timelineStart = start
-          c.timelineEnd = start + dur
-          const wantId =
+          // CapCut MAGNETIC move: pull the clip out, then slot it into the destination
+          // track at the drop point, re-packing so the others make room (no overlap, no
+          // new track). Moving to ANOTHER track closes the gap left behind.
+          const srcTrack = loc.track
+          srcTrack.clips.splice(loc.clipIndex, 1)
+          const wantTrack =
             newTrackId && s.project.timeline.tracks.find((t) => t.id === newTrackId)?.type === type
-              ? newTrackId
-              : loc.track.id
-          const dest = freeTrackFor(s.project, type, start, start + dur, wantId, c.id)
-          c.trackId = dest.id
-          dest.clips.push(c)
-          dest.clips.sort((a, b) => a.timelineStart - b.timelineStart)
+              ? s.project.timeline.tracks.find((t) => t.id === newTrackId)!
+              : srcTrack
+          if (wantTrack.id !== srcTrack.id) rippleCloseTrack(srcTrack, oldStart, dur)
+          rippleInsertIntoTrack(wantTrack, c, start)
         })
       },
 

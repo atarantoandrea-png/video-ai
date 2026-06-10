@@ -101,7 +101,7 @@ function useKeyboardShortcuts(): void {
       } else if (mod && e.key.toLowerCase() === 'x') {
         if (sel) {
           st.copyClip(sel)
-          st.removeClip(sel)
+          st.rippleDelete(sel) // cut closes the gap (CapCut)
         }
       } else if (mod && e.key.toLowerCase() === 's') {
         e.preventDefault()
@@ -110,9 +110,9 @@ function useKeyboardShortcuts(): void {
         st.splitAtPlayhead()
       } else if ((e.key === 'Backspace' || e.key === 'Delete') && (mod || e.shiftKey)) {
         e.preventDefault()
-        if (sel) st.rippleDelete(sel)
+        if (sel) st.removeClip(sel) // ⇧⌫ = delete but LEAVE the gap
       } else if (e.key === 'Backspace' || e.key === 'Delete') {
-        st.removeSelectedClips() // deletes the whole selection (1 or many); no-op if empty
+        st.removeSelectedClips() // default ⌫ = delete + close the gap (ripple), 1 or many
       } else if (e.key.toLowerCase() === 'm' && !mod) {
         st.addMarker()
       } else if (e.key.toLowerCase() === 'f' && e.shiftKey && !mod) {
