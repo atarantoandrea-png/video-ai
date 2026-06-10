@@ -93,6 +93,7 @@ function MediaInspector({ clip }: { clip: MediaClip }): JSX.Element {
   const transformEdit = useEditor((s) => s.transformEdit)
   const toggleTransformEdit = useEditor((s) => s.toggleTransformEdit)
   const setReframeEdit = useEditor((s) => s.setReframeEdit)
+  const reframeEdit = useEditor((s) => s.reframeEdit)
   const flipClip = useEditor((s) => s.flipClip)
   const duplicateClip = useEditor((s) => s.duplicateClip)
   const setSpeed = useEditor((s) => s.setSpeed)
@@ -130,13 +131,43 @@ function MediaInspector({ clip }: { clip: MediaClip }): JSX.Element {
         {transformEdit ? '✥ Modifica riquadro: ATTIVA' : '✥ Sposta / ridimensiona sull’anteprima'}
       </button>
       <button
-        className="btn"
+        className={`btn ${reframeEdit ? 'btn--toggle-on' : ''}`}
         style={{ width: '100%', marginTop: 6 }}
-        onClick={() => setReframeEdit(true)}
+        onClick={() => setReframeEdit(!reframeEdit)}
         title="Scegli a occhio quale parte dell'immagine si vede, come su CapCut (anche: doppio clic sul riquadro)"
       >
-        ⛶ Scegli inquadratura (reframe)
+        {reframeEdit ? '⛶ Reframe: ATTIVO' : '⛶ Scegli inquadratura (reframe)'}
       </button>
+      {reframeEdit && (
+        <>
+          <div className="seg-row" style={{ marginTop: 6 }}>
+            <button
+              className={`seg-btn ${clip.mask.shape === 'none' ? 'seg-on' : ''}`}
+              title="Inquadratura piena (nessuna forma)"
+              onClick={() => setMask(clip.id, { shape: 'none' })}
+            >
+              ▢ Pieno
+            </button>
+            <button
+              className={`seg-btn ${clip.mask.shape === 'rectangle' ? 'seg-on' : ''}`}
+              title="Ritaglia in un rettangolo ridimensionabile"
+              onClick={() => setMask(clip.id, { shape: 'rectangle' })}
+            >
+              ▭ Rettangolo
+            </button>
+            <button
+              className={`seg-btn ${clip.mask.shape === 'ellipse' ? 'seg-on' : ''}`}
+              title="Ritaglia in un cerchio ridimensionabile"
+              onClick={() => setMask(clip.id, { shape: 'ellipse' })}
+            >
+              ⬭ Cerchio
+            </button>
+          </div>
+          <p style={{ fontSize: 11, color: 'var(--text-dim)', margin: '6px 2px 0', lineHeight: 1.4 }}>
+            Sull’anteprima: trascina l’immagine o la forma · maniglie = ridimensiona · rotella = zoom
+          </p>
+        </>
+      )}
       <div className="seg-row">
         <button className={`seg-btn ${clip.transform.flipH ? 'seg-on' : ''}`} title="Specchia orizzontale" onClick={() => flipClip(clip.id, 'h')}>
           ⇆
