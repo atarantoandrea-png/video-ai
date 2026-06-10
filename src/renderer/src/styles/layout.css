@@ -1543,16 +1543,19 @@ input[type='range']:hover::-webkit-slider-thumb {
   left: 0;
   right: 0;
   top: 50%;
-  margin-top: -1px;
-  height: 2px;
-  background: rgba(255, 255, 255, 0.82);
-  box-shadow: 0 0 3px rgba(0, 0, 0, 0.7);
+  margin-top: -0.5px;
+  height: 1px;
+  background: #22e0ff;
+  box-shadow:
+    0 0 4px rgba(34, 224, 255, 0.9),
+    0 0 1px rgba(0, 0, 0, 0.6);
   border-radius: 2px;
 }
 .vol-line:hover::before {
-  background: var(--accent, #1fe6c2);
-  height: 3px;
-  margin-top: -1.5px;
+  background: #5fe9ff;
+  height: 2px;
+  margin-top: -1px;
+  box-shadow: 0 0 7px rgba(34, 224, 255, 1);
 }
 .vol-label {
   position: absolute;

@@ -1100,13 +1100,34 @@ function ClipMedia({
       ctx.fillStyle = g
       ctx.fillRect(0, top, cssW, waveH)
       const n = peaks.length
-      const mid = top + waveH / 2
-      const maxH = waveH - 3
-      // Height tracks the VOLUME (louder = taller; muted/0 = flat), capped above 1.
-      const volF = muted ? 0 : Math.min(1.6, Math.max(0, volume))
-      ctx.fillStyle = 'rgba(255,255,255,0.10)'
-      ctx.fillRect(0, Math.round(mid), cssW, 1) // center baseline
-      ctx.fillStyle = muted ? 'rgba(126,247,225,0.45)' : 'rgba(126,247,225,0.98)'
+      const base = top + waveH // band bottom — the TRACK grows UP from here, BELOW the line
+      const volF = muted ? 0 : Math.max(0, volume)
+      // The volume LINE (DOM, bottom:(volume/2)*waveH) is the CEILING; the TRACK fills below
+      // it — a full-scale peak just reaching the line. Lower volume → thinner track; raise →
+      // taller (headroom to grow); and the hue escalates teal→YELLOW→RED as the gain runs
+      // too hot ("supera troppi decibel"). Andrea's CapCut volume meter.
+      const ceil = Math.min(waveH, (volF / 2) * waveH) // full-scale fill height = line pos
+      const mix = (p: number[], q: number[], t: number): number[] => [
+        Math.round(p[0] + (q[0] - p[0]) * t),
+        Math.round(p[1] + (q[1] - p[1]) * t),
+        Math.round(p[2] + (q[2] - p[2]) * t)
+      ]
+      const SAFE = [110, 240, 220]
+      const YEL = [255, 209, 56]
+      const RED = [255, 64, 56]
+      const hot =
+        volF <= 1.05
+          ? SAFE
+          : volF <= 1.45
+            ? mix(SAFE, YEL, (volF - 1.05) / 0.4)
+            : mix(YEL, RED, Math.min(1, (volF - 1.45) / 0.55))
+      // Solid at the base, fading up → a filled meter that sits under the cyan line.
+      const wg = ctx.createLinearGradient(0, base, 0, top)
+      wg.addColorStop(0, `rgba(${hot[0]},${hot[1]},${hot[2]},${muted ? 0.4 : 0.98})`)
+      wg.addColorStop(1, `rgba(${hot[0]},${hot[1]},${hot[2]},${muted ? 0.22 : 0.6})`)
+      ctx.fillStyle = 'rgba(255,255,255,0.12)'
+      ctx.fillRect(0, Math.round(base) - 1, cssW, 1) // bottom baseline
+      ctx.fillStyle = wg
       for (let x = 0; x < cssW; x++) {
         let a = Math.floor(fracAt(x) * (n - 1))
         let b = Math.floor(fracAt(x + 1) * (n - 1))
@@ -1118,9 +1139,9 @@ function ClipMedia({
           const v = peaks[k] ?? 0
           if (v > mx) mx = v
         }
-        const amp = Math.pow(mx, 0.82) // near-linear: keeps loud/quiet distinct (readable)
-        const h = Math.max(volF <= 0.02 ? 0.6 : 1, amp * maxH * volF)
-        ctx.fillRect(x, mid - h / 2, 1, h)
+        const amp = Math.pow(mx, 0.62) // fuller body: peaks rise close to the line (ceiling)
+        const h = Math.min(ceil || 0.6, Math.max(volF <= 0.02 ? 0.6 : 1.5, amp * ceil))
+        ctx.fillRect(x, base - h, 1, h)
       }
     }
   }, [stripUrl, thumbCols, isImage, aspect, peaks, volume, muted, left, width, vis0, visW, thumbH, waveH, startFrac, endFrac, clipH, tick])
