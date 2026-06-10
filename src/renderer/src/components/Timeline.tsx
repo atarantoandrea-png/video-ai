@@ -858,6 +858,28 @@ function ClipBlock({
     document.addEventListener('pointerup', onUp)
   }
 
+  // CapCut volume line: drag the line over the waveform up/down to change the clip's
+  // volume, live (waveform + audio update as you drag). beginHistory → one undo per drag.
+  const beginVolume = (e: React.PointerEvent): void => {
+    if (e.button !== 0 || clip.kind !== 'media') return
+    e.stopPropagation()
+    e.preventDefault()
+    onSelect(clip.id)
+    useEditor.getState().beginHistory()
+    const startY = e.clientY
+    const startVol = clip.mutedAudio ? 0 : clip.volume
+    const onMove = (ev: PointerEvent): void => {
+      const vol = Math.max(0, Math.min(2, startVol - (ev.clientY - startY) / 100)) // 100px = 1.0×
+      useEditor.getState().liveSetClipVolume(clip.id, vol)
+    }
+    const onUp = (): void => {
+      document.removeEventListener('pointermove', onMove)
+      document.removeEventListener('pointerup', onUp)
+    }
+    document.addEventListener('pointermove', onMove)
+    document.addEventListener('pointerup', onUp)
+  }
+
   return (
     <div
       ref={ref}
@@ -904,6 +926,16 @@ function ClipBlock({
             title="Dissolvenza audio in uscita — trascina verso sinistra"
           />
         </>
+      )}
+      {clip.kind === 'media' && waveH > 0 && source?.hasAudio && (
+        <div
+          className="vol-line"
+          style={{ bottom: `${(Math.min(2, clip.mutedAudio ? 0 : clip.volume) / 2) * waveH}px` }}
+          onPointerDown={beginVolume}
+          title={`Volume ${Math.round((clip.mutedAudio ? 0 : clip.volume) * 100)}% — trascina su/giù`}
+        >
+          <span className="vol-label">{Math.round((clip.mutedAudio ? 0 : clip.volume) * 100)}%</span>
+        </div>
       )}
     </div>
   )

@@ -184,6 +184,8 @@ interface Actions {
   liveSetClipCrop: (clipId: string, patch: Partial<MediaClip['crop']>) => void
   /** Live mask write WITHOUT history (reframe shape resize/move; after beginHistory). */
   liveSetClipMask: (clipId: string, patch: Partial<MediaClip['mask']>) => void
+  /** Live volume write WITHOUT history (dragging the volume line on the waveform). */
+  liveSetClipVolume: (clipId: string, volume: number) => void
   /** Turn the reframe (visual crop) editor on/off; seeds a sensible crop when turning on. */
   setReframeEdit: (on: boolean) => void
   /** Capture a transform keyframe at the playhead. */
@@ -766,6 +768,17 @@ export const useEditor = create<EditorStore>()(
             if (patch.h !== undefined) m.h = cl(patch.h, 0.05, 2)
             if (patch.feather !== undefined) m.feather = cl(patch.feather, 0, 1)
             if (patch.invert !== undefined) m.invert = patch.invert
+            s.project.modifiedAt = new Date().toISOString()
+          }
+        })
+      },
+
+      liveSetClipVolume: (clipId, volume) => {
+        set((s) => {
+          const loc = locateClip(s.project, clipId)
+          if (loc && isMediaClip(loc.clip)) {
+            loc.clip.volume = Math.max(0, Math.min(4, volume))
+            loc.clip.mutedAudio = false
             s.project.modifiedAt = new Date().toISOString()
           }
         })

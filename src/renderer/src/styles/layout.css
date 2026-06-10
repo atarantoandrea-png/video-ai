@@ -1527,6 +1527,50 @@ input[type='range']:hover::-webkit-slider-thumb {
   border-top-right-radius: 7px;
   border-bottom-right-radius: 7px;
 }
+/* CapCut volume line over a clip's waveform (drag up/down to set the clip volume) */
+.vol-line {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  height: 16px;
+  margin-bottom: -8px;
+  cursor: ns-resize;
+  z-index: 5;
+}
+.vol-line::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  margin-top: -1px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.7);
+  border-radius: 2px;
+}
+.vol-line:hover::before {
+  background: var(--accent, #1fe6c2);
+  height: 3px;
+  margin-top: -1.5px;
+}
+.vol-label {
+  position: absolute;
+  right: 0;
+  bottom: 9px;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.65);
+  padding: 1px 4px;
+  border-radius: 4px;
+  pointer-events: none;
+  opacity: 0;
+}
+.vol-line:hover .vol-label {
+  opacity: 1;
+}
 /* stickers / emoji panel */
 .sticker-grid {
   display: grid;
