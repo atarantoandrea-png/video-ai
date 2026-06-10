@@ -1107,6 +1107,27 @@ function ClipMedia({
       // taller (headroom to grow); and the hue escalates teal→YELLOW→RED as the gain runs
       // too hot ("supera troppi decibel"). Andrea's CapCut volume meter.
       const ceil = Math.min(waveH, (volF / 2) * waveH) // full-scale fill height = line pos
+      // First pass: per-pixel max across the VISIBLE waveform, then a high-percentile
+      // reference (robust to a lone transient) so the LOUD peaks reach the line ("i picchi
+      // massimi devono toccare la linea") — not just one spike, and quiet stretches stay
+      // proportionally lower. The draw pass reuses cols[x] (no recompute).
+      const cols = new Array<number>(cssW)
+      for (let x = 0; x < cssW; x++) {
+        let a = Math.floor(fracAt(x) * (n - 1))
+        let b = Math.floor(fracAt(x + 1) * (n - 1))
+        if (a > b) [a, b] = [b, a]
+        a = Math.max(0, Math.min(n - 1, a))
+        b = Math.max(0, Math.min(n - 1, b))
+        let mxx = 0
+        for (let k = a; k <= b; k++) {
+          const v = peaks[k] ?? 0
+          if (v > mxx) mxx = v
+        }
+        cols[x] = mxx
+      }
+      const sorted = cols.slice().sort((p, q) => p - q)
+      const ref = sorted.length ? sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * 0.85))] : 0
+      const pInv = ref > 1e-3 ? 1 / ref : 0
       const mix = (p: number[], q: number[], t: number): number[] => [
         Math.round(p[0] + (q[0] - p[0]) * t),
         Math.round(p[1] + (q[1] - p[1]) * t),
@@ -1129,18 +1150,8 @@ function ClipMedia({
       ctx.fillRect(0, Math.round(base) - 1, cssW, 1) // bottom baseline
       ctx.fillStyle = wg
       for (let x = 0; x < cssW; x++) {
-        let a = Math.floor(fracAt(x) * (n - 1))
-        let b = Math.floor(fracAt(x + 1) * (n - 1))
-        if (a > b) [a, b] = [b, a]
-        a = Math.max(0, Math.min(n - 1, a))
-        b = Math.max(0, Math.min(n - 1, b))
-        let mx = 0
-        for (let k = a; k <= b; k++) {
-          const v = peaks[k] ?? 0
-          if (v > mx) mx = v
-        }
-        const amp = Math.pow(mx, 0.62) // fuller body: peaks rise close to the line (ceiling)
-        const h = Math.min(ceil || 0.6, Math.max(volF <= 0.02 ? 0.6 : 1.5, amp * ceil))
+        const amp = Math.pow(Math.min(1, cols[x] * pInv), 0.5) // loud peaks → reach the line
+        const h = Math.max(volF <= 0.02 ? 0.4 : 1, amp * ceil)
         ctx.fillRect(x, base - h, 1, h)
       }
     }
