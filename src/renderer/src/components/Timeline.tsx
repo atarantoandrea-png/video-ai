@@ -100,6 +100,9 @@ export function Timeline(): JSX.Element {
   const setSelectedClips = useEditor((s) => s.setSelectedClips)
   const removeSelectedClips = useEditor((s) => s.removeSelectedClips)
   const splitAtPlayhead = useEditor((s) => s.splitAtPlayhead)
+  const bladeMode = useEditor((s) => s.bladeMode)
+  const toggleBladeMode = useEditor((s) => s.toggleBladeMode)
+  const toggleShortcuts = useEditor((s) => s.toggleShortcuts)
   const trackScale = useEditor((s) => s.trackScale)
   const setTrackScale = useEditor((s) => s.setTrackScale)
   const markers = useEditor((s) => s.project.markers)
@@ -240,10 +243,17 @@ export function Timeline(): JSX.Element {
   }
 
   return (
-    <div className="timeline">
+    <div className={`timeline ${bladeMode ? 'blade-mode' : ''}`}>
       <div className="timeline-toolbar">
-        <button className="iconbtn" title="Dividi (S)" onClick={splitAtPlayhead}>
+        <button className="iconbtn" title="Dividi al cursore (S)" onClick={splitAtPlayhead}>
           ✂
+        </button>
+        <button
+          className={`iconbtn ${bladeMode ? 'iconbtn--on' : ''}`}
+          title="Lametta: clicca una clip per tagliarla lì (B)"
+          onClick={toggleBladeMode}
+        >
+          🔪
         </button>
         <button
           className="iconbtn"
@@ -281,6 +291,9 @@ export function Timeline(): JSX.Element {
         </button>
         <button className="iconbtn" title="Aumenta zoom" onClick={() => setZoom(pxPerSec * 1.3)}>
           ＋
+        </button>
+        <button className="iconbtn" title="Scorciatoie da tastiera (?)" onClick={() => toggleShortcuts()}>
+          ⌨︎
         </button>
       </div>
 
@@ -700,6 +713,12 @@ function ClipBlock({
     if (e.button !== 0) return
     e.stopPropagation()
     const store = useEditor.getState()
+    if (store.bladeMode) {
+      // Razor/blade tool: clicking a clip splits it EXACTLY under the cursor.
+      const rect = ref.current?.getBoundingClientRect()
+      if (rect) store.splitAtTime(clip.timelineStart + (e.clientX - rect.left) / pxPerSec)
+      return
+    }
     // Shift / ⌘ / Ctrl + click → toggle this clip in the multi-selection (no drag).
     if (e.shiftKey || e.metaKey || e.ctrlKey) {
       store.toggleClipInSelection(clip.id)

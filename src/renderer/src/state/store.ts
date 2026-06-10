@@ -112,6 +112,12 @@ interface State {
   /** Playhead position in seconds. */
   playhead: number
   isPlaying: boolean
+  /** Playback speed/direction for the J/K/L shuttle (1 = normal; negative = reverse). */
+  playbackRate: number
+  /** Razor/blade tool: clicking a clip splits it at the cursor instead of selecting. */
+  bladeMode: boolean
+  /** Whether the keyboard-shortcuts cheat sheet overlay is open. */
+  showShortcuts: boolean
   /** Timeline horizontal zoom. */
   pxPerSec: number
   /** Vertical track-height multiplier (shrink/grow the rows). */
@@ -257,6 +263,12 @@ interface Actions {
   setPlayhead: (t: number) => void
   togglePlay: () => void
   setPlaying: (p: boolean) => void
+  /** J/K/L shuttle: 'fwd' steps speed up (1→2→4), 'back' reverses (-1→-2→-4), 'stop' pauses. */
+  shuttle: (dir: 'fwd' | 'back' | 'stop') => void
+  toggleBladeMode: () => void
+  toggleShortcuts: (open?: boolean) => void
+  /** Split every clip crossing `t` (the blade tool, at the click position). */
+  splitAtTime: (t: number) => void
   setZoom: (px: number) => void
   setAspect: (a: AspectPreset) => void
   setTier: (t: PerformanceTier) => void
@@ -439,6 +451,9 @@ export const useEditor = create<EditorStore>()(
       hoverTrackId: null,
       playhead: 0,
       isPlaying: false,
+      playbackRate: 1,
+      bladeMode: false,
+      showShortcuts: false,
       pxPerSec: 60,
       trackScale: 1,
       transformEdit: false,
@@ -941,17 +956,15 @@ export const useEditor = create<EditorStore>()(
         commit((s) => void (s.project.markers = s.project.markers.filter((m) => m.id !== id)))
       },
 
-      splitAtPlayhead: () => {
-        const { playhead, selectedClipId } = get()
+      splitAtTime: (t) => {
+        const { selectedClipId } = get()
         const proj = get().project
-        // Cut every media clip the playhead crosses (scissors tool), so it
-        // works wherever the line is — no clip needs to be selected first.
+        // Cut every media/text clip the line `t` crosses — works wherever you click
+        // (scissors at the playhead, or the blade tool at the cursor).
         const ids: string[] = []
-        for (const t of proj.timeline.tracks) {
-          for (const c of t.clips) {
-            // Cut media AND text clips the playhead crosses, so you can split a title
-            // and delete part of it (scissors tool).
-            if (playhead > c.timelineStart && playhead < c.timelineEnd) ids.push(c.id)
+        for (const tr of proj.timeline.tracks) {
+          for (const c of tr.clips) {
+            if (t > c.timelineStart && t < c.timelineEnd) ids.push(c.id)
           }
         }
         if (!ids.length) return
@@ -970,21 +983,15 @@ export const useEditor = create<EditorStore>()(
             const clip = loc.clip
             let right: Clip
             if (isMediaClip(clip) && orig.kind === 'media') {
-              const srcSplit = clip.sourceIn + (playhead - clip.timelineStart) * clip.speed
-              right = {
-                ...orig,
-                id: genId('clp'),
-                timelineStart: playhead,
-                sourceIn: srcSplit,
-                transitionOut: null
-              }
-              clip.timelineEnd = playhead
+              const srcSplit = clip.sourceIn + (t - clip.timelineStart) * clip.speed
+              right = { ...orig, id: genId('clp'), timelineStart: t, sourceIn: srcSplit, transitionOut: null }
+              clip.timelineEnd = t
               clip.sourceOut = srcSplit
               clip.transitionOut = null
             } else {
               // Text clip: split the time span; both halves keep the same text/style.
-              right = { ...orig, id: genId('clp'), timelineStart: playhead }
-              clip.timelineEnd = playhead
+              right = { ...orig, id: genId('clp'), timelineStart: t }
+              clip.timelineEnd = t
             }
             loc.track.clips.splice(loc.clipIndex + 1, 0, right)
             if (selectedClipId === id) nextSelected = right.id
@@ -992,6 +999,8 @@ export const useEditor = create<EditorStore>()(
           s.selectedClipId = nextSelected
         })
       },
+
+      splitAtPlayhead: () => get().splitAtTime(get().playhead),
 
       moveClip: (clipId, newStart, newTrackId) => {
         commit((s) => {
@@ -1644,8 +1653,24 @@ export const useEditor = create<EditorStore>()(
       },
 
       setPlayhead: (t) => set((s) => void (s.playhead = Math.max(0, t))),
-      togglePlay: () => set((s) => void (s.isPlaying = !s.isPlaying)),
-      setPlaying: (p) => set((s) => void (s.isPlaying = p)),
+      togglePlay: () => set((s) => void ((s.isPlaying = !s.isPlaying), (s.playbackRate = 1))),
+      setPlaying: (p) => set((s) => void ((s.isPlaying = p), p || (s.playbackRate = 1))),
+      shuttle: (dir) =>
+        set((s) => {
+          if (dir === 'stop') {
+            s.isPlaying = false
+            s.playbackRate = 1
+            return
+          }
+          if (dir === 'fwd') {
+            s.playbackRate = s.isPlaying && s.playbackRate >= 1 ? Math.min(4, s.playbackRate * 2) : 1
+          } else {
+            s.playbackRate = s.isPlaying && s.playbackRate <= -1 ? Math.max(-4, s.playbackRate * 2) : -1
+          }
+          s.isPlaying = true
+        }),
+      toggleBladeMode: () => set((s) => void (s.bladeMode = !s.bladeMode)),
+      toggleShortcuts: (open) => set((s) => void (s.showShortcuts = open ?? !s.showShortcuts)),
       // Min 0.02 px/s lets a 10-hour timeline fit on screen (36000s × 0.02 ≈ 720px).
       setZoom: (px) => set((s) => void (s.pxPerSec = Math.max(0.02, Math.min(2000, px)))),
 

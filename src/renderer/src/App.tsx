@@ -6,6 +6,7 @@ import { Player } from './components/Player'
 import { Inspector } from './components/Inspector'
 import { Timeline } from './components/Timeline'
 import { ExportOverlay } from './components/ExportOverlay'
+import { ShortcutsPanel } from './components/ShortcutsPanel'
 import { timelineDuration } from '@shared/projectSchema'
 import './styles/layout.css'
 
@@ -29,6 +30,7 @@ export default function App(): JSX.Element {
       </div>
       <Timeline />
       <ExportOverlay />
+      <ShortcutsPanel />
     </div>
   )
 }
@@ -52,14 +54,21 @@ function startPlaybackLoop(): void {
       return
     }
     const dur = timelineDuration(st.project.timeline)
-    const next = st.playhead + dt
-    if (dur > 0 && next >= dur) {
+    const rate = st.playbackRate || 1
+    const next = st.playhead + dt * rate
+    if (rate < 0 && next <= 0) {
+      st.setPlayhead(0)
+      st.setPlaying(false)
+      playbackRaf = 0
+      return
+    }
+    if (dur > 0 && rate > 0 && next >= dur) {
       st.setPlayhead(dur)
       st.setPlaying(false)
       playbackRaf = 0
       return
     }
-    st.setPlayhead(next)
+    st.setPlayhead(Math.max(0, next))
     playbackRaf = requestAnimationFrame(tick)
   }
   playbackRaf = requestAnimationFrame(tick)
@@ -84,9 +93,20 @@ function useKeyboardShortcuts(): void {
 
       const mod = e.metaKey || e.ctrlKey
       const sel = st.selectedClipId
-      if (e.code === 'Space') {
+      if (e.key === '?' || (e.key === '/' && e.shiftKey)) {
+        e.preventDefault()
+        st.toggleShortcuts()
+      } else if (e.code === 'Space') {
         e.preventDefault()
         st.togglePlay()
+      } else if (!mod && e.key.toLowerCase() === 'l') {
+        st.shuttle('fwd') // J/K/L shuttle (pro NLE): L = play/forward faster
+      } else if (!mod && e.key.toLowerCase() === 'k') {
+        st.shuttle('stop')
+      } else if (!mod && e.key.toLowerCase() === 'j') {
+        st.shuttle('back')
+      } else if (!mod && e.key.toLowerCase() === 'b') {
+        st.toggleBladeMode() // razor/blade tool on/off
       } else if (mod && e.key.toLowerCase() === 'z') {
         e.preventDefault()
         if (e.shiftKey) st.redo()
