@@ -201,8 +201,13 @@
       <h3>Aggiungi le skill /reel-ai</h3>
       <ul class="gsub">
         <li><b>Di solito non devi fare nulla:</b> quando apri <b>Video AI</b>, le skill <b>si installano da sole</b>. ✅</li>
-        <li>Solo se non comparissero in Claude Code: premi <a href="reel-ai-skill.zip" download style="color:var(--accent)"><b>Scarica le skill ↓</b></a>, apri lo zip, e metti le due cartelle (<b>reel-ai</b> e <b>reel-ai2</b>) nella cartella <code class="inline">.claude/skills</code> della tua Home. Poi <b>riapri</b> Claude Code.</li>
-        <li style="color:var(--dim);font-size:13px">Per aprire quella cartella al volo: <span class="tag tag-mac">Mac</span> <code class="inline">mkdir -p ~/.claude/skills && open ~/.claude/skills</code> · <span class="tag tag-win">Windows</span> <code class="inline">mkdir %USERPROFILE%\.claude\skills</code> e aprila in Esplora file.</li>
+        <li>Solo se non comparissero, scarica l'<b>installer</b> per il tuo sistema (doppio clic, fa tutto da solo):
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin:8px 0 4px">
+            <a class="dl dl-ghost" href="installa-skill-mac.zip" download style="padding:9px 15px"><span class="tag tag-mac">Mac</span>Installa skill</a>
+            <a class="dl dl-ghost" href="installa-skill-windows.bat" download style="padding:9px 15px"><span class="tag tag-win">Windows</span>Installa skill</a>
+          </div>
+          <span style="color:var(--dim);font-size:13px"><b>Mac:</b> apri lo zip, poi <b>tasto destro → Apri</b> sul file (solo la 1ª volta). <b>Windows:</b> doppio clic sul <code class="inline">.bat</code> (se avvisa: <i>Ulteriori informazioni → Esegui comunque</i>). Poi <b>riapri</b> Claude Code.</span>
+        </li>
       </ul>
     </div></div></div>
 
@@ -315,9 +320,9 @@ const APPLE_SVG='<path d="M16.36 12.9c-.02-2.06 1.68-3.05 1.76-3.1-.96-1.4-2.45-
 const WIN_SVG='<path d="M3 5.5 10.2 4.5v6.8H3V5.5zm0 13L10.2 19.5v-6.7H3v5.7zM11.3 4.3 21 3v8.3h-9.7V4.3zm0 8.4H21V21l-9.7-1.3v-7z"/>';
 const releasesPage=`https://github.com/${REPO}/releases/latest`;
 const ua=navigator.platform.toLowerCase()+' '+navigator.userAgent.toLowerCase(); const isWin=ua.includes('win');
-const MAC={label:'Scarica per macOS',sub:'.dmg · Apple Silicon',svg:APPLE_SVG,href:releasesPage};
-const WIN={label:'Scarica per Windows',sub:'.exe · installer 64-bit',svg:WIN_SVG,href:releasesPage};
-function apply(p,s){document.getElementById('dl-icon').innerHTML=p.svg;document.getElementById('dl-label').textContent=p.label;document.getElementById('dl-sub').textContent=p.sub;document.getElementById('dl-primary').href=p.href;document.getElementById('dl-icon2').innerHTML=s.svg;document.getElementById('dl-label2').textContent=s.label;document.getElementById('dl-sub2').textContent=s.sub;document.getElementById('dl-secondary').href=s.href;}
+const MAC={label:'Scarica per macOS',sub:'.dmg · Apple Silicon',svg:APPLE_SVG,href:releasesPage,skill:'installa-skill-mac.zip',os:'Mac'};
+const WIN={label:'Scarica per Windows',sub:'.exe · installer 64-bit',svg:WIN_SVG,href:releasesPage,skill:'installa-skill-windows.bat',os:'Windows'};
+function apply(p,s){document.getElementById('dl-icon').innerHTML=p.svg;document.getElementById('dl-label').textContent=p.label;document.getElementById('dl-sub').textContent=p.sub;document.getElementById('dl-primary').href=p.href;document.getElementById('dl-icon2').innerHTML=s.svg;document.getElementById('dl-label2').textContent=s.label;document.getElementById('dl-sub2').textContent=s.sub;document.getElementById('dl-secondary').href=s.href;const sk=document.getElementById('dl-skills');if(sk){sk.href=p.skill;const sm=sk.querySelector('.small');if(sm)sm.textContent=p.os+' · installer doppio clic';}}
 apply(isWin?WIN:MAC,isWin?MAC:WIN);
 fetch(`https://api.github.com/repos/${REPO}/releases/latest`).then(r=>r.ok?r.json():null).then(rel=>{
   if(!rel||!rel.assets)return; if(rel.tag_name){const v=rel.tag_name.replace(/^v/,'');const ve=document.getElementById('ver');if(ve)ve.textContent=v;document.querySelectorAll('.vf').forEach(e=>e.textContent=v);}
