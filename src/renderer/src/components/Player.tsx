@@ -5,7 +5,7 @@ import { formatTimecode } from '../util/format'
 import { fitWithin, useElementSize } from '../util/useElementSize'
 import { PreviewCanvas } from '../preview/PreviewCanvas'
 import { TransformOverlay } from './TransformOverlay'
-import { ReframeOverlay } from './ReframeOverlay'
+import { ReframeOverlay, ReframeBar } from './ReframeOverlay'
 import { MaskOverlay } from './MaskOverlay'
 import { TextOverlay } from './TextOverlay'
 import { FaceSelectOverlay } from './FaceSelectOverlay'
@@ -91,6 +91,8 @@ export function Player(): JSX.Element {
           )}
         </div>
       </div>
+
+      <ReframeBar />
 
       <div className="player-transport">
         <button className="iconbtn" title="Vai all'inizio" onClick={() => setPlayhead(0)}>

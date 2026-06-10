@@ -24,7 +24,6 @@ export function ReframeOverlay({ frameW, frameH }: { frameW: number; frameH: num
   const beginHistory = useEditor((s) => s.beginHistory)
   const liveSetClipCrop = useEditor((s) => s.liveSetClipCrop)
   const liveSetClipMask = useEditor((s) => s.liveSetClipMask)
-  const setMask = useEditor((s) => s.setMask)
   const canvasW = useEditor((s) => s.project.canvas.width)
   const canvasH = useEditor((s) => s.project.canvas.height)
   const clip = useEditor((s) => {
@@ -189,8 +188,6 @@ export function ReframeOverlay({ frameW, frameH }: { frameW: number; frameH: num
     document.addEventListener('pointerup', onUp)
   }
 
-  const pickShape = (shape: 'none' | 'rectangle' | 'ellipse'): void => setMask(clip.id, { shape })
-
   return (
     <div ref={layerRef} className="reframe-layer" onWheel={onWheel} onPointerDown={(e) => e.stopPropagation()}>
       {imgUrl ? (
@@ -232,38 +229,48 @@ export function ReframeOverlay({ frameW, frameH }: { frameW: number; frameH: num
         <div className="reframe-frame" style={{ left: FL, top: FT, width: FW, height: FH }} />
       )}
 
-      <button
-        className="reframe-done"
-        onPointerDown={(e) => e.stopPropagation()}
-        onClick={() => setReframeEdit(false)}
-        title="Conferma l'inquadratura (Esc)"
-      >
+    </div>
+  )
+}
+
+/**
+ * Reframe CONTROL BAR — rendered OUTSIDE the preview frame (below it), so the shape
+ * selector and "Fatto" never cover the image. Shown only while the reframe editor is open.
+ */
+export function ReframeBar(): JSX.Element | null {
+  const reframeEdit = useEditor((s) => s.reframeEdit)
+  const setReframeEdit = useEditor((s) => s.setReframeEdit)
+  const setMask = useEditor((s) => s.setMask)
+  const clip = useEditor((s) => {
+    if (!s.selectedClipId) return null
+    for (const t of s.project.timeline.tracks)
+      for (const c of t.clips) if (c.id === s.selectedClipId && c.kind === 'media') return c as MediaClip
+    return null
+  })
+  if (!reframeEdit || !clip) return null
+  const shape = clip.mask.shape
+  const pick = (sh: 'none' | 'rectangle' | 'ellipse'): void => setMask(clip.id, { shape: sh })
+  return (
+    <div className="reframe-bar">
+      <div className="reframe-shapes">
+        <button className={shape === 'none' ? 'on' : ''} title="Pieno (nessuna forma)" onClick={() => pick('none')}>
+          ▢ Pieno
+        </button>
+        <button className={shape === 'rectangle' ? 'on' : ''} title="Rettangolo ridimensionabile" onClick={() => pick('rectangle')}>
+          ▭ Rettangolo
+        </button>
+        <button className={shape === 'ellipse' ? 'on' : ''} title="Cerchio ridimensionabile" onClick={() => pick('ellipse')}>
+          ⬭ Cerchio
+        </button>
+      </div>
+      <span className="reframe-hint">
+        {shape === 'none'
+          ? 'Trascina l’immagine · rotella = zoom'
+          : 'Trascina l’immagine o la forma · maniglie = ridimensiona · rotella = zoom'}
+      </span>
+      <button className="reframe-done" onClick={() => setReframeEdit(false)}>
         ✓ Fatto
       </button>
-
-      <div className="reframe-shapes" onPointerDown={(e) => e.stopPropagation()}>
-        <button className={!hasShape ? 'on' : ''} title="Pieno (nessuna forma)" onClick={() => pickShape('none')}>
-          ▢
-        </button>
-        <button
-          className={mask.shape === 'rectangle' ? 'on' : ''}
-          title="Rettangolo (ridimensionabile)"
-          onClick={() => pickShape('rectangle')}
-        >
-          ▭
-        </button>
-        <button
-          className={mask.shape === 'ellipse' ? 'on' : ''}
-          title="Cerchio (ridimensionabile)"
-          onClick={() => pickShape('ellipse')}
-        >
-          ⬭
-        </button>
-      </div>
-
-      <div className="reframe-hint">
-        {hasShape ? 'Trascina la forma · maniglie = ridimensiona · rotella = zoom' : 'Trascina = sposta · rotella = zoom'}
-      </div>
     </div>
   )
 }
