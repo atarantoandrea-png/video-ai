@@ -1,56 +1,58 @@
-# thumbnail-spec.md — Copertina generata DA GPT (prompt completo)
+# thumbnail-spec.md — Copertina generata DA GPT (prompt = solo sfondo/grafica)
 
-**Decisione di Andrea**: la **parte grafica la fa tutta GPT** (è migliore di Claude per la grafica).
-Quindi la copertina — **sfondo + volto di Elisa + titolo** — la **genera GPT** da un prompt, con una
-**foto di Elisa allegata** di cui GPT **riproduce fedelmente il volto**. Il compito della skill è scrivere
-il **prompt perfetto** (curiosità, fotorealistico) e scegliere la foto di riferimento. **Niente
-ritaglio/composizione lato Claude.**
+**Decisioni di Andrea:**
+1. La **grafica la fa tutta GPT** (sfondo + composizione + titolo) — è migliore di Claude per la grafica.
+2. **NON descrivere Elisa** (cosa fa, com'è): dì a GPT di **usarla IDENTICA alla foto allegata**, copiandola
+   uguale. Lei è **sempre e solo** l'unica persona.
+3. Nel prompt ti occupi **solo di SFONDO + GRAFICA + CONTESTO** (inerente al video) e del **titolo**.
+4. La **posa/emozione** della copertina si sceglie **scegliendo la foto giusta** dal database
+   (`cover-images.md`), non descrivendola.
 
 ## Cosa produce la skill (per ogni video: 2-3 varianti)
-Per ogni variante un **prompt copertina COMPLETO** pronto da incollare in ChatGPT (con foto allegata), che
-descrive:
-1. **Formato**: copertina YouTube **fotorealistica 16:9 (1280×720)**, cinematografica, ad alto CTR, **una
-   sola idea** (regola del secondo).
-2. **Elisa**: «RIPRODUCI FEDELMENTE il volto della donna nella foto allegata», **mezzo busto**, sguardo in
-   camera, espressione coerente col tema (dolce per Consulto, calma per Community), in un terzo del frame.
-3. **Scena (curiosità)**: ambientazione simbolica a tema, fotorealistica (Consulto: luce calda/presenza/
-   particelle; Community: oggetto simbolico del tema).
-4. **Titolo**: il testo-copertina (≤5 parole) **grande, leggibile, alto contrasto**, sul terzo libero,
-   bianco con ombra. (NB: GPT a volte **sbaglia il testo italiano** → se serve, rigenera o correggi.)
-5. **Palette/luce**: Consulto ambra+blu notte; Community viola+oro. Luce realistica, profondità di campo.
-   «Niente loghi, niente watermark.»
+Per ogni variante:
+- **Foto di Elisa da allegare**: una riga di `cover-images.md` (sfondo neutro/studio, frontale), scelta in
+  base all'**emozione** del video. Annota il filename + il lato `spazio` (lì va il titolo).
+- **Prompt copertina** pronto per ChatGPT (con quella foto allegata) che descrive **solo**: formato,
+  istruzione di usare la persona della foto identica, **sfondo/contesto** a tema, **titolo**.
 
 ## Template prompt (copertina completa)
 ```
-Crea una copertina YouTube fotorealistica 16:9 (1280×720), stile cinematografico ad alto impatto.
-Soggetto: una donna — RIPRODUCI FEDELMENTE il volto della donna nella foto allegata — a mezzo busto sul
-lato <destro/sinistro>, sguardo <espressione> verso la camera. Scena: <ambientazione a tema, curiosità>.
-<luce/palette>. Testo grande e ben leggibile sul lato <opposto>, due righe: «<TITOLO COPERTINA>», font
-grassetto bianco con ombra per il contrasto. Fotorealistico, nitido, profondità di campo, colori
-<palette>. Niente loghi, niente watermark.
+Crea una copertina YouTube fotorealistica 16:9 (1280×720), cinematografica e ad alto impatto.
+USA LA PERSONA NELLA FOTO ALLEGATA ESATTAMENTE COM'È: stessa identica — non modificarle viso, posa,
+espressione, capelli o vestiti; ricopiala uguale. È lei l'UNICA persona della copertina. Scontornala dal
+suo sfondo e inseriscila sul lato <destro/sinistro>, mezzo busto.
+SFONDO E CONTESTO (è QUI il tuo lavoro): <scena/ambientazione fotorealistica inerente al video — luce,
+palette, elementi simbolici>. Lato <opposto> più scuro/pulito per il testo.
+TESTO grande e ben leggibile sul lato <opposto>: «<TITOLO COPERTINA>», bianco grassetto con ombra.
+Niente altre persone, niente loghi, niente watermark. Colori <palette>.
+```
+> Nota: descrivi la **scena**, non Elisa. La sua posa/espressione arrivano dalla **foto scelta**.
+
+## Esempio — Consulto (incidente/aldilà), foto `…mani-sul-cuore…`, titolo «Mamma, ora sto bene»
+```
+Crea una copertina YouTube fotorealistica 16:9 (1280×720), cinematografica, intima ed emotiva.
+USA LA PERSONA NELLA FOTO ALLEGATA ESATTAMENTE COM'È: stessa identica, non modificarla, ricopiala uguale.
+È lei l'unica persona. Scontornala e inseriscila sulla DESTRA, mezzo busto.
+SFONDO E CONTESTO: una strada di campagna al crepuscolo che si perde verso l'orizzonte, luce calda e
+morbida, tenui particelle di luce dorata sospese che suggeriscono una presenza gentile e invisibile; cielo
+fra l'ambra e il blu notte; atmosfera rispettosa e poetica (NON drammatica, nessun veicolo o scena di
+incidente). Lato sinistro più scuro e pulito per il testo.
+TESTO grande e ben leggibile sul lato SINISTRO, due righe: «Mamma, ora sto bene», bianco grassetto con ombra.
+Niente altre persone, niente loghi, niente watermark. Colori ambra e blu notte.
 ```
 
-## Esempio (Consulto, «È tornato per proteggerla»)
+## Esempio — Community («le 5 ferite dell'anima»), foto studio/serena
 ```
-Crea una copertina YouTube fotorealistica 16:9 (1280×720), stile cinematografico ad alto impatto.
-Soggetto: una donna — RIPRODUCI FEDELMENTE il volto della donna nella foto allegata — a mezzo busto sulla
-destra, sguardo dolce e commosso verso la camera, una mano sul cuore. Scena: interno scuro e intimo di
-notte, una calda luce ambrata di candela alle sue spalle e tenui particelle di luce sospese che suggeriscono
-una presenza invisibile; ombre blu notte sul lato sinistro. Testo grande e ben leggibile sul lato sinistro,
-due righe: «È tornato per proteggerla», font grassetto bianco con leggera ombra. Fotorealistico, nitido,
-profondità di campo, colori ambra e blu notte. Niente loghi, niente watermark.
-```
-
-## Esempio (Community, «le 5 ferite dell'anima»)
-```
-Crea una copertina YouTube fotorealistica 16:9 (1280×720), stile spirituale e calmo.
-Soggetto: una donna — RIPRODUCI FEDELMENTE il volto della donna nella foto allegata — a mezzo busto sulla
-destra, espressione serena e aperta verso la camera. Scena: foschia morbida dal viola all'oro con tenui
-raggi di luce e un libro aperto sfocato che brilla in basso. Luce dorata calda da destra. Testo grande e
-ben leggibile sul lato sinistro: «le 5 ferite dell'anima», font grassetto bianco con ombra. Fotorealistico,
-nitido, colori viola e oro caldo. Niente loghi, niente watermark.
+Crea una copertina YouTube fotorealistica 16:9 (1280×720), spirituale e calma.
+USA LA PERSONA NELLA FOTO ALLEGATA ESATTAMENTE COM'È: identica, ricopiala uguale; unica persona. Scontornala
+e inseriscila sulla destra, mezzo busto.
+SFONDO E CONTESTO: foschia morbida dal viola all'oro con tenui raggi di luce e un libro aperto sfocato che
+brilla in basso; lato sinistro pulito per il testo.
+TESTO grande sul lato sinistro: «le 5 ferite dell'anima», bianco grassetto con ombra.
+Niente altre persone, niente loghi, niente watermark. Colori viola e oro caldo.
 ```
 
 ## Sempre
-- Produci **2-3 varianti** (scena/lato/palette diversi) così Andrea sceglie la più ad alta curiosità.
-- Generazione + allegato della foto: vedi `cover-auto.md` (modalità `comando io gpt`).
+- **2-3 varianti** (sfondo/contesto diversi, eventualmente foto diverse).
+- GPT può **sbagliare il testo italiano**: controlla l'ortografia; se sbagliato, **rigenera**.
+- La generazione + l'allegato della foto: vedi `cover-auto.md` (modalità `comando io gpt`).

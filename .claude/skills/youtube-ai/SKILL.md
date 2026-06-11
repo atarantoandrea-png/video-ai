@@ -43,7 +43,8 @@ programmare** il video. Rispondi **sempre in italiano**, una cosa alla volta, co
 - `reference/house-style.md` — FONTE DI VERITÀ: formule titoli/copertina, template descrizioni, link, hashtag. **Leggilo sempre.**
 - `reference/algorithm-playbook.md` — best practice algoritmo YouTube. Leggilo prima di scrivere titoli/descrizione.
 - `reference/youtube-pack-contract.md` — formato esatto del «YouTube Pack» (output).
-- `reference/thumbnail-spec.md` — concept copertina + prompt GPT-image + composizione.
+- `reference/thumbnail-spec.md` — copertina via GPT: filosofia del prompt (solo sfondo/grafica, Elisa identica dalla foto) + esempi.
+- `reference/cover-images.md` — DATABASE delle foto di Elisa per le copertine (sfondo neutro), per emozione.
 - `reference/subtitles.md` — sottotitoli multilingua (7 lingue) + audio multilingua (futuro).
 - `reference/youtube-studio.md` — procedura browser per upload/annunci/sottotitoli/bozza/copertina/programmazione. **Leggila PRIMA di toccare il browser.**
 - `reference/cover-auto.md` — modalità `comando io gpt` (genera sfondo + componi con "Elisa immagini").
@@ -80,9 +81,10 @@ Usa il **template di descrizione per tipo** con i blocchi canonici link+hashtag 
 Capitoli **solo** se ci sono timestamp reali (primo `00:00`). Tag ordinati per rilevanza; hashtag 3-5.
 
 ## Fase 5 — Concept copertina + prompt (la grafica la fa TUTTA GPT)
-2-3 varianti (vedi `reference/thumbnail-spec.md`), ciascuna con un **prompt copertina COMPLETO** per GPT
-(sfondo + **volto di Elisa riprodotto dalla foto allegata** + titolo). La grafica la fa **tutta GPT**,
-non Claude: il compito è scrivere il prompt perfetto e scegliere la foto di riferimento.
+Per 2-3 varianti: **(a)** scegli la **foto di Elisa** dal database `reference/cover-images.md` in base
+all'**emozione** del video (annota filename + lato `spazio`); **(b)** scrivi il **prompt** (vedi
+`reference/thumbnail-spec.md`) che descrive **solo sfondo/grafica/contesto + titolo** e dice a GPT di
+**usare la persona della foto IDENTICA** (non descriverla). La grafica la fa **tutta GPT**.
 
 ## Fase 6 — Scrivi il «YouTube Pack»
 Nel formato esatto di `reference/youtube-pack-contract.md`. Consegna spiegando le due strade successive:
