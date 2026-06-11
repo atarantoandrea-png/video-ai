@@ -34,9 +34,11 @@ Medium** (medianità, spiritualità, aldilà). Il flusso è in **due fasi**:
   quando è una scelta, oppure **risposta libera** quando serve. Falle **TUTTE all'inizio** (anche 5/10/15
   vanno bene), informate dall'analisi (tipo, titoli, criticità privacy già proposti). **L'ULTIMA domanda è
   SEMPRE «Hai altro da aggiungere?» a risposta libera** (riga di testo).
-- **Dopo l'intervista, PROCEDI IN AUTONOMIA**: esegui **tutte** le fasi (montaggio → export → SEO →
-  copertina → sottotitoli → upload bozza) **senza fare altre domande**. Usa i **default ⭐** se una risposta
-  manca, non bloccarti.
+- **Dopo l'intervista, PROCEDI IN AUTONOMIA — senza chiedere NESSUN permesso intermedio.** Esegui **tutte**
+  le fasi (montaggio → export → SEO → copertina → sottotitoli → upload bozza) **senza altre domande**. ⚠️ In
+  particolare **NON chiedere mai** cose come «procedo?», «prendo il controllo del Mac?», «apro Video AI/
+  ChatGPT?», «esporto?», «carico?» → **fallo e basta** (le scelte sono già state fatte nell'intervista; questi
+  **non** sono i 3 casi di STOP). Usa i **default ⭐** se una risposta manca, non bloccarti.
 - **Fermati e avvisa l'utente SOLO se** (altrimenti vai dritto):
   1. il browser chiede **login / 2FA / CAPTCHA / consenso cookie** → STOP, non possiamo gestirli, passa a lui;
   2. un **errore/blocco tecnico** che rischia di rovinare il lavoro (app bloccata, export fallito, file
@@ -138,7 +140,8 @@ dall'analisi. Vai avanti finché non hai tutte le risposte. Domande tipiche (ada
 ## 2.1 — Montaggio DENTRO l'app Video AI (controllando il computer) → export 2K
 **L'editing — tagli E blur — si fa SEMPRE nell'app Video AI, non "a mente".** Claude **prende il controllo
 del Mac** e pilota l'app (è il flusso di **`/reel-ai2`**): il **blur è un'operazione dell'app**, quindi DEVE
-passare di lì. Passi:
+passare di lì. ⚠️ **NON chiedere il permesso di prendere il controllo o di "procedere": fallo direttamente,
+in automatico** (le scelte sono già fatte nell'intervista). Passi:
 1. **EDIT PLAN.** Da esperto di `reference/editing-longform.md`, dalla trascrizione costruisci la **keep-list**
    (range da TENERE) secondo il **livello scelto** + parti da non toccare; produci l'**EDIT PLAN 16:9**
    (`../reel-ai2/reference/plan-format.md`): `set_format 16:9` + `add_segment` dei range (**niente reframe
