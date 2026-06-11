@@ -5,8 +5,8 @@ description: >-
   (gestendo trascrizione e diarizzazione se mancano i tempi o i nomi di chi parla),
   RICONOSCE il tipo di video (divulgativo, documentario, consulto, intervista, talk…) e
   CHIEDE sempre l'angolo dopo la prima analisi, perché il tipo decide cosa privilegiare nei
-  tagli. Individua l'hook e i tagli (open-loop, mappa dei contesti), itera con l'utente sul
-  "carosello" dei segmenti, e produce un «Reel Build Brief» da montare nell'app — con l'AI
+  tagli. Individua l'hook e i tagli (open-loop, mappa dei contesti), e produce un «Reel Build Brief» da montare nell'app, PIÙ 5 hook
+  social (5 angoli: emotivo/curiosità/strappalacrime/shock/clickbait) e una descrizione SEO — con l'AI
   in-app (sezione AI) o GRATIS con la skill /reel-ai2. Usare per ricavare un reel verticale
   (9:16) da un video lungo, un'intervista o un podcast. Invocazione: /reel-ai
 ---
@@ -19,7 +19,7 @@ Rispondi **sempre in italiano** (o nella lingua dell'utente). Sei **conversazion
 
 ## Cosa produci (l'output finale)
 
-Un solo artefatto: il **«Reel Build Brief»** in markdown — la lista ordinata dei segmenti da tenere (con timecode *source* in/out), l'hook, gli speaker, gli hint di reframe/privacy, le captions e il carosello rivedibile. Formato esatto e regole: leggi `reference/brief-contract.md` **prima** di scriverlo.
+Un solo artefatto: il **«Reel Build Brief»** in markdown — la lista ordinata dei segmenti da tenere (con timecode *source* in/out), l'hook, gli speaker, gli hint di reframe/privacy, **+ 5 hook social (5 angoli) e una descrizione SEO leggera per il post**. Formato esatto e regole: leggi `reference/brief-contract.md` **prima** di scriverlo.
 
 ## Regole d'oro (sempre attive)
 
@@ -67,17 +67,18 @@ Apri chiedendo **cosa ha l'utente**. Tre scenari (dettaglio operativo e comandi 
 6. **Pulisci i bordi di ogni taglio:** l'inizio dev'essere una frase **pulita e auto-consistente**, MAI parole monche o riferimenti a un contesto precedente ("…e quindi per quello", "…lei invece"). Sposta i tagli su inizi/fine frase completi. Verifica che, ricucito, **fili e abbia senso** (se serve una micro-frase ponte, annotala).
 7. **Toni ed emozioni:** dal solo testo non si capisce se uno **piange, urla, è commosso o arrabbiato** → deducilo dal **contesto**, e **se hai il video estrai qualche fotogramma** ai momenti candidati e **guardali** per confermare il tono (vedi `transcription.md`). Nei momenti a **tono forte, amplia** il discorso (dagli più spazio): sono l'oro del reel.
 8. **Se avanza tempo** (entro i 2 min) puoi aprire un **secondo discorso**, ma anch'esso con apertura + chiusura e una sua logica. Mai accozzare pezzi scollegati.
-9. **Recap completo (il carosello) — scrivi TUTTO il reel, dall'inizio alla fine:** presenta ogni sezione in ordine col **testo integrale** di ciò che si sentirà (non un riassunto), il ruolo (hook / sviluppo / risposta / chiusura) e *perché* funziona. Poi **invita l'utente a intervenire** su ogni sezione (approfondire, sostituire un pezzo, riordinare) e **proponi tu** dei pezzi aggiuntivi da attaccare (coi loro tempi) così sceglie meglio. Itera finché non è convinto.
+9. **Conferma compatta dei segmenti (NIENTE carosello / recap integrale):** elenca i segmenti scelti in modo **sintetico** (1 riga ciascuno: ruolo + di cosa parla + tempi) e chiedi un **ok rapido** o modifiche. Non scrivere il recap parola-per-parola e non iterare a lungo.
+10. **Scrivi i 5 HOOK + la DESCRIZIONE SEO del post** (leggi `reference/hooks-seo.md`). **5 hook**, uno per ogni angolo — 1) **Emotivo forte** · 2) **Curiosità grande** · 3) **Strappalacrime** · 4) **Shock** · 5) **Clickbait generico** — adattati al video reale. Più una **descrizione SEO leggera** (es. «Ecco cosa succede quando… il mio punto di vista come medium») con **3-6 keyword congrue** (lutto, medium, aldilà, spiritualità, karma, anima… solo le pertinenti) + hashtag. È il copy del POST, non testo a schermo.
 
 ### Fase 1C — Scrivi il «Reel Build Brief»
 
-Quando il carosello è approvato, scrivi il brief **esattamente** nel formato di `reference/brief-contract.md`: meta (incluso `model:` e `durata_target_s`), speakers, sorgenti, segmenti ordinati con timecode source in/out (in **secondi**, più annotazione umana), ruoli (HOOK/SVILUPPO/RISPOSTA/CHIUSURA/CTA), hint di reframe e privacy, e il **carosello = recap COMPLETO** (testo integrale di ogni sezione, dall'inizio alla fine — non un riassunto). **Niente captions e niente titolo-hook a schermo**: il testo lo aggiunge l'utente dopo. Niente timecode inventati; se manca qualcosa, segnalalo come "(da confermare)". Se l'utente vuole più reel, produci **un brief separato per ciascuno**.
+Quando i segmenti sono confermati, scrivi il brief **esattamente** nel formato di `reference/brief-contract.md`: meta (incluso `model:` e `durata_target_s`), speakers, sorgenti, segmenti ordinati con timecode source in/out (in **secondi**, più annotazione umana), ruoli (HOOK/SVILUPPO/RISPOSTA/CHIUSURA/CTA), hint di reframe e privacy, **+ i 5 HOOK social (5 angoli) e la DESCRIZIONE SEO** (vedi `reference/hooks-seo.md`). **Niente testo a SCHERMO** nel video (captions/titoli li aggiunge l'utente dopo): i 5 hook e la descrizione sono il copy del **POST**. Niente timecode inventati; se manca qualcosa, segnalalo come "(da confermare)". Se l'utente vuole più reel, produci **un brief separato per ciascuno**.
 
 Chiudi spiegando **come montarlo**, con due strade:
 - **Gratis (consigliato): lancia `/reel-ai2`** qui in Claude Code → ti chiede questo brief, prepara il montaggio e **prende il controllo del Mac** per costruirlo nell'app **senza spendere crediti API**.
 - **Oppure con l'AI in-app**: copia il brief e incollalo nel pannello **AI** dell'editor, premi «Costruisci reel» (usa la chiave/crediti API). In entrambi i casi il reel viene montato sulla timeline e ti verranno fatte domande nei punti che spettano a te (es. se sfocare qualcuno).
 
-E quando il video è pronto, per **pubblicarlo su YouTube** lancia **`/youtube-ai`**: legge questo brief/carosello e scrive il «YouTube Pack» (titoli, descrizione SEO, capitoli, hashtag, copertina) nello stile di Elisa; se vuoi, **carica e programma** il video su YouTube (monetizzazione + annunci ON, sottotitoli multilingua).
+E quando il video è pronto, per **pubblicarlo su YouTube** lancia **`/youtube-ai`**: legge questo brief e scrive il «YouTube Pack» (titoli, descrizione SEO, capitoli, hashtag, copertina) nello stile di Elisa; se vuoi, **carica e programma** il video su YouTube (monetizzazione + annunci ON, sottotitoli multilingua).
 
 ## File di riferimento (leggili quando servono)
 
@@ -85,4 +86,5 @@ E quando il video è pronto, per **pubblicarlo su YouTube** lancia **`/youtube-a
 - **`reference/transcription.md`** — comandi e procedura per gli scenari (b)/(c): whisperX locale o API cloud, diarizzazione, forced alignment, conversione timecode→secondi. *Leggi in Fase 1A se servono i tempi/speaker.*
 - **`reference/brief-contract.md`** — il formato ESATTO del brief (il contratto con la Parte 2). *Leggi prima della Fase 1C.*
 - **`reference/example-brief.md`** — un esempio completo lavorato (intervista → reel) con ragionamento e brief finale. *Usalo come riferimento di stile/qualità per il tuo output.*
+- **`reference/hooks-seo.md`** — i **5 hook (5 angoli)** + la **descrizione SEO** del post social, nello stile spirituale. *Leggi prima di scrivere il copy (Fase 1B, passo 10).*
 - **`reference/app-capabilities.md`** — cosa l'AI in-app sa eseguire (formati, segmenti, reframe, blur, captions, transizioni, audio). *Consulta per proporre solo cose fattibili.*

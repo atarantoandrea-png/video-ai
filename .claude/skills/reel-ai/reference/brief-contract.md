@@ -1,6 +1,6 @@
 # Il «Reel Build Brief» — contratto Parte 1 → Parte 2
 
-Questo è il **formato esatto** dell'output della skill e l'**input** dell'AI in-app. Deve essere **leggibile dall'utente** (per rivedere il carosello) e **interpretabile senza ambiguità** dalla seconda AI, che lo mappa in chiamate di tool sulla timeline.
+Questo è il **formato esatto** dell'output della skill e l'**input** dell'AI in-app. Deve essere **leggibile dall'utente** (per rivedere segmenti, hook e descrizione) e **interpretabile senza ambiguità** dalla seconda AI, che lo mappa in chiamate di tool sulla timeline.
 
 ## Regole invarianti
 
@@ -59,11 +59,16 @@ Questo è il **formato esatto** dell'output della skill e l'**input** dell'AI in
 - none
 # esempio: "- volto sullo sfondo nel segmento 2 (~205s): valutare blur"
 
-## Carosello            # recap COMPLETO del reel: testo INTEGRALE di ogni sezione, in ordine (NON riassunti)
-- Seg.1 [HOOK]: "<testo integrale del segmento, parola per parola>"
-- Seg.2 [SVILUPPO]: "<testo integrale>"
-- Seg.3 [CHIUSURA]: "<testo integrale>"
-# Sotto il carosello, PROPONI pezzi aggiuntivi opzionali (coi tempi) e invita l'utente a editare/approfondire/riordinare le sezioni.
+## Hook (5 angoli — l'utente ne sceglie uno per il post)
+1. [Emotivo forte] "<hook ≤ ~12 parole>"
+2. [Curiosità grande] "<hook>"
+3. [Strappalacrime] "<hook>"
+4. [Shock] "<hook>"
+5. [Clickbait generico] "<hook>"
+
+## Descrizione SEO           # breve (2-4 righe), keyword CONGRUE, no stuffing — vedi hooks-seo.md
+<es. "Ecco cosa succede quando... il mio punto di vista come medium. ...">
+hashtag: #ElisaSoulMedium #medium #aldilà #lutto #spiritualità    # 4-8, i primi branded
 ````
 
 ## Note sui campi dei segmenti
@@ -72,7 +77,7 @@ Questo è il **formato esatto** dell'output della skill e l'**input** dell'AI in
 - **src**: alias definito in `## Sources`.
 - **in/out**: secondi nel sorgente; `out > in`. È il taglio che la Parte 2 applicherà come `sourceIn/sourceOut`.
 - **speaker**: sigla da `## Speakers` (o `—` se non distinguibile).
-- **text**: la trascrizione *verbatim* del segmento (serve all'utente per il carosello; la Parte 2 NON lo scrive a schermo).
+- **text**: la trascrizione *verbatim* del segmento (serve all'utente per rivedere e per scrivere hook/descrizione; la Parte 2 NON lo scrive a schermo).
 - **reason**: 1 riga sul perché del segmento (aiuta l'utente a fidarsi e la Parte 2 a capire le priorità).
 - **reframe**: uno tra `center-face(Sx)` | `two-person-stack` | `active-speaker` | `fit-contain` | `manual` (+ nota). Se non sai: `auto` (la Parte 2 decide rilevando i volti).
 - **blur**: `none` | descrizione di cosa sfocare.

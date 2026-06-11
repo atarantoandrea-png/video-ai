@@ -68,10 +68,16 @@ Arco ricucito: **HOOK (la macchina)** → **CONTESTO (nessuno ci credeva)** → 
 ## Privacy
 - none
 
-## Carosello
-- Seg.1 (HOOK): "Ho rischiato tutto... dormito in macchina... mi truccavo allo specchietto."
-- Seg.2 (PUNTO): "Nessuno ci credeva, mi dicevano di trovarmi un lavoro vero."
-- Seg.3 (CHIUSURA): "Oggi quella macchina è il logo dell'azienda, in vetrina."
+## Hook (5 angoli — scegline uno per il post)
+1. [Emotivo forte] "Per sei mesi ho dormito in macchina pur di non mollare."
+2. [Curiosità grande] "Quella macchina dove dormivo oggi è in vetrina. Indovina perché."
+3. [Strappalacrime] "Mi truccavo allo specchietto piangendo. Non avevo altro."
+4. [Shock] "Ho rischiato tutto quello che avevo. Davvero tutto."
+5. [Clickbait generico] "Da dormire in auto a fondare un'azienda — guarda fino alla fine."
+
+## Descrizione SEO
+Ecco cosa succede quando non molli: ho rischiato tutto e ho trasformato la macchina in cui dormivo nel logo della mia azienda. Il mio percorso, senza filtri.
+hashtag: #imprenditoria #startup #motivazione #nonmollare #mindset
 ````
 
 ## Perché funziona (per autovalutarti)
