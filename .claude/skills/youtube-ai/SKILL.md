@@ -4,7 +4,10 @@ description: >-
   Wizard guidato per pubblicare un VIDEO LUNGO su YouTube nel brand "Elisa Soul
   Medium" (spiritualità, medianità), ragionando da esperto SEO/algoritmo. Parte
   dalla TRASCRIZIONE del video lungo (es. export Zoom; se manca la genera) e GUIDA
-  l'utente passo passo facendogli compiere le scelte: titoli, hook di copertina,
+  l'utente passo passo facendogli compiere le scelte. Sa anche EDITARE il video lungo
+  da esperto di montaggio long-form (togliere tempi morti/ripetizioni, accorciarlo es.
+  10h→2-3h, sfocature): produce un EDIT PLAN 16:9 da costruire con /reel-ai2 o nel
+  pannello AI di Video AI, poi esportare. Poi: titoli, hook di copertina,
   descrizione SEO, capitoli, tag/hashtag; COPERTINA generata interamente da GPT
   (sfondo + volto di Elisa identico dalla foto + testo, formula validata);
   SOTTOTITOLI multilingua (it + en/es/ja/zh/hi/ar); UPLOAD su YouTube Studio col
@@ -43,6 +46,7 @@ passo**, dalla **trascrizione del video lungo** fino alla **pubblicazione progra
 ## File di riferimento (leggi quando serve)
 - `reference/house-style.md` — FONTE DI VERITÀ: formule titoli/copertina, template descrizioni, link, hashtag. **Sempre.**
 - `reference/algorithm-playbook.md` — best practice algoritmo YouTube (prima di titoli/descrizione).
+- `reference/editing-longform.md` — **montaggio del VIDEO LUNGO 16:9** (cosa tagliare, durata-obiettivo, EDIT PLAN per reel-ai2/Video AI). Leggilo se l'utente vuole editare.
 - `reference/youtube-pack-contract.md` — formato esatto del «YouTube Pack».
 - `reference/thumbnail-spec.md` — copertina via GPT: **formula validata** (sfondo cupo + testo a dimensioni diverse + 1 parola in gradiente).
 - `reference/cover-images.md` — DATABASE foto di Elisa per copertine, per emozione (consulti = serie).
@@ -55,28 +59,38 @@ passo**, dalla **trascrizione del video lungo** fino alla **pubblicazione progra
 
 # IL FLUSSO GUIDATO (a ogni step: proponi → fai scegliere → conferma → procedi)
 
-## Step 1/9 — Cosa pubblichiamo  → SCELTE
+## Step 1/10 — Cosa pubblichiamo  → SCELTE
 Chiedi (con default):
 - il **video lungo** da caricare (file/percorso);
 - la sua **trascrizione** (export Zoom .vtt/.srt/.txt, o il brief di /reel-ai). Se manca → **la genero io**
-  (vedi `../reel-ai/reference/transcription.md`) — serve per descrizione accurata, **capitoli** e **sottotitoli**.
+  (vedi `../reel-ai/reference/transcription.md`) — serve per descrizione accurata, **capitoli**, **sottotitoli** e l'editing.
 Poi **dichiara e fai confermare il TIPO**: **Consulto** / **Community-live "Oltre il Velo"** / **intervista/altro**.
-Chiedi: **long-form o Shorts?** (⭐ long-form).
+Chiedi: **long-form o Shorts?** (⭐ long-form). E: **vuoi EDITARE il video** (togliere tempi morti/ripetizioni,
+accorciarlo) **oppure pubblicarlo integrale?** (⭐ dipende dal video: proponi l'editing se è lungo/con tempi morti).
 
-## Step 2/9 — Analisi SEO (in autonomia)
+## Step 2/10 — (opz.) Editing del video lungo  → SCELTE  [solo se vuole editare]
+**Leggi `reference/editing-longform.md`.** Da esperto di montaggio long-form: analizza la **trascrizione** (a
+chunk se enorme), individua cosa tagliare (aria morta, filler, ripetizioni, tangenti) e **proponi un editing**
+con **durata-obiettivo** (chiedila: es. 10h → 2-3h) + eventuali **sfocature/velocità** (chiedi conferma per i blur).
+Produci l'**EDIT PLAN 16:9** (JSON, formato `../reel-ai2/reference/plan-format.md`: `set_format 16:9` +
+`add_segment` dei range TENUTI, **niente reframe verticale**). Poi **handoff**: l'utente lo costruisce con
+**`/reel-ai2`** (prende il controllo e monta) **o** incollandolo nel **pannello AI di Video AI** → **esporta** il
+video editato. Quel file diventa il **video da pubblicare** (torna allo Step 3). Se NON edita → si usa il video integrale.
+
+## Step 3/10 — Analisi SEO (in autonomia)
 Leggi `reference/algorithm-playbook.md`. Dalla trascrizione estrai **tema**, **keyword/entità** e i
 **momenti forti** (con i loro tempi → futuri capitoli).
 
-## Step 3/9 — Titoli + hook di copertina  → SCELTA
+## Step 4/10 — Titoli + hook di copertina  → SCELTA
 Con le formule di `reference/house-style.md` proponi **3-5 titoli** (segna il ⭐ #1, pensato **complementare
 alla copertina**: non ripetere le stesse parole) + **2-3 hook-copertina** (≤5 parole, curiosità/dolore).
 **Chiedi: quale titolo e quale hook** sceglie.
 
-## Step 4/9 — Descrizione + tag + hashtag + capitoli
+## Step 5/10 — Descrizione + tag + hashtag + capitoli
 Genera col template del tipo: **prime 2 righe gancio + keyword**, corpo, **ponte community**, capitoli
 (solo da tempi reali, primo `00:00`), **blocco LINK + blocco HASHTAG** verbatim, **tag** ordinati. Mostra.
 
-## Step 5/9 — Copertina (la fa GPT)  → SCELTA
+## Step 6/10 — Copertina (la fa GPT)  → SCELTA
 Scegli dal DB `reference/cover-images.md` la **foto** giusta (emozione coerente; **consulti = seria**).
 Poi **chiedi**:
 - ⭐ **«comando io gpt»** → prendo il controllo, apro ChatGPT, allego la foto e incollo il prompt, genero io
@@ -85,21 +99,21 @@ Poi **chiedi**:
 Prompt secondo la **formula validata** (`reference/thumbnail-spec.md`). Mostra il risultato → fai confermare
 (se il testo è sbagliato, rigenera).
 
-## Step 6/9 — Sottotitoli  → SCELTA
+## Step 7/10 — Sottotitoli  → SCELTA
 **Chiedi**: «Genero i sottotitoli? Lingue: ⭐ Italiano (originale) + Inglese/Spagnolo/Giapponese/Cinese/
 Hindi/Arabo, oppure scegli tu.» → genera gli **SRT** mantenendo i tempi (vedi `reference/subtitles.md`).
 
-## Step 7/9 — «YouTube Pack»
+## Step 8/10 — «YouTube Pack»
 Assembla tutto nel formato di `reference/youtube-pack-contract.md` e **mostralo**. **Chiedi**: ti basta il
 **pacchetto** (lo usi tu) o **procediamo con l'upload** su YouTube?
 
-## Step 8/9 — Upload in bozza  → SCELTE
+## Step 9/10 — Upload in bozza  → SCELTE
 **Leggi `reference/youtube-studio.md` PRIMA di toccare il browser.** Verifica prerequisiti (estensione
 Chrome connessa, **canale di Elisa** loggato, video accessibile). Carica il **video completo**, imposta
 titolo/descrizione/tag/playlist/lingua/categoria, **pubblico = non per bambini**, **monetizzazione +
 annunci ON**, **sottotitoli** → **salva in BOZZA (privato)**; registra la URL. Gate sicurezza sempre attivi.
 
-## Step 9/9 — Programmazione  → SCELTE
+## Step 10/10 — Programmazione  → SCELTE
 **Chiedi data e ora** di uscita (o "lascialo privato per ora"). Quando l'utente porta la **copertina**,
 impostala → mostra il **riepilogo completo** (titolo, descrizione, tag, annunci ON, sottotitoli, copertina,
 data/ora) → attendi **"vai"** → **Programma**. Conferma URL/stato.
