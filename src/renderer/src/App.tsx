@@ -9,9 +9,14 @@ import { ExportOverlay } from './components/ExportOverlay'
 import { ShortcutsPanel } from './components/ShortcutsPanel'
 import { timelineDuration } from '@shared/projectSchema'
 import './styles/layout.css'
+import './carosello/carosello.css'
+import { useAppMode } from './state/appMode'
+import { ModeSwitch } from './components/ModeSwitch'
+import CaroselloApp from './carosello/CaroselloApp'
 
 export default function App(): JSX.Element {
   const init = useEditor((s) => s.init)
+  const mode = useAppMode((s) => s.mode)
 
   useEffect(() => {
     init()
@@ -21,17 +26,24 @@ export default function App(): JSX.Element {
   useKeyboardShortcuts()
 
   return (
-    <div className="app-grid">
-      <TopToolbar />
-      <div className="app-middle">
-        <LeftPanel />
-        <Player />
-        <Inspector />
-      </div>
-      <Timeline />
-      <ExportOverlay />
-      <ShortcutsPanel />
-    </div>
+    <>
+      <ModeSwitch />
+      {mode === 'carosello' ? (
+        <CaroselloApp />
+      ) : (
+        <div className="app-grid">
+          <TopToolbar />
+          <div className="app-middle">
+            <LeftPanel />
+            <Player />
+            <Inspector />
+          </div>
+          <Timeline />
+          <ExportOverlay />
+          <ShortcutsPanel />
+        </div>
+      )}
+    </>
   )
 }
 
@@ -87,6 +99,7 @@ function usePlaybackLoop(): void {
 function useKeyboardShortcuts(): void {
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
+      if (useAppMode.getState().mode === 'carosello') return
       const tag = (e.target as HTMLElement | null)?.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return
       const st = useEditor.getState()

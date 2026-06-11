@@ -11,6 +11,10 @@ si sceglie **scegliendo la foto giusta** qui sotto (non descrivendola nel prompt
 
 `spazio sx/dx` = lato libero della foto → mettici il **titolo** dal lato opposto a Elisa.
 
+> ⚠️ Per i **consulti** (copertine cupe, gancio dolore/paura) scegli espressioni **serie/intense/raccolte**,
+> **NON sorridenti** (un sorriso su un tema di lutto stona). Vedi sezioni "Lutto/cuore", "Spirituale/raccolta",
+> "Riflessiva". Il sorriso radioso tienilo per contenuti positivi/Community leggeri.
+
 ## Lutto / amore / messaggio dall'aldilà (consulti emotivi) — gesto del cuore
 - `elisa-abito-blu-mani-sul-cuore-sorriso-spazio-sinistra-best.png` — mani sul cuore, sorriso caldo, **spazio sx**. ⭐ Prima scelta per consulti d'amore/lutto.
 - `elisa-camicia-bianca-mani-sul-cuore-occhi-chiusi-serena.png` — mani sul cuore, occhi chiusi, pace. Più spirituale/intima.
