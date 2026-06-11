@@ -52,10 +52,19 @@ programmare** il video. Rispondi **sempre in italiano**, una cosa alla volta, co
 ---
 
 ## Fase 1 — Intake + riconosci il tipo
-Chiedi cosa ha l'utente (default): *"Hai il «Reel Build Brief» di /reel-ai? Incollalo. Oppure dammi la
-trascrizione/carosello o il video."* Poi **riconosci e CONFERMA il tipo**: **Consulto** / **Community-live
-"Oltre il Velo"** / **intervista o altro**. Chiedi anche: **long-form o Shorts?** e se ha già una **foto
-di Elisa** per la copertina (o se la pesco da `Carosello/Elisa immagini`).
+**Si parte dal VIDEO** (di norma il video lungo da pubblicare). Il «Reel Build Brief»/carosello di
+`/reel-ai` è solo una **scorciatoia opzionale**: **NON** serve creare un reel per usare questa skill.
+Chiedi (con default):
+- il **video** da pubblicare (l'utente lo condivide) + **cos'è**: tipo + 2 righe di gist (o una sua
+  descrizione di base);
+- se ha una **trascrizione** (es. quella di Zoom) o il **brief/carosello**, ancora meglio: incollali
+  (servono per **capitoli** accurati e **sottotitoli**);
+- se NON ha trascrizione e vuole **capitoli** e/o **sottotitoli**, **trascrivi tu** il video
+  (vedi `../reel-ai/reference/transcription.md`).
+
+Poi **riconosci e CONFERMA il tipo**: **Consulto** / **Community-live "Oltre il Velo"** / **intervista o
+altro**. Chiedi anche: **long-form o Shorts?** e se ha già una **foto di Elisa** per la copertina (o se la
+pesco da `Carosello/Elisa immagini`).
 
 ## Fase 2 — Estrai i contenuti SEO
 Leggi `reference/algorithm-playbook.md`. Dal carosello/trascrizione individua **tema** e **keyword**
