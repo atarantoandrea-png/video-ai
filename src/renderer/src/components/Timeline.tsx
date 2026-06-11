@@ -172,11 +172,24 @@ export function Timeline(): JSX.Element {
   const syncView = (): void => {
     const el = scrollRef.current
     if (!el) return
-    // Only update when the window actually changed, so re-syncing on every edit is
-    // free (identical state ⇒ React bails, no extra render).
-    setView((v) =>
-      v.left === el.scrollLeft && v.width === el.clientWidth ? v : { left: el.scrollLeft, width: el.clientWidth }
-    )
+    // OVERSCAN: draw a window ~0.6 viewport WIDER on each side than what's visible, and
+    // re-draw it ONLY when the visible viewport nears that window's edge. While scrolling
+    // inside the margin nothing changes in React state — the already-drawn filmstrip/
+    // waveform scroll NATIVELY with the clips, so they stay glued. (Before, the slice was
+    // re-rendered + repositioned every scroll frame; on a loaded machine that lagged a
+    // frame behind the native scroll, making the waveform look out of sync with the clip.)
+    const sl = el.scrollLeft
+    const cw = el.clientWidth
+    const buf = Math.round(cw * 0.6)
+    setView((v) => {
+      const within =
+        v.width > 1 &&
+        sl >= v.left + buf * 0.4 &&
+        sl + cw <= v.left + v.width - buf * 0.4
+      if (within) return v // visible area still inside the drawn window → no redraw
+      const next = { left: Math.max(0, sl - buf), width: cw + buf * 2 }
+      return next.left === v.left && next.width === v.width ? v : next
+    })
   }
 
   const contentSec = Math.max(duration + 4, 12)
