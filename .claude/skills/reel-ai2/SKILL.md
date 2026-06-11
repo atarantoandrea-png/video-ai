@@ -80,6 +80,8 @@ Segui **`reference/computer-use.md`**. In sintesi:
 
 Di' all'utente: il reel è montato sulla timeline **senza spendere crediti API**. Ora può **rivederlo, ritoccarlo ed esportarlo** (pulsante **Esporta**). Un singolo **⌘Z** annulla tutto il montaggio se vuole rifarlo.
 
+E se vuole **pubblicarlo su YouTube**, può lanciare **`/youtube-ai`**: prepara titoli, descrizione SEO, capitoli e copertina nello stile di Elisa e, se vuole, **carica il video completo** su YouTube Studio (monetizzazione + annunci ON, sottotitoli multilingua) e lo **programma**.
+
 ## File di riferimento (leggili quando servono)
 
 - **`reference/plan-format.md`** — il formato ESATTO del piano JSON, i 18 tool col loro schema, le scorciatoie `sourceFile`/`@last`, ed esempi completi. *Leggi prima della Fase 2.*

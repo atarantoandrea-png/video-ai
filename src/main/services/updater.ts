@@ -266,11 +266,14 @@ if [ "$REPLACED" = "1" ]; then open "$DEST"; else open "$DMG"; fi
   // A quiet check shortly after launch so the ⟳ button can already show the "update" dot.
   if (app.isPackaged) {
     setTimeout(() => {
-      // Fresh install / first run: auto-install the /reel-ai skills if missing, so the
+      // Fresh install / first run: auto-install the skills if any is missing, so the
       // user never has to touch ~/.claude/skills by hand (offline-safe — ignored if no net).
+      // Also re-installs when a NEW skill (e.g. /youtube-ai) shipped after /reel-ai already exists.
       try {
-        const skillMd = join(app.getPath('home'), '.claude', 'skills', 'reel-ai', 'SKILL.md')
-        if (!existsSync(skillMd)) void installSkill().catch(() => undefined)
+        const skillsHome = join(app.getPath('home'), '.claude', 'skills')
+        const reelMd = join(skillsHome, 'reel-ai', 'SKILL.md')
+        const ytMd = join(skillsHome, 'youtube-ai', 'SKILL.md')
+        if (!existsSync(reelMd) || !existsSync(ytMd)) void installSkill().catch(() => undefined)
       } catch {
         /* ignore */
       }

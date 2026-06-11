@@ -77,6 +77,8 @@ Chiudi spiegando **come montarlo**, con due strade:
 - **Gratis (consigliato): lancia `/reel-ai2`** qui in Claude Code → ti chiede questo brief, prepara il montaggio e **prende il controllo del Mac** per costruirlo nell'app **senza spendere crediti API**.
 - **Oppure con l'AI in-app**: copia il brief e incollalo nel pannello **AI** dell'editor, premi «Costruisci reel» (usa la chiave/crediti API). In entrambi i casi il reel viene montato sulla timeline e ti verranno fatte domande nei punti che spettano a te (es. se sfocare qualcuno).
 
+E quando il video è pronto, per **pubblicarlo su YouTube** lancia **`/youtube-ai`**: legge questo brief/carosello e scrive il «YouTube Pack» (titoli, descrizione SEO, capitoli, hashtag, copertina) nello stile di Elisa; se vuoi, **carica e programma** il video su YouTube (monetizzazione + annunci ON, sottotitoli multilingua).
+
 ## File di riferimento (leggili quando servono)
 
 - **`reference/expert-knowledge.md`** — le nozioni da esperto (hook, retention, pacing, struttura/open-loop, scelta dei momenti, **mappa dei contesti**, reframing, captions, audio, errori comuni). *Leggi prima della Fase 1B.*

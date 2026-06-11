@@ -56,13 +56,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Impacchetta ENTRAMBE le skill (reel-ai + reel-ai2) → reel-ai-skill.zip (cartelle
-      # reel-ai/ e reel-ai2/ in cima). L'updater scarica releases/latest/download/reel-ai-skill.zip
-      # e lo estrae in ~/.claude/skills/, installando entrambe.
-      - name: Pacchetto skill /reel-ai + /reel-ai2
+      # Impacchetta le skill (reel-ai + reel-ai2 + youtube-ai) → reel-ai-skill.zip (cartelle
+      # in cima). L'updater scarica releases/latest/download/reel-ai-skill.zip e lo estrae
+      # in ~/.claude/skills/, installando tutte. Nome zip invariato (URL hardcoded nell'updater).
+      - name: Pacchetto skill /reel-ai + /reel-ai2 + /youtube-ai
         run: |
           cd .claude/skills
-          zip -r "$GITHUB_WORKSPACE/reel-ai-skill.zip" reel-ai reel-ai2
+          zip -r "$GITHUB_WORKSPACE/reel-ai-skill.zip" reel-ai reel-ai2 youtube-ai
 
       - name: Carica la skill + pubblica la release
         env:
