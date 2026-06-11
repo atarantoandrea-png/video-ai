@@ -61,18 +61,17 @@ consulto medianico, Elisa Soul Medium, medium italiano, comunicazione con l'aldi
 - it (originale): sub_it.srt
 - en: sub_en.srt · es: sub_es.srt · ja: sub_ja.srt · zh-Hans: sub_zh-Hans.srt · hi: sub_hi.srt · ar: sub_ar.srt
 
-## Concept copertina (2-3 varianti)
+## Concept copertina (2-3 varianti) — la genera TUTTA GPT
 ### Variante A — "La luce che resta"
-- Visual (curiosità): mezzo busto di Elisa, sguardo diretto e dolce, una mano sul cuore; dietro, un bagliore caldo che fa pensare a una presenza.
+- Idea (curiosità): Elisa a mezzo busto, sguardo dolce e commosso, una mano sul cuore; dietro, luce ambrata e particelle che fanno pensare a una presenza.
 - Testo copertina: "È tornato per proteggerla"
-- Posizione Elisa: terzo destro, dal petto in su, occhi in camera.
-- Prompt sfondo GPT-image: (vedi thumbnail-spec.md, esempio Consulto Variante A)
-- Note composizione: titolo grande a sinistra su due righe, bianco con ombra; palette ambra/blu notte.
+- Foto di Elisa da allegare: una frontale, volto nitido (da ~/Desktop/Carosello/Elisa immagini)
+- Prompt copertina COMPLETO per GPT: (vedi thumbnail-spec.md, esempio Consulto)
 ### Variante B — "Insieme di nuovo"
-- Visual: Elisa a destra; a sinistra, fuori fuoco, due lucine/sfere che si avvicinano (lui e il padre) su sfondo notturno morbido.
+- Idea: Elisa a destra; a sinistra, fuori fuoco, due lucine/sfere che si avvicinano (lui e il padre) su sfondo notturno morbido.
 - Testo copertina: "Nell'aldilà, insieme di nuovo"
-- Posizione Elisa: terzo destro, mezzo busto.
-- Note: massimo contrasto testo/sfondo; spazio negativo a sinistra per il titolo.
+- Foto di Elisa da allegare: una frontale, volto nitido
+- Prompt copertina COMPLETO per GPT: scena notturna morbida con le due lucine a sinistra, Elisa (volto dalla foto) a destra, testo «Nell'aldilà, insieme di nuovo».
 
 ## Note di pubblicazione
 - Privacy: nessun cognome, storia in terza persona.

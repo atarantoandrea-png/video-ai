@@ -79,9 +79,10 @@ Applica le **formule** di `reference/house-style.md`. Proponi **3-5 titoli** + *
 Usa il **template di descrizione per tipo** con i blocchi canonici link+hashtag e il ponte community.
 Capitoli **solo** se ci sono timestamp reali (primo `00:00`). Tag ordinati per rilevanza; hashtag 3-5.
 
-## Fase 5 — Concept copertina + prompt
-2-3 varianti (vedi `reference/thumbnail-spec.md`), ciascuna con prompt fotorealistico di **sfondo** che
-lascia spazio a Elisa + titolo.
+## Fase 5 — Concept copertina + prompt (la grafica la fa TUTTA GPT)
+2-3 varianti (vedi `reference/thumbnail-spec.md`), ciascuna con un **prompt copertina COMPLETO** per GPT
+(sfondo + **volto di Elisa riprodotto dalla foto allegata** + titolo). La grafica la fa **tutta GPT**,
+non Claude: il compito è scrivere il prompt perfetto e scegliere la foto di riferimento.
 
 ## Fase 6 — Scrivi il «YouTube Pack»
 Nel formato esatto di `reference/youtube-pack-contract.md`. Consegna spiegando le due strade successive:
@@ -92,9 +93,10 @@ Nel formato esatto di `reference/youtube-pack-contract.md`. Consegna spiegando l
 Vedi `reference/subtitles.md`: genera l'SRT **originale (it)** accurato dal transcript + le **traduzioni**
 (en/es/ja/zh/hi/ar) **mantenendo i timecode**; scrivi i file in una cartella di sessione.
 
-## Fase 8 — (opz.) Copertina
-Chiedi: *"Copertina: scrivi **«comando io gpt»** per farla in automatico (genero sfondo + compongo Elisa +
-titolo), oppure ti do il prompt e la fai tu."* In auto → `reference/cover-auto.md`.
+## Fase 8 — (opz.) Copertina (la genera GPT)
+Chiedi: *"Copertina: scrivi **«comando io gpt»** e la faccio io con ChatGPT (sfondo + volto di Elisa dalla
+foto allegata + titolo), oppure ti do il prompt + quale foto allegare e la generi tu in GPT."* In auto →
+`reference/cover-auto.md`.
 
 ## Fase 9 — (opz.) Upload + programmazione su YouTube Studio
 **Leggi `reference/youtube-studio.md` PRIMA di toccare il browser.** Flusso a due tempi:

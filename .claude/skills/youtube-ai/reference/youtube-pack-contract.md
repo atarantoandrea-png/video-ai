@@ -56,13 +56,12 @@ così Andrea (o la Fase upload) può copiarlo dall'alto verso il basso dentro Yo
 - en: <percorso> · es: <percorso> · ja: <percorso> · zh-Hans: <percorso> · hi: <percorso> · ar: <percorso>
 # (i file li genera la Fase Sottotitoli; vedi subtitles.md)
 
-## Concept copertina (2-3 varianti)
+## Concept copertina (2-3 varianti) — la genera TUTTA GPT
 ### Variante A — <nome>
-- Visual (curiosità): <descrizione scena>
+- Idea (curiosità): <descrizione scena>
 - Testo copertina: "<≤5 parole>"
-- Posizione Elisa: <es. destra, mezzo busto, sguardo in camera>
-- Prompt sfondo GPT-image: "<prompt fotorealistico, vedi thumbnail-spec.md>"
-- Note composizione: <titolo dove/size, contrasto, palette>
+- Foto di Elisa da allegare: <quale foto da ~/Desktop/Carosello/Elisa immagini, frontale e nitida>
+- Prompt copertina COMPLETO per GPT (sfondo + volto dalla foto allegata + titolo): "<vedi thumbnail-spec.md>"
 ### Variante B — ...
 ### Variante C — ...
 
