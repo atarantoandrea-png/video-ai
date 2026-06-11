@@ -14,7 +14,7 @@ così Andrea (o la Fase upload) può copiarlo dall'alto verso il basso dentro Yo
 - lingua: it
 - categoria: <categoria YouTube consigliata, es. People & Blogs>
 - playlist: <playlist del canale in cui inserirlo>
-- fonte: <Reel Build Brief | trascrizione | carosello>
+- fonte: <trascrizione del video lungo | brief /reel-ai>
 
 ## Titoli (scegline 1) — ≤100 caratteri, keyword in apertura
 1. <titolo opzione 1>

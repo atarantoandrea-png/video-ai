@@ -2,23 +2,8 @@ import { useState } from 'react'
 import type { CSSProperties } from 'react'
 import { useCarosello } from '../state/caroselloStore'
 import { exportAllPng } from '../export'
-
-function pickImage(): Promise<string | null> {
-  return new Promise((resolve) => {
-    const input = document.createElement('input')
-    input.type = 'file'
-    input.accept = 'image/*'
-    input.onchange = (): void => {
-      const file = input.files?.[0]
-      if (!file) return resolve(null)
-      const reader = new FileReader()
-      reader.onload = (): void => resolve(typeof reader.result === 'string' ? reader.result : null)
-      reader.onerror = (): void => resolve(null)
-      reader.readAsDataURL(file)
-    }
-    input.click()
-  })
-}
+import { pickImage } from '../pick'
+import { PhotoCatalog } from './PhotoCatalog'
 
 function pickJson(): Promise<string | null> {
   return new Promise((resolve) => {
@@ -41,7 +26,6 @@ export function Toolbar(): JSX.Element {
   const format = useCarosello((s) => s.project.format)
   const setFormat = useCarosello((s) => s.setFormat)
   const addText = useCarosello((s) => s.addText)
-  const addPhoto = useCarosello((s) => s.addPhoto)
   const setSlideBg = useCarosello((s) => s.setSlideBg)
   const currentIndex = useCarosello((s) => s.currentIndex)
   const importBrief = useCarosello((s) => s.importBrief)
@@ -49,6 +33,7 @@ export function Toolbar(): JSX.Element {
   const project = useCarosello((s) => s.project)
 
   const [showImport, setShowImport] = useState(false)
+  const [showCatalog, setShowCatalog] = useState(false)
   const [briefText, setBriefText] = useState('')
   const [err, setErr] = useState('')
   const [exporting, setExporting] = useState(false)
@@ -56,10 +41,6 @@ export function Toolbar(): JSX.Element {
   async function onBg(): Promise<void> {
     const url = await pickImage()
     if (url) setSlideBg(currentIndex, url)
-  }
-  async function onPhoto(): Promise<void> {
-    const url = await pickImage()
-    if (url) addPhoto(url)
   }
   function doImport(): void {
     const res = importBrief(briefText)
@@ -99,7 +80,7 @@ export function Toolbar(): JSX.Element {
       <button className="car-btn" onClick={() => void onBg()}>
         🌄 Sfondo…
       </button>
-      <button className="car-btn" onClick={() => void onPhoto()}>
+      <button className="car-btn" onClick={() => setShowCatalog(true)}>
         🧑 Foto Elisa…
       </button>
       <span className="sp" />
@@ -114,6 +95,8 @@ export function Toolbar(): JSX.Element {
       <button className="car-btn primary" disabled={exporting} onClick={() => void onExport()}>
         {exporting ? 'Esporto…' : '⬇ Esporta PNG'}
       </button>
+
+      {showCatalog && <PhotoCatalog onClose={() => setShowCatalog(false)} />}
 
       {showImport && (
         <div style={overlay} onClick={() => setShowImport(false)}>
