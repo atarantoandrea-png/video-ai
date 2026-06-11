@@ -51,10 +51,17 @@ con calma.
 ### Fase 2 — Dettagli
 Per ogni campo: `find` per etichetta/ruolo → `form_input` (testo/select) o click (toggle/radio) →
 `read_page`/`get_page_text` per **verificare** che il valore sia entrato.
-1. **Titolo** — il box ha il prefill del filename: **svuotalo**, poi `form_input` col titolo del Pack.
-   Verifica testo == titolo.
-2. **Descrizione** — `form_input` con la descrizione SEO completa (i **capitoli** sono già nel testo).
-   Verifica che una riga capitolo sia presente nella rilettura.
+
+> ⚠️ **REGOLA CAMPI PRECOMPILATI (sempre):** Studio può pre-riempire **titolo/descrizione** (dal nome file,
+> da una **bozza precedente**, o auto). I valori del **nostro Pack VINCONO SEMPRE**: **svuota e sostituisci,
+> non chiedere, non interpretare.** ❗ **Non dedurre MAI quale file è stato caricato dal testo precompilato**
+> (un titolo tipo «Consulto … completo» può essere il residuo di una vecchia bozza, non il file di adesso).
+1. **Titolo** — **REGOLA FERREA: qualsiasi titolo già nel campo va SEMPRE sostituito** col titolo del Pack,
+   **senza chiedere**, qualunque ne sia l'origine (nome file, **bozza precedente**, auto). **Svuota** il
+   campo (seleziona tutto → cancella) → `form_input` col titolo del Pack → verifica testo == titolo del Pack.
+   **Non chiedere all'utente "che file hai caricato?" basandoti sul titolo precompilato.**
+2. **Descrizione** — stessa regola: **svuota** qualsiasi testo precompilato, poi `form_input` con la
+   descrizione SEO completa (i **capitoli** sono già nel testo). Verifica che una riga capitolo sia presente.
 3. **Playlist** — apri il dropdown → spunta la playlist del Pack → chiudi. Verifica che compaia.
 4. **Pubblico / Bambini** — seleziona **"No, non è un video per bambini"** (OBBLIGATORIO, altrimenti
    YouTube blocca la pubblicazione). Verifica radio "No" selezionato.

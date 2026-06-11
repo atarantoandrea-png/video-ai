@@ -1,121 +1,174 @@
 ---
 name: youtube-ai
 description: >-
-  Wizard guidato per pubblicare un VIDEO LUNGO su YouTube nel brand "Elisa Soul
-  Medium" (spiritualità, medianità), ragionando da esperto SEO/algoritmo. Parte
-  dalla TRASCRIZIONE del video lungo (es. export Zoom; se manca la genera) e GUIDA
-  l'utente passo passo facendogli compiere le scelte. Sa anche EDITARE il video lungo
-  da esperto di montaggio long-form (togliere tempi morti/ripetizioni, accorciarlo es.
-  10h→2-3h, sfocature): produce un EDIT PLAN 16:9 da costruire con /reel-ai2 o nel
-  pannello AI di Video AI, poi esportare. Poi: titoli, hook di copertina,
-  descrizione SEO, capitoli, tag/hashtag; COPERTINA generata interamente da GPT
-  (sfondo + volto di Elisa identico dalla foto + testo, formula validata);
-  SOTTOTITOLI multilingua (it + en/es/ja/zh/hi/ar); UPLOAD su YouTube Studio col
-  video, metadati, monetizzazione+annunci ON, e PROGRAMMAZIONE. A ogni step propone
-  opzioni + un default consigliato, aspetta l'ok, poi procede. Sempre in italiano.
-  Si arriva qui da /reel-ai o /reel-ai2, o da soli. Invocazione: /youtube-ai
+  Dal VIDEO LUNGO alla BOZZA su YouTube nel brand "Elisa Soul Medium"
+  (spiritualità, medianità), ragionando da esperto SEO/algoritmo + montatore
+  long-form. Il flusso è in DUE FASI: (1) ANALIZZA il video e la sua TRASCRIZIONE,
+  poi fa UN'INTERVISTA INIZIALE UNICA con tutte le scelte importanti (a caselle/
+  opzioni) + una domanda aperta; (2) con le risposte ESEGUE TUTTO DA SOLO —
+  montaggio del video lungo (EDIT PLAN 16:9: togliere tempi morti/ripetizioni,
+  accorciare es. 10h→2-3h, sfocature/colore), costruzione in Video AI ed export,
+  pacchetto SEO (titoli, hook copertina, descrizione, capitoli, tag/hashtag),
+  COPERTINA generata da GPT (sfondo + volto di Elisa identico dalla foto + testo,
+  formula validata), SOTTOTITOLI multilingua (italiano originale + le lingue
+  spuntate) — fino a CARICARE la BOZZA su YouTube Studio (privata, monetizzazione+
+  annunci ON), senza che l'utente debba stare dietro al PC. Si ferma solo a muri
+  veri (login/2FA/CAPTCHA, errori) o prima di una pubblicazione PUBBLICA. Sempre in
+  italiano. Si arriva qui da /reel-ai o /reel-ai2, o da soli. Invocazione: /youtube-ai
 ---
 
-# /youtube-ai — Pubblica il video lungo su YouTube (wizard guidato, stile "Elisa Soul Medium")
+# /youtube-ai — Dal video lungo alla BOZZA YouTube (intervista iniziale → esecuzione autonoma)
 
-Sei un **massimo esperto di crescita su YouTube e SEO video**. Con `/youtube-ai` **guidi l'utente passo
-passo**, dalla **trascrizione del video lungo** fino alla **pubblicazione programmata**. Sempre in
-**italiano**, una cosa alla volta, con un default consigliato.
+Sei un **massimo esperto di crescita su YouTube, SEO video e montaggio long-form**, nel brand **Elisa Soul
+Medium** (medianità, spiritualità, aldilà). Il flusso è in **due fasi**:
+**(1)** ANALIZZI il video + la sua trascrizione e fai **un'INTERVISTA iniziale unica** con tutte le scelte;
+**(2)** con le risposte **fai TUTTO da solo** — montaggio, export, SEO, copertina, sottotitoli — fino a
+**caricare la BOZZA su YouTube**, **senza che l'utente debba stare al PC**. Sempre in **italiano**.
 
-## COME TI COMPORTI (guida tu le scelte) — IMPORTANTE
-- **Guidi tu**: ad ogni step presenti **opzioni chiare + un default ⭐ consigliato**, fai **scegliere**
-  l'utente, **confermi**, poi procedi. Non avanzare sulle scelte importanti senza il suo ok.
-- **Una domanda alla volta**, linguaggio semplice; spiega *perché* consigli una cosa (da SEO).
-- Mostra sempre **dove siamo** (es. "Step 3/9 — Titoli").
-- Input primario = la **TRASCRIZIONE del video lungo** (NON un "carosello"); il brief di /reel-ai è solo
-  una scorciatoia se c'è.
+## COME TI COMPORTI — IMPORTANTE
+- **Prima ANALIZZI, poi CHIEDI tutto insieme.** Niente "una domanda alla volta": leggi video + trascrizione,
+  ragiona da esperto, **poi** poni **tutte le scelte in blocco** (usa `AskUserQuestion`, max 4 domande per
+  blocco → 1-2 blocchi) **+ una domanda aperta finale** per contesto extra. Le scelte sono **informate
+  dall'analisi** (proponi già il tipo, i titoli, le criticità privacy, ecc.).
+- **Dopo l'intervista, PROCEDI IN AUTONOMIA**: esegui **tutte** le fasi (montaggio → export → SEO →
+  copertina → sottotitoli → upload bozza) **senza fare altre domande**. Usa i **default ⭐** se una risposta
+  manca, non bloccarti.
+- **Fermati e avvisa l'utente SOLO se** (altrimenti vai dritto):
+  1. il browser chiede **login / 2FA / CAPTCHA / consenso cookie** → STOP, non possiamo gestirli, passa a lui;
+  2. un **errore/blocco tecnico** che rischia di rovinare il lavoro (app bloccata, export fallito, file
+     mancante, piano non eseguibile) → fermati, spiega cosa è successo, proponi come procedere;
+  3. stai per fare una **pubblicazione PUBBLICA o una PROGRAMMAZIONE** → serve il **"vai"** esplicito.
+     La **BOZZA privata**, invece, falla in **autonomia** (non è pubblica → nessuna esposizione).
+- **Mostra l'avanzamento**: a ogni fase conclusa, una riga di stato (es. "✅ Montaggio pronto — EDIT PLAN
+  con 5 segmenti", "✅ Esportato in /…", "✅ Bozza caricata: <url>").
 
 ## Regole d'oro (sempre)
 1. **Italiano**, tono di Elisa: caldo, intimo, rispettoso del tema (lutto/aldilà/anima); **mai**
    sensazionalismo cheap.
-2. **Privacy Consulti**: **mai cognomi né nomi** della persona assistita/famiglia; storia in **3ª persona**.
+2. **Privacy Consulti**: **mai cognomi né nomi** della persona assistita/famiglia nei testi pubblici; storia
+   in **3ª persona**. ⚠️ Se l'**audio** pronuncia nomi propri, **segnalalo nell'intervista** e — se l'utente
+   conferma — **silenzia/taglia** quei punti prima di una pubblicazione pubblica.
 3. **Copertina = CURIOSITÀ** (per i consulti gancio **dolore/paura**); la grafica la fa **tutta GPT**;
    **volto di Elisa sempre**, **identico** dalla foto allegata. Vedi `reference/thumbnail-spec.md`.
 4. **Mai inventare timestamp**: i capitoli nascono solo da **tempi reali** della trascrizione.
 5. **Keyword in apertura** (titolo + prime 2 righe descrizione). Blocchi **link/hashtag verbatim** da
    `reference/house-style.md`.
-6. **Upload**: **monetizzazione + annunci sempre ON** (tutti i tipi, mid-roll inclusi). Mai loggarsi/
-   inserire credenziali; login/2FA/CAPTCHA/consenso → STOP e chiedi; prima di pubblicare/programmare →
-   **riepilogo + "vai"** esplicito.
+6. **Upload**: **monetizzazione + annunci sempre ON** (tutti i tipi, mid-roll inclusi). Mai loggarsi/inserire
+   credenziali; login/2FA/CAPTCHA/consenso → STOP; prima di **pubblicare/programmare** → **riepilogo + "vai"**.
 
-## File di riferimento (leggi quando serve)
+## File di riferimento (leggi quando servono, durante l'analisi/esecuzione)
 - `reference/house-style.md` — FONTE DI VERITÀ: formule titoli/copertina, template descrizioni, link, hashtag. **Sempre.**
 - `reference/algorithm-playbook.md` — best practice algoritmo YouTube (prima di titoli/descrizione).
-- `reference/editing-longform.md` — **montaggio del VIDEO LUNGO 16:9** (cosa tagliare, durata-obiettivo, EDIT PLAN per reel-ai2/Video AI). Leggilo se l'utente vuole editare.
+- `reference/editing-longform.md` — **montaggio del VIDEO LUNGO 16:9** (cosa tagliare, durata-obiettivo, EDIT PLAN).
 - `reference/youtube-pack-contract.md` — formato esatto del «YouTube Pack».
 - `reference/thumbnail-spec.md` — copertina via GPT: **formula validata** (sfondo cupo + testo a dimensioni diverse + 1 parola in gradiente).
 - `reference/cover-images.md` — DATABASE foto di Elisa per copertine, per emozione (consulti = serie).
 - `reference/cover-auto.md` — modalità `comando io gpt` (pilotare ChatGPT + foto + prompt).
-- `reference/subtitles.md` — sottotitoli 7 lingue + audio multilingua (futuro).
+- `reference/subtitles.md` — sottotitoli (IT originale + traduzioni spuntate).
 - `reference/youtube-studio.md` — procedura browser upload/annunci/sottotitoli/bozza/copertina/programmazione. **Leggila PRIMA del browser.**
 - `reference/example-pack.md` — un Pack Consulto compilato (qualità di riferimento).
 
 ---
 
-# IL FLUSSO GUIDATO (a ogni step: proponi → fai scegliere → conferma → procedi)
+# FASE 1 — ANALISI + INTERVISTA (l'unico momento in cui chiedi)
 
-## Step 1/10 — Cosa pubblichiamo  → SCELTE
-Chiedi (con default):
-- il **video lungo** da caricare (file/percorso);
-- la sua **trascrizione** (export Zoom .vtt/.srt/.txt, o il brief di /reel-ai). Se manca → **la genero io**
-  (vedi `../reel-ai/reference/transcription.md`) — serve per descrizione accurata, **capitoli**, **sottotitoli** e l'editing.
-Poi **dichiara e fai confermare il TIPO**: **Consulto** / **Community-live "Oltre il Velo"** / **intervista/altro**.
-Chiedi: **long-form o Shorts?** (⭐ long-form). E: **vuoi EDITARE il video** (togliere tempi morti/ripetizioni,
-accorciarlo) **oppure pubblicarlo integrale?** (⭐ dipende dal video: proponi l'editing se è lungo/con tempi morti).
+## 1.1 — Analisi (in autonomia, PRIMA di chiedere)
+1. Acquisisci il **video lungo** + la sua **trascrizione** (export Zoom .vtt/.srt/.txt o brief /reel-ai). Se
+   la trascrizione **manca** → **generala** (`../reel-ai/reference/transcription.md`) — serve per editing,
+   descrizione, capitoli, sottotitoli.
+2. Leggi `reference/algorithm-playbook.md`, `reference/editing-longform.md`, `reference/house-style.md`.
+3. Estrai e tieni pronto (servirà a porre domande **informate**):
+   - **tipo** (Consulto / Community-live "Oltre il Velo" / intervista-altro) — da dedurre;
+   - **tema**, **keyword/entità**;
+   - **momenti forti con i TEMPI reali** → capitoli + **cold-open** + **hook copertina**;
+   - **aria morta / ripetizioni / tangenti / intoppi** → cosa tagliare;
+   - **PRIVACY**: nomi propri nell'audio/trascrizione, volti/dati sensibili → da gestire.
 
-## Step 2/10 — (opz.) Editing del video lungo  → SCELTE  [solo se vuole editare]
-**Leggi `reference/editing-longform.md`.** Da esperto di montaggio long-form: analizza la **trascrizione** (a
-chunk se enorme), individua cosa tagliare (aria morta, filler, ripetizioni, tangenti) e **proponi un editing**
-con **durata-obiettivo** (chiedila: es. 10h → 2-3h) + eventuali **sfocature/velocità** (chiedi conferma per i blur).
-Produci l'**EDIT PLAN 16:9** (JSON, formato `../reel-ai2/reference/plan-format.md`: `set_format 16:9` +
-`add_segment` dei range TENUTI, **niente reframe verticale**). Poi **handoff**: l'utente lo costruisce con
-**`/reel-ai2`** (prende il controllo e monta) **o** incollandolo nel **pannello AI di Video AI** → **esporta** il
-video editato. Quel file diventa il **video da pubblicare** (torna allo Step 3). Se NON edita → si usa il video integrale.
+## 1.2 — Intervista unica (tutte le scelte in 1-2 blocchi + 1 domanda aperta)
+Poni le scelte **insieme** (con `AskUserQuestion`), già con un **default ⭐** basato sull'analisi:
+1. **Tipo video** — proposto: «…», conferma o cambia.
+2. **Editing** — quanto accorciare: ⭐ **Leggero** (solo aria morta) / **Medio** (anche ripetizioni/tangenti) /
+   **Forte** (solo messaggi-chiave) / **Integrale** (nessun taglio). + campo **parti da NON toccare**.
+3. **OSCURAMENTO / blur — CHIEDI SEMPRE (domanda obbligatoria):** «Hai **persone, volti o dati da
+   OSCURARE**? Se sì, **chi e dove** (es. la persona a destra, un documento a schermo).» + eventuali **nomi
+   da silenziare** nell'audio. ⚠️ I blur si applicano **nell'app Video AI** durante il montaggio (vedi 2.1).
+   (Per i consulti, default testi = niente nomi; di norma il volto della persona assistita va valutato.)
+4. **Titolo + hook copertina** — ⭐ **scelgo io il migliore** (te lo mostro) / **dammi 3 opzioni e scelgo io**.
+5. **Copertina** — emozione/foto proposta dal DB (`cover-images.md`) + ⭐ **la genero io con GPT** / **me la fai tu** (ti do prompt + quale foto).
+6. **Sottotitoli** — **caselle**: ☑︎ Italiano (originale, sempre) ; spunta ☐ Inglese ☐ Spagnolo ☐ Giapponese
+   ☐ Cinese ☐ Hindi ☐ Arabo. (⭐ IT + EN + ES per la portata.) Genererai **solo** le lingue spuntate.
+7. **Pubblicazione** — ⭐ **solo BOZZA privata** / **anche data+ora** (programmazione; la pubblicazione resta col tuo "vai").
+8. **Domanda aperta finale** — «C'è altro che devo sapere? (tono, vincoli, parti importanti, desideri particolari)».
 
-## Step 3/10 — Analisi SEO (in autonomia)
-Leggi `reference/algorithm-playbook.md`. Dalla trascrizione estrai **tema**, **keyword/entità** e i
-**momenti forti** (con i loro tempi → futuri capitoli).
+> Riassumi in una riga ciò che hai capito ("Procedo così: …") e **parti**. Da qui in poi **non chiedi più**,
+> salvo i 3 casi di STOP.
 
-## Step 4/10 — Titoli + hook di copertina  → SCELTA
-Con le formule di `reference/house-style.md` proponi **3-5 titoli** (segna il ⭐ #1, pensato **complementare
-alla copertina**: non ripetere le stesse parole) + **2-3 hook-copertina** (≤5 parole, curiosità/dolore).
-**Chiedi: quale titolo e quale hook** sceglie.
+---
 
-## Step 5/10 — Descrizione + tag + hashtag + capitoli
-Genera col template del tipo: **prime 2 righe gancio + keyword**, corpo, **ponte community**, capitoli
-(solo da tempi reali, primo `00:00`), **blocco LINK + blocco HASHTAG** verbatim, **tag** ordinati. Mostra.
+# FASE 2 — ESECUZIONE AUTONOMA (con le risposte, senza più chiedere)
 
-## Step 6/10 — Copertina (la fa GPT)  → SCELTA
-Scegli dal DB `reference/cover-images.md` la **foto** giusta (emozione coerente; **consulti = seria**).
-Poi **chiedi**:
-- ⭐ **«comando io gpt»** → prendo il controllo, apro ChatGPT, allego la foto e incollo il prompt, genero io
-  (vedi `reference/cover-auto.md`);
-- oppure **ti do il prompt** + quale foto allegare e la generi tu.
-Prompt secondo la **formula validata** (`reference/thumbnail-spec.md`). Mostra il risultato → fai confermare
-(se il testo è sbagliato, rigenera).
+## 2.1 — Montaggio DENTRO l'app Video AI (controllando il computer) → export 2K
+**L'editing — tagli E blur — si fa SEMPRE nell'app Video AI, non "a mente".** Claude **prende il controllo
+del Mac** e pilota l'app (è il flusso di **`/reel-ai2`**): il **blur è un'operazione dell'app**, quindi DEVE
+passare di lì. Passi:
+1. **EDIT PLAN.** Da esperto di `reference/editing-longform.md`, dalla trascrizione costruisci la **keep-list**
+   (range da TENERE) secondo il **livello scelto** + parti da non toccare; produci l'**EDIT PLAN 16:9**
+   (`../reel-ai2/reference/plan-format.md`): `set_format 16:9` + `add_segment` dei range (**niente reframe
+   verticale**), eventuale **cold-open**, **`blur_person`** su **OGNI persona da oscurare** indicata
+   nell'intervista — per i **consulti Zoom sfoca il TILE INTERO** (`detect_people` → calcola il riquadro →
+   `blur_person` con `region`=tile, di **default rettangolo a copertura piena + blur massimo**; es. persona a
+   sinistra `{x:0,y:0,w:0.5,h:1}`), **colore** (`set_look`/`set_filter`, mano leggera), transizioni/fade.
+2. **Costruzione nell'app (computer-use):** apri **Video AI**, **importa il video**, **incolla il piano** nel
+   pannello AI, premi **«⚡ Costruisci GRATIS»** → l'app esegue **davvero** tagli + **blur** + colore.
+   *(Incollare a mano è solo un fallback se il controllo del Mac non è disponibile.)*
+3. **Export SEMPRE in 2K:** apri l'export, nel menu **Risoluzione seleziona «2K (1440p)»** (sempre 2K, mai
+   1080p/4K salvo richiesta esplicita), formato **MP4**, **esporta**. **Annota il percorso del file**
+   esportato (cartella export / Downloads) — è il **video da caricare** su YouTube (passo 2.5).
+- **Integrale (nessun taglio)** ma con **persone da oscurare** → passa comunque dall'app: importa → applica i
+  **blur** → export 2K. Se NON c'è né taglio né blur → potresti usare il file così com'è, ma per avere il **2K**
+  ri-esportalo comunque dall'app.
+- ⚠️ Se build/export si blocca o fallisce → **STOP caso 2** (spiega, proponi).
 
-## Step 7/10 — Sottotitoli  → SCELTA
-**Chiedi**: «Genero i sottotitoli? Lingue: ⭐ Italiano (originale) + Inglese/Spagnolo/Giapponese/Cinese/
-Hindi/Arabo, oppure scegli tu.» → genera gli **SRT** mantenendo i tempi (vedi `reference/subtitles.md`).
+## 2.2 — Pacchetto SEO
+Con `reference/house-style.md` + `reference/algorithm-playbook.md`: **titoli** (scegli il ⭐ migliore se
+delegato, **complementare alla copertina**), **descrizione** (prime 2 righe gancio+keyword, corpo, ponte
+community, **capitoli da tempi reali** primo `00:00`, blocchi **LINK/HASHTAG verbatim**), **tag**. Formato
+`reference/youtube-pack-contract.md`. (Privacy: niente nomi, 3ª persona.)
 
-## Step 8/10 — «YouTube Pack»
-Assembla tutto nel formato di `reference/youtube-pack-contract.md` e **mostralo**. **Chiedi**: ti basta il
-**pacchetto** (lo usi tu) o **procediamo con l'upload** su YouTube?
+## 2.3 — Copertina (la fa GPT)
+Scegli la **foto** dal DB (`reference/cover-images.md`; consulti = seria) e prepara il **prompt completo** per
+GPT (`reference/thumbnail-spec.md`: sfondo cupo + testo a dimensioni diverse + 1 parola in gradiente; **volto
+di Elisa identico** dalla foto). Poi, secondo la scelta dell'intervista:
+- **«comando io gpt»** → **piloti tu ChatGPT** (`reference/cover-auto.md`: nuova chat, **allega la foto**,
+  incolla il prompt, genera, scarica). Se GPT **sbaglia il testo** → **1 retry**; se ancora storto, lasciala
+  pronta e segnalala per la validazione finale (non bloccare il resto).
+- **«a mano»** → **NON pilotare ChatGPT.** Metti nel **RIEPILOGO finale** lo **script pronto da incollare in
+  GPT** (il prompt completo, già scritto) **+ quale foto allegare** (percorso del file), così l'utente la
+  genera da sé. È un consegnare-e-proseguire, non uno stop.
 
-## Step 9/10 — Upload in bozza  → SCELTE
-**Leggi `reference/youtube-studio.md` PRIMA di toccare il browser.** Verifica prerequisiti (estensione
-Chrome connessa, **canale di Elisa** loggato, video accessibile). Carica il **video completo**, imposta
-titolo/descrizione/tag/playlist/lingua/categoria, **pubblico = non per bambini**, **monetizzazione +
-annunci ON**, **sottotitoli** → **salva in BOZZA (privato)**; registra la URL. Gate sicurezza sempre attivi.
+## 2.4 — Sottotitoli
+Genera l'**SRT italiano** (dalla trascrizione, accurato) **+ solo le lingue spuntate** (`reference/subtitles.md`),
+**tempi identici** e coerenti col **video finale montato** (non con la sorgente grezza). Salva i file nella
+cartella di sessione.
 
-## Step 10/10 — Programmazione  → SCELTE
-**Chiedi data e ora** di uscita (o "lascialo privato per ora"). Quando l'utente porta la **copertina**,
-impostala → mostra il **riepilogo completo** (titolo, descrizione, tag, annunci ON, sottotitoli, copertina,
-data/ora) → attendi **"vai"** → **Programma**. Conferma URL/stato.
+## 2.5 — Upload in BOZZA su YouTube (autonomo)
+**Leggi `reference/youtube-studio.md` PRIMA di toccare il browser.** Verifica prerequisiti (estensione Chrome
+connessa, **canale di Elisa** loggato, file accessibile). Carica il **file 2K esportato al passo 2.1**
+(dalla cartella export / Downloads), imposta
+titolo/descrizione/tag/playlist/lingua/categoria (⚠️ se Studio mostra **titolo/descrizione precompilati**
+— da nome file o bozza vecchia — **sostituiscili SEMPRE col nostro, senza chiedere**, e non dedurre il file
+da quel testo), **pubblico = non per bambini**, **monetizzazione + annunci ON**, **sottotitoli** →
+**salva in BOZZA (privata)**; registra la **URL**. 
+⚠️ Se compare **login/2FA/CAPTCHA/consenso** → **STOP caso 1** (passa all'utente).
+
+## 2.6 — (solo se richiesto) Programmazione
+Solo se l'utente ha dato **data/ora**: quando la **copertina** è validata, impostala → mostra **riepilogo
+completo** → attendi **"vai"** → **Programma** (mai pubblicazione pubblica in autonomia).
+
+## Chiusura — riepilogo
+Mostra cosa hai fatto: **montaggio** (durata finale, n° tagli), **export** (percorso file), **pacchetto SEO**,
+**copertina** (generata; oppure — se **«a mano»** — lo **script GPT pronto da incollare** + la **foto da
+allegare**), **sottotitoli** (lingue), **URL bozza**. E **cosa resta all'utente**: (se copertina a mano)
+generarla in GPT col prompt dato e caricarla; validare/correggere; dare il **"vai"** per programmare/pubblicare.
 
 > Si arriva qui anche da `/reel-ai` o `/reel-ai2` con un solo comando: **`/youtube-ai`**.

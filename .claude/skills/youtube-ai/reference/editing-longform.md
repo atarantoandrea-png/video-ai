@@ -77,8 +77,11 @@ L'editing si fa **leggendo il testo**: decidi keep/drop dalla trascrizione e tra
 ## 5. Quando AGGIUNGERE (e cosa non esagerare)
 - **B-roll** (materiale fornito dall'utente, niente AI): nasconde i jump cut dei tagli e dà respiro.
 - **`set_speed`**: accelera gli stretch noiosi-ma-necessari invece di tagliarli.
-- **`blur_person` / regione**: sfoca volti o info sensibili (cognomi a schermo, documenti). Per i **consulti**
-  spesso dovuto. **Chiedi sempre conferma** prima di sfocare una persona.
+- **`blur_person` / oscurare un riquadro Zoom**: per i **consulti** il modo robusto è **sfocare il TILE
+  INTERO** della persona (resta coperta anche se si muove dentro il riquadro): `detect_people` → calcola il
+  tile → `blur_person` con `region` = il tile (di **default maschera rettangolare a copertura piena + blur
+  massimo**; es. persona a sinistra `{x:0,y:0,w:0.5,h:1}`). Vale anche per info sensibili a schermo (cognomi,
+  documenti). **Chiedi sempre conferma** prima di sfocare.
 - **`add_transition` / `set_fade`**: dissolvenza breve ai salti tra range lontani o ai cambi di capitolo.
 - **`mute_clip`**: silenzia un tratto (audio sporco) tenendo il video.
 - **`set_look` / `set_filter` (COLORE)**: Video AI **HA i filtri colore** (stile CapCut/Canva), validi in

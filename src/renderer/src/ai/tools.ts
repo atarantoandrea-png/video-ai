@@ -99,7 +99,7 @@ export const TOOLS: Anthropic.Tool[] = [
   {
     name: 'blur_person',
     description:
-      'Sfoca una persona (volto, con tracking nel tempo su una nuova traccia) o una regione fissa. CHIAMA SOLO dopo conferma dell\'utente con ask_user. Con faceIndex sfoca quel volto; con region {x,y,w,h} (0..1, canvas) sfoca un\'area.',
+      "Sfoca una persona (volto, con tracking nel tempo) o una REGIONE fissa. CHIAMA SOLO dopo conferma dell'utente con ask_user. Con faceIndex sfoca quel volto. Con region {x,y,w,h} (0..1, canvas) sfoca un'area: di DEFAULT copre il RIQUADRO INTERO con maschera RETTANGOLARE + blur FORTE (sigma 48), ideale per oscurare un tile Zoom (es. persona a sinistra = {x:0,y:0,w:0.5,h:1}; in alto = {x:0,y:0,w:1,h:0.5}). shape:'ellipse' per un ovale morbido; strength 8..80 regola il blur (default 48 = massimo).",
     input_schema: {
       type: 'object',
       properties: {
@@ -108,7 +108,9 @@ export const TOOLS: Anthropic.Tool[] = [
         region: {
           type: 'object',
           properties: { x: { type: 'number' }, y: { type: 'number' }, w: { type: 'number' }, h: { type: 'number' } }
-        }
+        },
+        shape: { type: 'string', enum: ['rectangle', 'ellipse'], description: "forma maschera per region: 'rectangle' (default, copre tutto il tile) o 'ellipse'" },
+        strength: { type: 'number', description: 'forza del blur per region (sigma 8..80; default 48 = massimo)' }
       },
       required: ['clipId']
     }
@@ -543,15 +545,25 @@ export async function runTool(name: string, input: Record<string, unknown>, ctx:
       if (region && typeof region.x === 'number' && typeof region.y === 'number') {
         ed.makeBlurRegion(clipId)
         const blurId = useEditor.getState().selectedClipId
-        if (blurId)
+        // Default per privacy: RETTANGOLO che copre tutto il tile (niente angoli scoperti) + blur MASSIMO.
+        const shape = input.shape === 'ellipse' ? 'ellipse' : 'rectangle'
+        if (blurId) {
           ed.setMask(blurId, {
-            shape: 'ellipse',
+            shape,
             x: clamp(region.x, 0, 1),
             y: clamp(region.y, 0, 1),
             w: clamp(typeof region.w === 'number' ? region.w : 0.3, 0.05, 1),
-            h: clamp(typeof region.h === 'number' ? region.h : 0.3, 0.05, 1)
+            h: clamp(typeof region.h === 'number' ? region.h : 0.3, 0.05, 1),
+            feather: shape === 'rectangle' ? 0.03 : 0.3
           })
-        return { ok: true, kind: 'region', blurClipId: blurId }
+          // "Blur al massimo": sigma forte → riquadro irriconoscibile (default 48; range 8..80).
+          const sigma = clamp(typeof input.strength === 'number' ? (input.strength as number) : 48, 8, 80)
+          ed.updateClip(blurId, (c) => {
+            const fx = (c as MediaClip).effects.find((e) => e.type === 'gblur')
+            if (fx) fx.params.sigma = sigma
+          })
+        }
+        return { ok: true, kind: 'region', shape, blurClipId: blurId }
       }
       const faces = await detectAt(cs.clip, cs.src)
       const idx = typeof input.faceIndex === 'number' ? (input.faceIndex as number) : 0

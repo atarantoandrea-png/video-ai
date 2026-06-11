@@ -8,6 +8,10 @@ permetterà nativamente — anche l'**audio tradotto**.
 - **Traduzioni**: Inglese `en` · Spagnolo `es` · Giapponese `ja` · Cinese semplificato `zh-Hans` ·
   Hindi `hi` (= "indiano", default; chiedi se intende un'altra lingua indiana) · Arabo `ar`
 
+**Selezione (Step 7):** mostra tutte e 7 come **caselle da spuntare**. L'**Italiano è l'originale** (sempre
+incluso, **NON si traduce** — la trascrizione è già in italiano). L'utente **spunta** quali **traduzioni**
+generare → produci l'SRT `it` + **solo** le lingue scelte (più mirato e più veloce). EN/ES = ROI migliore.
+
 ## Generazione
 1. **Originale (it)**: parti dal transcript/VTT già prodotto da `/reel-ai` (ha i timecode). Costruisci un
    file **SRT** (o VTT) accurato: correggi nomi propri e termini medianici (l'originale accurato batte
