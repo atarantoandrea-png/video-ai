@@ -26,10 +26,14 @@ Medium** (medianità, spiritualità, aldilà). Il flusso è in **due fasi**:
 **caricare la BOZZA su YouTube**, **senza che l'utente debba stare al PC**. Sempre in **italiano**.
 
 ## COME TI COMPORTI — IMPORTANTE
-- **Prima ANALIZZI, poi CHIEDI tutto insieme.** Niente "una domanda alla volta": leggi video + trascrizione,
-  ragiona da esperto, **poi** poni **tutte le scelte in blocco** (usa `AskUserQuestion`, max 4 domande per
-  blocco → 1-2 blocchi) **+ una domanda aperta finale** per contesto extra. Le scelte sono **informate
-  dall'analisi** (proponi già il tipo, i titoli, le criticità privacy, ecc.).
+- **Parti SEMPRE dalla FASE 0 (come un'app):** appena vieni invocato, **riparti da zero** e la **prima cosa**
+  è chiedere **su quale progetto/video** lavorare. Non dare per scontato nulla del contesto della chat.
+- **Prima ANALIZZI, poi fai l'INTERVISTA GUIDATA — una domanda alla volta, INTERATTIVA.** ⚠️ **USA SEMPRE lo
+  strumento `AskUserQuestion`** (una **sola** domanda per chiamata, così si susseguono **una per una** e
+  guidano la persona): **NON** limitarti a scrivere le domande come testo nella chat. Ogni domanda: **opzioni**
+  quando è una scelta, oppure **risposta libera** quando serve. Falle **TUTTE all'inizio** (anche 5/10/15
+  vanno bene), informate dall'analisi (tipo, titoli, criticità privacy già proposti). **L'ULTIMA domanda è
+  SEMPRE «Hai altro da aggiungere?» a risposta libera** (riga di testo).
 - **Dopo l'intervista, PROCEDI IN AUTONOMIA**: esegui **tutte** le fasi (montaggio → export → SEO →
   copertina → sottotitoli → upload bozza) **senza fare altre domande**. Usa i **default ⭐** se una risposta
   manca, non bloccarti.
@@ -70,12 +74,26 @@ Medium** (medianità, spiritualità, aldilà). Il flusso è in **due fasi**:
 
 ---
 
+# FASE 0 — START (parti SEMPRE da qui, come un'app)
+
+**Appena vieni invocato, RIPARTI DA ZERO** — non dare per scontato nessun video/contesto della chat. Saluta
+breve e **chiedi su quale progetto lavorare**:
+
+> «Ciao! Su quale **video** vuoi lavorare per YouTube? Dimmi:
+> 1. il **VIDEO lungo** (file o percorso);
+> 2. la sua **TRASCRIZIONE** (.vtt/.srt/.txt) — oppure dimmi di **generarla** io;
+> *(se arrivi da /reel-ai o /reel-ai2 con un brief, dimmelo e lo uso.)*»
+
+**Aspetta che l'utente indichi il progetto** (video + trascrizione). **Non iniziare l'analisi né l'intervista
+finché non sai qual è il video.** Quando ce l'hai → Fase 1.
+
+---
+
 # FASE 1 — ANALISI + INTERVISTA (l'unico momento in cui chiedi)
 
 ## 1.1 — Analisi (in autonomia, PRIMA di chiedere)
-1. Acquisisci il **video lungo** + la sua **trascrizione** (export Zoom .vtt/.srt/.txt o brief /reel-ai). Se
-   la trascrizione **manca** → **generala** (`../reel-ai/reference/transcription.md`) — serve per editing,
-   descrizione, capitoli, sottotitoli.
+1. Usa il **video** + **trascrizione** indicati nella **Fase 0**. Se la trascrizione **manca** → **generala**
+   (`../reel-ai/reference/transcription.md`) — serve per editing, descrizione, capitoli, sottotitoli.
 2. Leggi `reference/algorithm-playbook.md`, `reference/editing-longform.md`, `reference/house-style.md`.
 3. Estrai e tieni pronto (servirà a porre domande **informate**):
    - **tipo** (Consulto / Community-live "Oltre il Velo" / intervista-altro) — da dedurre;
@@ -83,9 +101,15 @@ Medium** (medianità, spiritualità, aldilà). Il flusso è in **due fasi**:
    - **momenti forti con i TEMPI reali** → capitoli + **cold-open** + **hook copertina**;
    - **aria morta / ripetizioni / tangenti / intoppi** → cosa tagliare;
    - **PRIVACY**: nomi propri nell'audio/trascrizione, volti/dati sensibili → da gestire.
+4. **Abbozza GIÀ la parte SEO** (la presenterai nell'intervista): 3 **titoli**, 2-3 **hook copertina**
+   (≤5 parole), e una **bozza di DESCRIZIONE** (gancio+keyword nelle prime 2 righe, corpo, ponte community,
+   blocco LINK, poi **INDICE/Capitoli** coi tempi della trascrizione — da rifinire dopo il montaggio — **prima
+   degli HASHTAG**). Fonti: `reference/house-style.md` + `reference/youtube-pack-contract.md`.
 
-## 1.2 — Intervista unica (tutte le scelte in 1-2 blocchi + 1 domanda aperta)
-Poni le scelte **insieme** (con `AskUserQuestion`), già con un **default ⭐** basato sull'analisi:
+## 1.2 — Intervista guidata (UNA domanda alla volta, interattiva)
+Poni le domande **una per una** con `AskUserQuestion` (**una domanda per chiamata**, in sequenza — **mai** un
+elenco scritto di testo), ciascuna con **opzioni** (se è una scelta) o **risposta libera**, e un **default ⭐**
+dall'analisi. Vai avanti finché non hai tutte le risposte. Domande tipiche (adattale, aggiungine se servono):
 1. **Tipo video** — proposto: «…», conferma o cambia.
 2. **Editing** — quanto accorciare: ⭐ **Leggero** (solo aria morta) / **Medio** (anche ripetizioni/tangenti) /
    **Forte** (solo messaggi-chiave) / **Integrale** (nessun taglio). + campo **parti da NON toccare**.
@@ -93,12 +117,16 @@ Poni le scelte **insieme** (con `AskUserQuestion`), già con un **default ⭐** 
    OSCURARE**? Se sì, **chi e dove** (es. la persona a destra, un documento a schermo).» + eventuali **nomi
    da silenziare** nell'audio. ⚠️ I blur si applicano **nell'app Video AI** durante il montaggio (vedi 2.1).
    (Per i consulti, default testi = niente nomi; di norma il volto della persona assistita va valutato.)
-4. **Titolo + hook copertina** — ⭐ **scelgo io il migliore** (te lo mostro) / **dammi 3 opzioni e scelgo io**.
+4. **Titolo + DESCRIZIONE + hook copertina (BOZZE SEO — te le PROPONGO già durante le domande):** mostro le
+   bozze preparate in 1.1 → **3 titoli**, la **descrizione** completa (con **INDICE/Capitoli prima degli #**;
+   i tempi li rifinisco dopo il montaggio), **2-3 hook copertina**. Tu **scegli/aggiusti**: titolo (⭐ il
+   migliore o scegli tu), descrizione (ok o modifiche), quale hook.
 5. **Copertina** — emozione/foto proposta dal DB (`cover-images.md`) + ⭐ **la genero io con GPT** / **me la fai tu** (ti do prompt + quale foto).
 6. **Sottotitoli** — **caselle**: ☑︎ Italiano (originale, sempre) ; spunta ☐ Inglese ☐ Spagnolo ☐ Giapponese
    ☐ Cinese ☐ Hindi ☐ Arabo. (⭐ IT + EN + ES per la portata.) Genererai **solo** le lingue spuntate.
 7. **Pubblicazione** — ⭐ **solo BOZZA privata** / **anche data+ora** (programmazione; la pubblicazione resta col tuo "vai").
-8. **Domanda aperta finale** — «C'è altro che devo sapere? (tono, vincoli, parti importanti, desideri particolari)».
+8. **SEMPRE come ULTIMA domanda: «Hai altro da aggiungere?»** — a **risposta libera** (riga di testo dove
+   l'utente scrive ciò che vuole: tono, vincoli, parti importanti, desideri). Non saltarla mai.
 
 > Riassumi in una riga ciò che hai capito ("Procedo così: …") e **parti**. Da qui in poi **non chiedi più**,
 > salvo i 3 casi di STOP.
@@ -129,11 +157,12 @@ passare di lì. Passi:
   ri-esportalo comunque dall'app.
 - ⚠️ Se build/export si blocca o fallisce → **STOP caso 2** (spiega, proponi).
 
-## 2.2 — Pacchetto SEO
-Con `reference/house-style.md` + `reference/algorithm-playbook.md`: **titoli** (scegli il ⭐ migliore se
-delegato, **complementare alla copertina**), **descrizione** (prime 2 righe gancio+keyword, corpo, ponte
-community, **capitoli da tempi reali** primo `00:00`, blocchi **LINK/HASHTAG verbatim**), **tag**. Formato
-`reference/youtube-pack-contract.md`. (Privacy: niente nomi, 3ª persona.)
+## 2.2 — Pacchetto SEO (FINALIZZA le bozze approvate nell'intervista)
+Parti dalle **bozze già approvate** (titolo, descrizione, hook). **Finalizza la descrizione**: inserisci
+l'**INDICE/Capitoli coi TEMPI REALI del video montato** (primo `00:00`) **alla fine, subito prima del blocco
+HASHTAG** — così YouTube divide il video in capitoli; conferma i blocchi **LINK/HASHTAG verbatim**
+(`reference/house-style.md`) e i **tag**. Formato `reference/youtube-pack-contract.md`. (Privacy: niente nomi,
+3ª persona.)
 
 ## 2.3 — Copertina (la fa GPT)
 Scegli la **foto** dal DB (`reference/cover-images.md`; consulti = seria) e prepara il **prompt completo** per

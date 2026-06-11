@@ -73,8 +73,9 @@ Esempi reali: `È tornato per proteggerla` · `Nell'aldilà, insieme di nuovo` �
 ## 3. DESCRIZIONE (template per tipo)
 
 Regole comuni: le **prime 2 righe** = **gancio + keyword** (compaiono prima del "Mostra altro" e nelle
-anteprime). Capitoli **solo se** i timestamp sono reali (vedi youtube-pack-contract). Chiudi **sempre**
-con il blocco LINK e poi il blocco HASHTAG del tipo giusto.
+anteprime). In youtube-ai l'**INDICE / Capitoli** è **SEMPRE presente** (tempi reali dal video montato) e va
+messo **ALLA FINE, subito prima degli HASHTAG** (così YouTube divide il video in capitoli). Ordine di
+chiusura **fisso**: **blocco LINK → 📌 Indice/Capitoli (primo `00:00`) → blocco HASHTAG**.
 
 ### A) Consulto
 ```
@@ -88,10 +89,11 @@ attesa per un consulto sono ormai diventati improponibili. Proprio per questo ho
 Oltre il Velo, uno spazio dove continuare questo cammino insieme. Trovi tutte le informazioni qui:
 https://www.elisasoulmedium.com/consulto
 
-📌 Capitoli            <!-- SOLO se ci sono timestamp reali; il primo DEVE essere 00:00 -->
+<BLOCCO LINK — Consulto>
+
+📌 Indice / Capitoli            <!-- SEMPRE (tempi reali del video montato); il primo DEVE essere 00:00 -->
 00:00 <…>
 
-<BLOCCO LINK — Consulto>
 <BLOCCO HASHTAG — Consulto>
 ```
 
@@ -107,15 +109,16 @@ Questo video è un estratto di una diretta della community Oltre il Velo. La reg
 più di due ore: se vuoi vederla tutta e far parte di questo cammino, puoi entrare nella community da qui:
 www.elisasoulmedium.com/oltreilvelo
 
-📌 Capitoli            <!-- se disponibili -->
+<BLOCCO LINK — Community>
+
+📌 Indice / Capitoli            <!-- SEMPRE; il primo DEVE essere 00:00 -->
 00:00 <…>
 
-<BLOCCO LINK — Community>
 <BLOCCO HASHTAG — Community>
 ```
 
 ### C) Generico — stesso scheletro: 2 righe gancio+keyword → corpo riassunto → (ponte soft opzionale) →
-capitoli se reali → BLOCCO LINK (scegli il più adatto) → BLOCCO HASHTAG.
+BLOCCO LINK (scegli il più adatto) → 📌 Indice/Capitoli (SEMPRE, primo `00:00`) → BLOCCO HASHTAG.
 
 ---
 
@@ -150,6 +153,6 @@ Sostituisci gli hashtag 2-5 per adattarli allo specifico video; lascia `#ElisaSo
 - [ ] Consulto: 3ª persona, nessun cognome.
 - [ ] Prime 2 righe descrizione = gancio + keyword.
 - [ ] Ponte community corretto per tipo, con il link giusto.
-- [ ] Capitoli solo se timestamp reali; primo `00:00`.
+- [ ] **Indice/Capitoli SEMPRE presente**, alla fine **subito prima degli #**; primo `00:00`.
 - [ ] Blocco LINK + blocco HASHTAG del tipo giusto, verbatim.
 - [ ] Titolo copertina ≤5 parole, curiosità.

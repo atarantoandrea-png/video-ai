@@ -35,10 +35,11 @@ così Andrea (o la Fase upload) può copiarlo dall'alto verso il basso dentro Yo
 
 <ponte/blocco del tipo: community bridge / libro citato>
 
-📌 Capitoli            <!-- solo se timestamp reali -->
+<BLOCCO LINK canonico del tipo>
+
+📌 Indice / Capitoli            <!-- SEMPRE in youtube-ai (tempi reali del video montato); il primo DEVE essere 00:00 -->
 00:00 <…>
 
-<BLOCCO LINK canonico del tipo>
 <BLOCCO HASHTAG canonico del tipo>
 
 ## Tag / keyword (campo "Tag" di Studio, separati da virgola)
@@ -47,9 +48,9 @@ così Andrea (o la Fase upload) può copiarlo dall'alto verso il basso dentro Yo
 ## Hashtag (i primi 3 compaiono sopra il titolo)
 #Tag1 #Tag2 #Tag3 #Tag4 #Tag5
 
-## Capitoli / timestamp
-# Solo se i tempi sono REALI (dal brief/carosello). Il primo DEVE essere 00:00.
-# Se non disponibili: "— (nessun capitolo: timestamp non disponibili)"
+## Capitoli / timestamp (INDICE — SEMPRE, dentro la descrizione subito prima degli #)
+# In youtube-ai i tempi sono SEMPRE reali (trascrizione + video montato) → l'indice è SEMPRE presente,
+# alla FINE della descrizione, subito prima del blocco HASHTAG. Il primo DEVE essere 00:00.
 
 ## Sottotitoli (tracce generate)
 - it (originale): <percorso file .srt>
