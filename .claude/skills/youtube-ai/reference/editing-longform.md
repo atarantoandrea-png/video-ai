@@ -81,8 +81,14 @@ L'editing si fa **leggendo il testo**: decidi keep/drop dalla trascrizione e tra
   spesso dovuto. **Chiedi sempre conferma** prima di sfocare una persona.
 - **`add_transition` / `set_fade`**: dissolvenza breve ai salti tra range lontani o ai cambi di capitolo.
 - **`mute_clip`**: silenzia un tratto (audio sporco) tenendo il video.
-- **Non esagerare**: transizioni/zoom/whoosh continui stancano; b-roll in eccesso distrae. **Nessun
-  color-filter/LUT**: l'app NON ha questo strumento (color a mano, a parte).
+- **`set_look` / `set_filter` (COLORE)**: Video AI **HA i filtri colore** (stile CapCut/Canva), validi in
+  anteprima **ED export**. `set_look` = **filtro con nome** one-click (`cinema`, `warm`/`cool`, `bw`, `noir`,
+  `teal`, `gold`, `moody`, `vintage`, `film`…; `intensity` 0..1) per dare un'atmosfera coerente a tutto il
+  video; `set_filter` = **ritocco fine** di un parametro (brightness/contrast/saturation/hue/sepia/grayscale/
+  sharpen/vignette/grain). Per i **consulti**: look sobrio e caldo (es. `cinema` o `moody` a bassa intensità)
+  che scalda la scena senza tradire il tono intimo.
+- **Non esagerare**: transizioni/zoom/whoosh continui stancano; b-roll in eccesso distrae; un colore troppo
+  spinto invecchia male. Mano leggera — il colore serve l'atmosfera, non se stesso.
 
 ## 6. Errori comuni
 Over-editing (parlato a scatti) · jump cut scoperti · hook debole o sepolto · hook che non mantiene la
@@ -104,15 +110,16 @@ elemento: `{ "tool": "<nome>", "input": { … } }`.
    `sourceOut` in **secondi**), nell'ordine finale. **I tagli sono i buchi** tra un `sourceOut` e il
    `sourceIn` successivo.
 3. (Opz.) dopo un segmento: `blur_person` / `set_speed` / `add_transition` / `set_fade` / `mute_clip` /
-   `trim_clip` con `clipId:"@last"`.
+   `trim_clip` / **`set_look`** / **`set_filter`** (COLORE) con `clipId:"@last"`.
 4. **`finish`** come ultimo elemento.
 
 Scorciatoie: `sourceFile` (anche parziale) al posto di `sourceId`; `clipId:"@last"` = ultimo `add_segment`,
 `@N` = l'N-esimo. Tool e input ESATTI: vedi `../reel-ai2/reference/plan-format.md`.
 
 **Regole:** `set_format 16:9` per primo; **mai `reframe_vertical`**; pochi range lunghi e coerenti > tanti
-micro-tagli; bordi puliti; **niente timecode inventati** (tutti dalla trascrizione); niente captions/colore;
-blur solo dopo conferma; chiudi con `finish`.
+micro-tagli; bordi puliti; **niente timecode inventati** (tutti dalla trascrizione); **niente captions** (il
+testo lo mette l'utente dopo); **colore** con `set_look`/`set_filter` solo se serve, mano leggera; blur solo
+dopo conferma; chiudi con `finish`.
 
 ### Esempio — long-form 16:9 (riduzione podcast/consulto, pochi range tenuti)
 ```json

@@ -5,11 +5,13 @@ import { mediaUrl } from '@shared/media'
 import type {
   AspectPreset,
   CropRect,
+  EffectType,
   MediaClip,
   Source,
   TextStyle,
   TransitionPreset
 } from '@shared/projectSchema'
+import { LOOKS } from '@shared/looks'
 
 /**
  * The tool surface the in-app AI drives to build a reel. Each handler reads/writes the
@@ -185,6 +187,26 @@ export const TOOLS: Anthropic.Tool[] = [
       type: 'object',
       properties: { clipId: { type: 'string' }, edge: { type: 'string', enum: ['start', 'end'] }, deltaSec: { type: 'number' } },
       required: ['clipId', 'edge', 'deltaSec']
+    }
+  },
+  {
+    name: 'set_look',
+    description:
+      "Applica un FILTRO colore con nome alla clip (look one-click stile CapCut/Canva; vale in anteprima ED export). look: none | vivid (Vivido) | cinema (Cinema) | warm (Caldo) | cool (Freddo) | bw (Bianco e nero) | noir | vintage | fade (Sbiadito) | punch | pastel (Pastello) | sunset (Tramonto) | teal (Teal & Orange) | dreamy (Sognante) | mono-blue (Blu notte) | matte | film | gold (Golden hour) | moody | cyber | autumn (Autunno) | frost | crisp (Nitido). intensity 0..1 (default 1). È il modo consigliato per dare un colore d'insieme.",
+    input_schema: {
+      type: 'object',
+      properties: { clipId: { type: 'string' }, look: { type: 'string' }, intensity: { type: 'number' } },
+      required: ['clipId', 'look']
+    }
+  },
+  {
+    name: 'set_filter',
+    description:
+      "Regolazione FINE di un singolo parametro colore della clip (si somma al look; vale in anteprima ED export). type: brightness|contrast|saturation (value = delta: 0 invariato, +0.2 = +20%, range ~ -1..1) · hue (value = gradi, -180..180) · sepia|grayscale|invert|sharpen|vignette|grain (value 0..1). Per un colore d'insieme usa set_look.",
+    input_schema: {
+      type: 'object',
+      properties: { clipId: { type: 'string' }, type: { type: 'string' }, value: { type: 'number' } },
+      required: ['clipId', 'type', 'value']
     }
   },
   {
@@ -604,6 +626,33 @@ export async function runTool(name: string, input: Record<string, unknown>, ctx:
       if (edge !== 'start' && edge !== 'end') return { error: "edge deve essere 'start' o 'end'" }
       ed.trimClip(clipId, edge, asNumber(input.deltaSec, 'deltaSec'))
       return { ok: true }
+    }
+
+    case 'set_look': {
+      const clipId = asString(input.clipId, 'clipId')
+      const look = asString(input.look, 'look').toLowerCase()
+      if (!LOOKS.some((l) => l.id === look))
+        return { error: `look "${look}" sconosciuto. Validi: ${LOOKS.map((l) => l.id).join(', ')}` }
+      const loc = locateClip(useEditor.getState().project, clipId)
+      if (!loc || loc.clip.kind !== 'media') return { error: 'clip non trovata' }
+      const intensity = typeof input.intensity === 'number' ? clamp(input.intensity as number, 0, 1) : 1
+      ed.setLook(clipId, look === 'none' ? null : look, intensity)
+      return { ok: true, look, intensity }
+    }
+
+    case 'set_filter': {
+      const clipId = asString(input.clipId, 'clipId')
+      const type = asString(input.type, 'type').toLowerCase() as EffectType
+      const allowed: EffectType[] = [
+        'brightness', 'contrast', 'saturation', 'hue', 'sepia', 'grayscale', 'invert', 'sharpen', 'vignette', 'grain'
+      ]
+      if (!allowed.includes(type)) return { error: `type "${type}" non valido. Validi: ${allowed.join(', ')}` }
+      const loc = locateClip(useEditor.getState().project, clipId)
+      if (!loc || loc.clip.kind !== 'media') return { error: 'clip non trovata' }
+      const raw = asNumber(input.value, 'value')
+      const value = type === 'hue' ? clamp(raw, -180, 180) : clamp(raw, -1, 1)
+      ed.addEffect(clipId, type, { value })
+      return { ok: true, type, value }
     }
 
     case 'ask_user': {
