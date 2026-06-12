@@ -75,9 +75,13 @@ Arco ricucito: **HOOK (la macchina)** → **CONTESTO (nessuno ci credeva)** → 
 4. [Shock] "Ho rischiato tutto quello che avevo. Davvero tutto."
 5. [Clickbait generico] "Da dormire in auto a fondare un'azienda — guarda fino alla fine."
 
-## Descrizione SEO
+## Descrizione (post)
 Ecco cosa succede quando non molli: ho rischiato tutto e ho trasformato la macchina in cui dormivo nel logo della mia azienda. Il mio percorso, senza filtri.
 hashtag: #imprenditoria #startup #motivazione #nonmollare #mindset
+
+## Primo commento
+Quello che nessuno ti dice è che il "fondo" non è la fine: è il punto da cui finalmente costruisci. Se anche tu sei nel tuo periodo "in macchina", scrivimelo qui sotto.
+# (Per i reel di Elisa, qui va una riflessione libera + il ponte al libro «La Vita Oltre il Velo» — vedi hooks-seo.md)
 ````
 
 ## Perché funziona (per autovalutarti)

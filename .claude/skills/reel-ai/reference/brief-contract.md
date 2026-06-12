@@ -66,9 +66,12 @@ Questo è il **formato esatto** dell'output della skill e l'**input** dell'AI in
 4. [Shock] "<hook>"
 5. [Clickbait generico] "<hook>"
 
-## Descrizione SEO           # breve (2-4 righe), keyword CONGRUE, no stuffing — vedi hooks-seo.md
-<es. "Ecco cosa succede quando... il mio punto di vista come medium. ...">
+## Descrizione (post)        # riflessione CON keyword, breve e profonda — dal "cervello" di Elisa (vedi hooks-seo.md)
+<es. "Ecco cosa succede quando... il mio punto di vista come medium. ..." — keyword congrue, no stuffing>
 hashtag: #ElisaSoulMedium #medium #aldilà #lutto #spiritualità    # 4-8, i primi branded
+
+## Primo commento            # riflessione LIBERA (no keyword) + ponte al libro
+<riflessione profonda nella voce di Elisa, poi: il libro «La Vita Oltre il Velo» (tra i più richiesti in ambito spirituale in Italia) — link in bio sotto la foto profilo o storie in evidenza. Stile Elisa, curiosità + autorevolezza senza esagerare.>
 ````
 
 ## Note sui campi dei segmenti
