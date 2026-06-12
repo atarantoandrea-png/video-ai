@@ -1,7 +1,7 @@
 # hooks-seo.md — 5 HOOK (5 angoli) + 2 riflessioni (descrizione + primo commento)
 
 Riferimento per il **copy del POST** del reel: **5 hook** (5 angoli) + **2 riflessioni profonde** (la
-descrizione e il primo commento col libro). È il testo del **post**, **NON** il testo a schermo nel video.
+descrizione e il primo commento). È il testo del **post**, **NON** il testo a schermo nel video.
 
 Tono: **caldo, profondo, rispettoso, mai sensazionalismo cheap**. Sempre in **italiano**.
 **Privacy consulti:** mai cognomi né nomi della persona assistita; 3ª persona.
@@ -33,7 +33,7 @@ sotto sono solo lo stile).
 4. **Shock** — spiazza, sorprende, quasi provocatoria (ma con rispetto).
    *Es: «Ha detto: "Ho visto tutto da fuori." Era già andata prima dell'ambulanza.»*
 5. **Clickbait generico** — gancio social classico ad ampio raggio (funziona sempre, meno specifico).
-   *Es: «Guarda fino alla fine: questo cambierà come vedi la morte. 🤍»*
+   *Es: «Guarda fino alla fine: questo cambierà come vedi la morte. 💓»*
 
 **Regole:** uno per riga, numerati con l'etichetta; voce del brand; niente spoiler totale (tranne lo
 strappalacrime); **emoji tipiche di Elisa** (💓 o 🙏🏻), max 1, sobria.
@@ -49,7 +49,7 @@ intessute con naturalezza (per la SEO/ricerca) — **mai keyword-stuffing**.
 frasi di riflessione vera → **hashtag**.
 
 *Es: «Ecco cosa succede quando una mamma continua a cercare sua figlia: l'amore non si interrompe con la
-morte, cambia solo forma. Il mio punto di vista come medium su lutto, segni e ciò che resta dall'aldilà. 🤍»*
+morte, cambia solo forma. Il mio punto di vista come medium su lutto, segni e ciò che resta dall'aldilà. 💓»*
 
 **Keyword — SOLO le congrue al video (3-5), non tutte:** `lutto · medianità · medium · aldilà · spiritualità ·
 anima · segni dei defunti · comunicazione con i defunti · karma · guarigione · pace`. Intessile naturali nel
@@ -58,24 +58,30 @@ testo e/o negli **hashtag** (4-8, i primi branded: `#ElisaSoulMedium #medium #al
 
 ---
 
-## RIFLESSIONE 2 — il PRIMO COMMENTO: LIBERA (niente keyword) + il libro
+## RIFLESSIONE 2 — il PRIMO COMMENTO: il MESSAGGIO è il cuore (il libro viene dopo, piccolo)
 
-Una riflessione **più libera e intima** (3-5 righe), **senza** forzare keyword (è il primo commento, non
-serve SEO): un pensiero **profondo** sul tema del reel, nella voce di Elisa — qualcosa che faccia fermare e
-sentire. **Poi**, con eleganza, il **ponte al libro**.
+⚠️ **Qui il focus è la RIFLESSIONE, non il libro.** Il libro c'è — ma **alla fine, piccolo, come invito**.
+Il valore del commento è il **messaggio**: profondo, vero, utile.
 
-**Il ponte al libro (scrivilo BENE, stile Elisa — crea curiosità + autorevolezza senza esagerare):**
-metti il libro **«La Vita Oltre il Velo»** come **invito** per chi vuole andare più a fondo, non come
-pubblicità. Esempio del *senso* (riformulalo ogni volta, non copiarlo a memoria):
+- **Lunghezza LIBERA — quanto serve il tema.** Adatta alla **profondità dell'argomento**: può essere breve, o
+  **anche molto lungo** (più paragrafi) se il tema lo merita. **Non comprimere** una riflessione importante in
+  due righe; se merita, **sviluppala**.
+- **Contenuto profondo, dalla conoscenza di Elisa.** Attingi alla sua **knowledge base** (`cerca_conoscenza`,
+  `voce_di_elisa`) per portare **visioni e informazioni vere** di Elisa (sul lutto, l'anima, i segni, il
+  karma, il passaggio…), purché **coerenti** col reel e **profonde** — mai riempitivo. Dai davvero qualcosa
+  a chi legge.
+- **SEMPRE radica nella VITA QUOTIDIANA (quando si può).** Non restare astratto: porta la riflessione
+  **nel quotidiano** — cosa significa in pratica, un esempio concreto, come viverlo/riconoscerlo **oggi**, nei
+  piccoli gesti. È questo che la rende utile e fa sentire vicini.
+- **Niente keyword forzate** (è il primo commento, non serve SEO): conta la verità del pensiero.
+- **Tono ed emoji di Elisa** (caldo, materno, 2ª persona; 💓 / 🙏🏻 con parsimonia).
 
-> «Se senti che dentro di te c'è il bisogno di andare oltre — di capire davvero cosa resta quando una persona
-> se ne va — ho racchiuso tutto questo nel mio libro **«La Vita Oltre il Velo»**, oggi tra i più richiesti in
-> ambito spirituale in Italia. Lo trovi nel **link in bio**, sotto la mia foto profilo, o nelle **storie in
-> evidenza**. 🤍»
+**Solo ALLA FINE, il ponte al libro — una riga discreta, mai venditore** (riformulalo ogni volta):
 
-**Regole del ponte-libro:**
-- **Naturale, mai da venditore.** L'autorevolezza la dà il *«tra i più richiesti in ambito spirituale in
-  Italia»* detto **con misura** (una volta, senza enfasi gridata).
-- **Una sola call**: link in bio (sotto la foto profilo) **o** storie in evidenza.
-- Il libro è un **invito a chi vuole approfondire**, non lo scopo del post.
-- **Curiosità sì, esagerazione no.** Sempre **stile Elisa**: caldo, sobrio, rispettoso del tema.
+> «…Se senti il bisogno di andare ancora più a fondo in questi temi, ho racchiuso tutto questo nel mio libro
+> **«La Vita Oltre il Velo»**, tra i più richiesti in ambito spirituale in Italia: lo trovi nel **link in
+> bio**, sotto la mia foto profilo, o nelle **storie in evidenza**. 💓»
+
+**Regole del libro:** **secondario** rispetto al messaggio; **una sola** riga finale; **una sola call** (link
+in bio **o** storie); l'autorevolezza (*«tra i più richiesti…»*) detta **con misura**, una volta; è un
+**invito** a chi vuole approfondire, non lo scopo del commento.

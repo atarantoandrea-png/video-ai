@@ -70,8 +70,8 @@ Questo è il **formato esatto** dell'output della skill e l'**input** dell'AI in
 <es. "Ecco cosa succede quando... il mio punto di vista come medium. ..." — keyword congrue, no stuffing>
 hashtag: #ElisaSoulMedium #medium #aldilà #lutto #spiritualità    # 4-8, i primi branded
 
-## Primo commento            # riflessione LIBERA (no keyword) + ponte al libro
-<riflessione profonda nella voce di Elisa, poi: il libro «La Vita Oltre il Velo» (tra i più richiesti in ambito spirituale in Italia) — link in bio sotto la foto profilo o storie in evidenza. Stile Elisa, curiosità + autorevolezza senza esagerare.>
+## Primo commento            # il MESSAGGIO è il focus: lunghezza LIBERA (anche lunga), dalla conoscenza di Elisa, radicato nel QUOTIDIANO — vedi hooks-seo.md
+<riflessione profonda e UTILE nella voce di Elisa, sviluppata quanto serve il tema, portata nella vita di tutti i giorni; SOLO alla fine, piccolo, il ponte al libro «La Vita Oltre il Velo» (link in bio/storie). Il libro è secondario, mai venditore.>
 ````
 
 ## Note sui campi dei segmenti
