@@ -33,18 +33,25 @@ con calma.
    presente → STOP e chiedi.
 4. **YouTube Pack presente?** Conferma di avere: titolo scelto, descrizione SEO completa (capitoli
    inclusi), tag, playlist, lingua, categoria. Se manca qualcosa, chiedi.
-5. **File video accessibile.** Il video è quello **condiviso in `/reel-ai`** → dovrebbe essere accessibile
-   alla sessione. (Se `file_upload` lo rifiuta perché non condiviso → fallback: *"Trascina tu il file
-   nella finestra di upload di YouTube; ti dico quando è aperta."*)
+5. **File video accessibile.** Il video è il **file esportato** (passo 2.1, es. in `~/Downloads`): **basta
+   che esista** — lo selezioni dal **picker nativo** in Fase 1 (computer-use), **non serve condividerlo** con
+   la sessione. Annota il **percorso completo** del file.
 - ✅ Checkpoint: `screenshot` di studio.youtube.com col canale corretto.
 
 ### Fase 1 — Avvia il caricamento
 - `find "Crea / Create (icona camera+ in alto a destra)"` → click. `find "Carica video / Upload videos"`
   → click.
-- **Selezione file (compatibile con l'estensione):** NON cliccare "Seleziona file" (apre il picker nativo
-  che l'estensione non vede). Invece: `read_page filter:"interactive"` / `find "file input"` → individua
-  il `<input type=file>` (ref) → `mcp__claude-in-chrome__file_upload { paths:[<video>], ref, tabId }`.
-  Se rifiutato → chiedi ad Andrea di trascinare il file nella finestra aperta.
+- **Selezione file — clicca «Seleziona file» e pilota il PICKER NATIVO con computer-use** (così carichi
+  QUALSIASI file, di **qualunque dimensione**, da solo). Perché: l'`file_upload` dell'estensione accetta
+  **solo file condivisi con la sessione**, quindi il grosso video esportato (da Downloads) verrebbe rifiutato
+  e finiresti a chiedere il trascinamento. Invece:
+  1. clicca **«Seleziona file»** → si apre la **finestra file di macOS**;
+  2. passa a **`mcp__computer-use__*`**: `key Cmd+Shift+G` (Vai alla cartella) → `type` il **percorso
+     completo** del video esportato (es. `~/Downloads/…mp4`) → `key Return` → `key Return` (Apri). Parte.
+  - *(Se la finestra file non è ancora concessa al computer-use, fai prima `request_access` per essa.)*
+  - **Alternativa** (solo se il file è già condiviso con la sessione): `find "file input"` →
+    `mcp__claude-in-chrome__file_upload { paths:[<video>], ref, tabId }`.
+  - **Ultima spiaggia**: chiedi ad Andrea di trascinare il file nella finestra.
 - ✅ Checkpoint: `screenshot` + `find "barra di avanzamento / processing"`; conferma che si è aperta la
   finestra **Dettagli** con l'upload in corso (carica il **video completo**).
 
@@ -119,8 +126,10 @@ Per ogni campo: `find` per etichetta/ruolo → `form_input` (testo/select) o cli
 ### Fase 7 — Riapri la bozza + imposta la copertina
 1. `navigate` alla URL di modifica salvata (o Studio → **Contenuti** → clicca il video → **Dettagli**).
 2. Nella sezione **Anteprima/Thumbnail**: `find "Carica file / Upload thumbnail"` → individua l'input file
-   → `file_upload { paths:[<copertina>], ref, tabId }`. (Se il percorso è rifiutato → chiedi ad Andrea di
-   trascinare l'immagine nello slot.) La copertina personalizzata richiede canale verificato (Elisa lo è).
+   → preferisci **«Carica file» + picker nativo via computer-use** (`Cmd+Shift+G` → percorso → Apri, come in
+   Fase 1); altrimenti `file_upload { paths:[<copertina>], ref, tabId }` (solo se condiviso con la sessione).
+   Ultima spiaggia: chiedi ad Andrea di trascinare l'immagine nello slot. La copertina personalizzata
+   richiede canale verificato (Elisa lo è).
 3. ✅ Verifica: `screenshot` + conferma che l'anteprima mostri la **copertina personalizzata** scelta
    (non un frame auto). `find "Salva"` se ci sono modifiche non salvate. Echo: *"Copertina impostata ✅"*.
 
@@ -145,7 +154,7 @@ Per ogni campo: `find` per etichetta/ruolo → `form_input` (testo/select) o cli
 | Pagina di login / scelta account | Non loggato / sessione scaduta | **STOP**, non inserire credenziali, chiedi ad Andrea di loggarsi |
 | 2FA / CAPTCHA / banner consenso | Verifica di sicurezza | **STOP**, riporta verbatim, chiedi (mai risolvere CAPTCHA / accettare consensi) |
 | `list_connected_browsers` vuoto | Estensione non connessa | Chiedi di installare/abilitare l'estensione Claude per Chrome |
-| `file_upload` "path rejected" | File non condiviso con la sessione | Chiedi di condividere/trascinare il file nella finestra |
+| `file_upload` "path rejected" | File non condiviso con la sessione | Usa **«Seleziona/Carica file» + picker nativo (computer-use)**: `Cmd+Shift+G` → percorso completo → Apri (carica qualsiasi file, ogni dimensione). Trascinare = ultima spiaggia. |
 | Tab "Monetizzazione" assente / "non idoneo" | Canale/video non in YPP o non idoneo | **STOP**, avvisa (annunci obbligatori) |
 | Studio in inglese vs italiano | Lingua account | `find` per ruolo/etichetta in **entrambe** le lingue |
 | Pulsante Pubblica/Programma disabilitato | "Pubblico/Bambini" non impostato o controlli in corso | Imposta audience; attendi la fine dei controlli |
