@@ -10,6 +10,11 @@ Tono: **caldo, profondo, rispettoso, mai sensazionalismo cheap**. Sempre in **it
 > di Elisa**: se disponibile, usa la sua knowledge base via MCP — **`cerca_conoscenza`**, **`voce_di_elisa`**,
 > **`faq_di_elisa`** — per riprendere il suo modo reale di vedere lutto, anima, aldilà, segni, karma,
 > spiritualità. Deve suonare **come Elisa**: vera, delicata, profonda — non motivazionale-generica.
+>
+> **Tono di Elisa:** **caldo, materno, in 2ª persona, esperienziale**; mai sensazionalismo cheap. (Se c'è
+> anche la skill `/carosello`, è la stessa voce: `reference/knowledge-map.md` → `_voce-e-stile.md`.)
+> **Emoji tipiche di Elisa:** **💓** e **🙏🏻** (e 🤍 se calza) — **una sola**, sobria, di norma a fine frase.
+> **Niente raffiche di emoji**, niente emoji "da social" fuori dal suo stile.
 
 ---
 
@@ -31,7 +36,7 @@ sotto sono solo lo stile).
    *Es: «Guarda fino alla fine: questo cambierà come vedi la morte. 🤍»*
 
 **Regole:** uno per riga, numerati con l'etichetta; voce del brand; niente spoiler totale (tranne lo
-strappalacrime); **emoji con parsimonia** (max 1, sobria).
+strappalacrime); **emoji tipiche di Elisa** (💓 o 🙏🏻), max 1, sobria.
 
 ---
 
