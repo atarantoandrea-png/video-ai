@@ -7,6 +7,7 @@ import { Inspector } from './components/Inspector'
 import { Timeline } from './components/Timeline'
 import { ExportOverlay } from './components/ExportOverlay'
 import { ShortcutsPanel } from './components/ShortcutsPanel'
+import { McpBridge } from './McpBridge'
 import { timelineDuration } from '@shared/projectSchema'
 import './styles/layout.css'
 
@@ -31,6 +32,7 @@ export default function App(): JSX.Element {
       <Timeline />
       <ExportOverlay />
       <ShortcutsPanel />
+      <McpBridge />
     </div>
   )
 }

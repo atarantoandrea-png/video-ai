@@ -127,6 +127,21 @@ const api = {
     const listener = (_e: unknown, s: UpdateStatus): void => cb(s)
     ipcRenderer.on('update:status', listener)
     return () => ipcRenderer.removeListener('update:status', listener)
+  },
+
+  // ---- MCP bridge (Video AI local HTTP server on port 7842) ----
+  onMcpRunPlan: (cb: (d: { reqId: string; plan: string }) => void): (() => void) => {
+    const listener = (_e: unknown, d: { reqId: string; plan: string }): void => cb(d)
+    ipcRenderer.on('mcp:run-plan', listener)
+    return () => ipcRenderer.removeListener('mcp:run-plan', listener)
+  },
+  onMcpGetState: (cb: (d: { reqId: string }) => void): (() => void) => {
+    const listener = (_e: unknown, d: { reqId: string }): void => cb(d)
+    ipcRenderer.on('mcp:get-state', listener)
+    return () => ipcRenderer.removeListener('mcp:get-state', listener)
+  },
+  sendMcpResult: (channel: string, data: unknown): void => {
+    if (channel.startsWith('mcp:')) ipcRenderer.send(channel, data)
   }
 }
 

@@ -14,6 +14,13 @@ files:
   - out/**/*
   - package.json
 
+# Bundle the MCP bridge script and skills so setup.ts can install them on first launch.
+extraResources:
+  - from: "resources/mcp-bridge.cjs"
+    to: "mcp-bridge.cjs"
+  - from: ".claude/skills"
+    to: "skills"
+
 # ---- macOS (.dmg, Apple Silicon + Intel) ----
 mac:
   category: public.app-category.video

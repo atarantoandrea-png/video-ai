@@ -3,6 +3,8 @@ import { join } from 'path'
 import { registerIpc } from './ipc'
 import { registerMediaProtocol, registerMediaSchemePrivileges } from './mediaProtocol'
 import { registerUpdater } from './services/updater'
+import { registerHttpServer } from './httpServer'
+import { runSetup } from './setup'
 
 // Enable the platform (hardware) HEVC decoder so HEVC/H.265 videos (iPhone,
 // screen recordings) play in the <video> preview. Must be set before ready.
@@ -44,6 +46,8 @@ app.whenReady().then(() => {
   registerMediaProtocol()
   registerIpc()
   registerUpdater()
+  registerHttpServer()
+  runSetup()
 
   createWindow()
 
