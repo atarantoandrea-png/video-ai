@@ -540,19 +540,62 @@ export function buildFfmpegArgs(project: Project, opts: ExportOptions): string[]
     }
   }
 
-  // ---- MP3: audio-only export, skip video pipeline entirely ----
+  // ---- MP3: audio-only export — build a clean audio pipeline, no video filters ----
   if (opts.format === 'mp3') {
+    const mp3Inputs: { path: string; pre: string[] }[] = []
+    const mp3IdxMap = new Map<string, number>()
+    const addMp3Input = (clipId: string, path: string, pre: string[]): number => {
+      const existing = mp3IdxMap.get(clipId)
+      if (existing !== undefined) return existing
+      const idx = mp3Inputs.length
+      mp3Inputs.push({ path, pre })
+      mp3IdxMap.set(clipId, idx)
+      return idx
+    }
+    const mp3Filters: string[] = []
+    let mp3Label: string | null = null
+    if (audioClips.length > 0) {
+      audioClips.forEach((rc, i) => {
+        const { clip, source } = rc
+        // -vn: skip embedded video streams (e.g. cover-art in MP3 files)
+        const idx = addMp3Input(clip.id, source.path, ['-vn', ...seekPre(clip.sourceIn)])
+        const delayMs = Math.max(0, Math.round(clip.timelineStart * 1000))
+        const aSpeed = clip.speed && clip.speed > 0 ? clip.speed : 1
+        const aChain = [
+          `[${idx}:a]atrim=start=${sec(clip.sourceIn)}:end=${sec(clip.sourceOut)}`,
+          ...(clip.reverse ? ['areverse'] : []),
+          `asetpts=PTS-STARTPTS`,
+          ...(aSpeed !== 1 ? atempoChain(aSpeed) : []),
+          ...(clip.denoise ? ['afftdn=nr=12:nf=-25'] : []),
+          `volume=${clip.volume.toFixed(3)}`
+        ]
+        if (clip.fadeInSec > 0) aChain.push(`afade=t=in:st=0:d=${sec(clip.fadeInSec)}`)
+        if (clip.fadeOutSec > 0) {
+          const clipDur = clip.timelineEnd - clip.timelineStart
+          aChain.push(`afade=t=out:st=${sec(Math.max(0, clipDur - clip.fadeOutSec))}:d=${sec(clip.fadeOutSec)}`)
+        }
+        aChain.push(`adelay=${delayMs}|${delayMs}`)
+        mp3Filters.push(`${aChain.join(',')}[a${i}]`)
+      })
+      if (audioClips.length === 1) {
+        mp3Label = 'a0'
+      } else {
+        const ins = audioClips.map((_, i) => `[a${i}]`).join('')
+        mp3Filters.push(`${ins}amix=inputs=${audioClips.length}:normalize=0[aout]`)
+        mp3Label = 'aout'
+      }
+    }
     const mp3args: string[] = ['-y', '-hide_banner']
-    for (const inp of inputs) mp3args.push(...inp.pre, '-i', inp.path)
-    if (audioLabel) {
-      mp3args.push('-filter_complex', filters.join(';'))
-      mp3args.push('-map', `[${audioLabel}]`)
+    for (const inp of mp3Inputs) mp3args.push(...inp.pre, '-i', inp.path)
+    if (mp3Label) {
+      mp3args.push('-filter_complex', mp3Filters.join(';'))
+      mp3args.push('-map', `[${mp3Label}]`)
       const qVal = opts.quality === 'high' ? '2' : opts.quality === 'low' ? '7' : '4'
       mp3args.push('-c:a', 'libmp3lame', '-q:a', qVal, '-ar', '44100', '-t', sec(duration), opts.outPath)
     } else {
       // No audio in timeline — write a silent mp3
-      mp3args.push('-f', 'lavfi', '-i', `anullsrc=r=44100:cl=stereo`, '-t', sec(duration))
-      mp3args.push('-c:a', 'libmp3lame', '-q:a', '4', opts.outPath)
+      mp3args.push('-f', 'lavfi', '-i', `anullsrc=r=44100:cl=stereo`)
+      mp3args.push('-c:a', 'libmp3lame', '-q:a', '4', '-t', sec(duration), opts.outPath)
     }
     return mp3args
   }
