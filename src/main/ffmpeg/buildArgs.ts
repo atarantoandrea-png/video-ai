@@ -24,8 +24,8 @@ export interface ExportOptions {
   outputScale?: number
   /** Output frame rate override (defaults to the canvas fps). */
   fps?: number
-  /** Container/codec: mp4 (h264), mov (h264 in QuickTime), gif (palette). */
-  format?: 'mp4' | 'mov' | 'gif'
+  /** Container/codec: mp4 (h264), mov (h264 in QuickTime), gif (palette), mp3 (audio only). */
+  format?: 'mp4' | 'mov' | 'gif' | 'mp3'
   /** Quality preset → libx264 CRF (videoBitrate still drives videotoolbox). */
   quality?: 'low' | 'medium' | 'high'
 }
@@ -538,6 +538,23 @@ export function buildFfmpegArgs(project: Project, opts: ExportOptions): string[]
       filters.push(`${ins}amix=inputs=${audioClips.length}:normalize=0[aout]`)
       audioLabel = 'aout'
     }
+  }
+
+  // ---- MP3: audio-only export, skip video pipeline entirely ----
+  if (opts.format === 'mp3') {
+    const mp3args: string[] = ['-y', '-hide_banner']
+    for (const inp of inputs) mp3args.push(...inp.pre, '-i', inp.path)
+    if (audioLabel) {
+      mp3args.push('-filter_complex', filters.join(';'))
+      mp3args.push('-map', `[${audioLabel}]`)
+      const qVal = opts.quality === 'high' ? '2' : opts.quality === 'low' ? '7' : '4'
+      mp3args.push('-c:a', 'libmp3lame', '-q:a', qVal, '-ar', '44100', '-t', sec(duration), opts.outPath)
+    } else {
+      // No audio in timeline — write a silent mp3
+      mp3args.push('-f', 'lavfi', '-i', `anullsrc=r=44100:cl=stereo`, '-t', sec(duration))
+      mp3args.push('-c:a', 'libmp3lame', '-q:a', '4', opts.outPath)
+    }
+    return mp3args
   }
 
   // ---- Animated GIF: palette pipeline, no audio, no h264 codec ----

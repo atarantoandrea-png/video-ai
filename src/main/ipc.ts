@@ -176,10 +176,11 @@ export function registerIpc(): void {
 
   ipcMain.handle('export:start', async (e, project: Project, options: ExportRequestOptions) => {
     const win = BrowserWindow.fromWebContents(e.sender) ?? undefined
-    const ext = options.format === 'gif' ? 'gif' : options.format === 'mov' ? 'mov' : 'mp4'
+    const ext =
+      options.format === 'gif' ? 'gif' : options.format === 'mov' ? 'mov' : options.format === 'mp3' ? 'mp3' : 'mp4'
     const defaultName = `${(project.name || 'video').replace(/[^\w-]+/g, '_')}.${ext}`
     const saveOpts: Electron.SaveDialogOptions = {
-      title: 'Esporta video',
+      title: options.format === 'mp3' ? 'Esporta audio' : 'Esporta video',
       defaultPath: defaultName,
       filters: [{ name: ext.toUpperCase(), extensions: [ext] }]
     }
@@ -189,9 +190,12 @@ export function registerIpc(): void {
     if (save.canceled || !save.filePath) return { canceled: true }
 
     const caps = await probeCapabilities()
-    // GIF and MOV(h264) don't use the videotoolbox h264 path.
+    // GIF, MP3, and MOV(h264) don't use the videotoolbox h264 path.
     const useVideoToolbox =
-      options.format !== 'gif' && (options.useVideoToolbox ?? true) && caps.hasVideoToolboxH264
+      options.format !== 'gif' &&
+      options.format !== 'mp3' &&
+      (options.useVideoToolbox ?? true) &&
+      caps.hasVideoToolboxH264
 
     const job = new ExportJob(
       project,

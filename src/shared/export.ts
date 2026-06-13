@@ -21,7 +21,7 @@ export interface ExportRequestOptions {
   /** Output frame rate (defaults to project fps). */
   fps?: number
   /** Container/format. */
-  format?: 'mp4' | 'mov' | 'gif'
+  format?: 'mp4' | 'mov' | 'gif' | 'mp3'
   /** Quality preset. */
   quality?: 'low' | 'medium' | 'high'
 }
@@ -31,5 +31,5 @@ export interface ExportSettings {
   outputScale?: number
   fps?: number
   quality?: 'low' | 'medium' | 'high'
-  format?: 'mp4' | 'mov' | 'gif'
+  format?: 'mp4' | 'mov' | 'gif' | 'mp3'
 }

@@ -450,6 +450,45 @@ export class Compositor {
       }
     })
 
+    // ---- Audio tracks (music, SFX): sync playback without drawing ----
+    project.timeline.tracks.forEach((track) => {
+      if (track.type !== 'audio' || track.hidden || track.muted) return
+      for (const clip of track.clips) {
+        if (!isMediaClip(clip)) continue
+        const src = project.sources.find((x) => x.id === clip.sourceId)
+        if (!src || !src.hasAudio) continue
+        if (playhead < clip.timelineStart || playhead >= clip.timelineEnd) continue
+        active.add(src.id)
+        const m = this.ensureMedia(src)
+        if (!m.isVideo) continue
+        const vid = m.el as HTMLVideoElement
+        const into = rampedInto(clip, playhead)
+        const desired = Math.max(0, clip.sourceIn + into)
+        if (isPlaying && !clip.reverse) {
+          if (vid.paused) void vid.play().catch(() => undefined)
+          vid.playbackRate = Math.max(0.0625, Math.min(16, rampedRate(clip, playhead)))
+          const tIn = playhead - clip.timelineStart
+          const tEnd = clip.timelineEnd - playhead
+          let aFade = 1
+          if (clip.fadeInSec > 0 && tIn < clip.fadeInSec) aFade *= clamp01(tIn / clip.fadeInSec)
+          if (clip.fadeOutSec > 0 && tEnd < clip.fadeOutSec) aFade *= clamp01(tEnd / clip.fadeOutSec)
+          const vol = (clip.mutedAudio ? 0 : clip.volume) * aFade
+          if (m.gain) {
+            m.gain.gain.value = Math.max(0, Math.min(4, vol))
+            if (this.audioCtx?.state === 'suspended') void this.audioCtx.resume()
+          } else {
+            vid.volume = clamp01(vol)
+          }
+          if (!vid.seeking && Math.abs(vid.currentTime - desired) > DRIFT_TOLERANCE) {
+            vid.currentTime = desired
+          }
+        } else {
+          if (!vid.paused) vid.pause()
+          if (!vid.seeking && Math.abs(vid.currentTime - desired) > SEEK_EPS) vid.currentTime = desired
+        }
+      }
+    })
+
     for (const [sid, m] of this.media) {
       if (!active.has(sid) && m.isVideo) {
         const v = m.el as HTMLVideoElement
