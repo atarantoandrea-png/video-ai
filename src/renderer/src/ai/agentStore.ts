@@ -50,6 +50,7 @@ function stepLine(s: AgentStep): { text: string; error?: boolean } {
   const r = s.result as Record<string, unknown> | undefined
   if (s.tool === 'list_sources' && r && Array.isArray(r.sources)) extra = `${(r.sources as unknown[]).length} sorgenti`
   else if (s.tool === 'add_segment' && r && typeof r.durationSec === 'number') extra = `${round1(r.durationSec as number)}s`
+  else if (s.tool === 'set_post_meta' && r && Array.isArray(r.saved)) extra = `copy social salvata (${(r.saved as unknown[]).join(', ')})`
   return { text: `▶ ${s.tool}${arg}${extra ? ' — ' + extra : ''}` }
 }
 

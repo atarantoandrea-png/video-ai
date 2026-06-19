@@ -21,11 +21,11 @@ Rispondi **sempre in italiano**, messaggi brevi. Una domanda alla volta, solo ne
 ## Cosa fai, in sintesi
 
 1. **Chiedi il brief** (l'output di `/reel-ai`). È il tuo input di partenza.
-2. **Genera il PIANO**: traduci il brief in una lista JSON di tool-call (gli stessi 18 tool dell'AI in-app) seguendo il FLUSSO qui sotto. Il piano è deterministico: niente API, lo scrivi tu.
+2. **Genera il PIANO**: traduci il brief in una lista JSON di tool-call (gli stessi 19 tool dell'AI in-app) seguendo il FLUSSO qui sotto. Il piano è deterministico: niente API, lo scrivi tu.
 3. **Prendi il controllo del Mac** (computer-use): apri Video AI, importa il video, incolla il piano nel pannello **AI** e premi **«⚡ Costruisci GRATIS (senza crediti)»**. L'app esegue il piano col **suo** motore — face detection inclusa per il reframe — a costo zero.
 4. **Sorveglia e concludi**: guarda i passi scorrere, rispondi a eventuali domande (es. conferma blur), poi di' all'utente che può rivedere ed esportare.
 
-**Leggi `reference/plan-format.md` PRIMA di scrivere il piano** (formato esatto + i 18 tool + le scorciatoie `sourceFile`/`@last`). **Leggi `reference/computer-use.md` PRIMA di toccare il Mac** (la procedura passo-passo, robusta).
+**Leggi `reference/plan-format.md` PRIMA di scrivere il piano** (formato esatto + i 19 tool + le scorciatoie `sourceFile`/`@last`). **Leggi `reference/computer-use.md` PRIMA di toccare il Mac** (la procedura passo-passo, robusta).
 
 ## Fase 1 — Prendi il brief
 
@@ -52,7 +52,8 @@ Traduci il brief in una **lista JSON di tool-call**, esattamente nell'ordine del
    - **3+ persone** → metti `"center-face"` con `faceIndex` dello speaker, oppure lascia `"auto"` e segnalalo all'utente.
    - **MAI** `"fit-contain"` con persone.
 5. **PRIVACY/BLUR** — **solo** se il brief lo chiede, e **solo dopo aver chiesto conferma all'utente** (nella Fase 3, a voce). Nello stack si fa col parametro `blur` di `reframe_vertical` (`"bottom"`=persona destra/in basso, `"top"`=sinistra/in alto, `"both"`).
-6. `finish` con un riepilogo breve in italiano.
+6. **COPY SOCIAL** — se il brief contiene `## Descrizione (post)` e/o `## Primo commento` (con i 5 hook), aggiungi **un** `set_post_meta` (`description`, `hashtags`, `firstComment`, `hooks`) **subito prima** di `finish`. NON va sul video: si salva col progetto e l'utente lo rilegge/copia dalla scheda **«Social»** dell'app quando pubblica.
+7. `finish` con un riepilogo breve in italiano.
 
 **NIENTE testo a schermo** (niente `add_caption`/captions/titoli): il testo lo mette l'utente dopo, nell'app social. Non aggiungerli a meno che l'utente non lo chieda esplicitamente.
 
@@ -84,6 +85,6 @@ E se vuole **pubblicarlo su YouTube**, può lanciare **`/youtube-ai`**: prepara 
 
 ## File di riferimento (leggili quando servono)
 
-- **`reference/plan-format.md`** — il formato ESATTO del piano JSON, i 18 tool col loro schema, le scorciatoie `sourceFile`/`@last`, ed esempi completi. *Leggi prima della Fase 2.*
+- **`reference/plan-format.md`** — il formato ESATTO del piano JSON, i 19 tool col loro schema, le scorciatoie `sourceFile`/`@last`, ed esempi completi. *Leggi prima della Fase 2.*
 - **`reference/computer-use.md`** — la procedura passo-passo per pilotare il Mac in sicurezza (apri app, importa video, incolla piano, premi GRATIS, gestisci le domande). *Leggi prima della Fase 3.*
 - Per capire il brief in ingresso, vale il contratto di `/reel-ai`: `~/.claude/skills/reel-ai/reference/brief-contract.md`.

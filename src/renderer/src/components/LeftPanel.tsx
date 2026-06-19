@@ -7,10 +7,11 @@ import { mediaUrl } from '@shared/media'
 import { formatClock } from '../util/format'
 import { AiPanel } from './AiPanel'
 
-type Tab = 'ai' | 'media' | 'audio' | 'text' | 'stickers' | 'effects' | 'transitions' | 'filters'
+type Tab = 'ai' | 'social' | 'media' | 'audio' | 'text' | 'stickers' | 'effects' | 'transitions' | 'filters'
 
 const TABS: { id: Tab; label: string }[] = [
   { id: 'ai', label: 'AI' },
+  { id: 'social', label: 'Social' },
   { id: 'media', label: 'Media' },
   { id: 'audio', label: 'Audio' },
   { id: 'text', label: 'Testo' },
@@ -33,6 +34,13 @@ function TabIcon({ id }: { id: Tab }): JSX.Element {
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M12 3l1.6 4.9 4.9 1.6-4.9 1.6L12 16l-1.6-4.9L5.5 9.5l4.9-1.6z" />
           <path d="M18.5 3.5v3M17 5h3" />
+        </svg>
+      )
+    case 'social':
+      return (
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M4 5h16a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H9l-4 4v-4H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" />
+          <path d="M8 9h8M8 13h5" />
         </svg>
       )
     case 'media':
@@ -103,6 +111,7 @@ export function LeftPanel(): JSX.Element {
         ))}
       </div>
       {tab === 'ai' && <AiPanel />}
+      {tab === 'social' && <SocialPanel />}
       {tab === 'media' && <MediaPanel />}
       {tab === 'audio' && <MediaPanel only="audio" />}
       {tab === 'text' && <TextPanel />}
@@ -110,6 +119,122 @@ export function LeftPanel(): JSX.Element {
       {tab === 'effects' && <EffectsPanel />}
       {tab === 'transitions' && <TransitionsPanel />}
       {tab === 'filters' && <FiltersPanel />}
+    </div>
+  )
+}
+
+/** Small "copy to clipboard" button that briefly confirms. */
+function CopyBtn({ text, title = 'Copia' }: { text: string; title?: string }): JSX.Element {
+  const [done, setDone] = useState(false)
+  return (
+    <button
+      className="chip"
+      title={title}
+      disabled={!text}
+      onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(text)
+          setDone(true)
+          setTimeout(() => setDone(false), 1200)
+        } catch {
+          /* clipboard blocked — ignore */
+        }
+      }}
+    >
+      {done ? '✓ Copiato' : '⧉ Copia'}
+    </button>
+  )
+}
+
+/**
+ * «Social» panel — the description and first comment (and the hook options) that
+ * /reel-ai writes and /reel-ai2 carries into the project via `set_post_meta`. It is
+ * NOT rendered on the video: it lives with the project so the user can re-open a reel
+ * later and re-read / copy what to write on the post. Fully editable here, and saved
+ * with the project (file + autosave).
+ */
+function SocialPanel(): JSX.Element {
+  const postMeta = useEditor((s) => s.project.postMeta)
+  const setPostMeta = useEditor((s) => s.setPostMeta)
+  const pm = postMeta ?? {}
+  const empty = !pm.description && !pm.hashtags && !pm.firstComment && !(pm.hooks && pm.hooks.length) && !pm.notes
+
+  return (
+    <div className="scroll" style={{ flex: 1, padding: 12, display: 'flex', flexDirection: 'column', gap: 14 }}>
+      <div className="empty-hint" style={{ textAlign: 'left', lineHeight: 1.5, margin: 0 }}>
+        Descrizione e <b>primo commento</b> del post (scritti da <b>/reel-ai</b> e portati qui da <b>/reel-ai2</b>).
+        Non finiscono sul video: restano salvati col progetto, così riapri il reel e li rileggi o copi.
+      </div>
+
+      {empty && (
+        <div className="empty-hint" style={{ textAlign: 'left' }}>
+          Ancora niente. Quando monti un reel col piano di <b>/reel-ai2</b> (o scrivi qui sotto), descrizione e commento
+          compaiono e si salvano col progetto.
+        </div>
+      )}
+
+      <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+          <span className="section-title" style={{ flex: 1 }}>Descrizione del post</span>
+          <CopyBtn text={[pm.description, pm.hashtags].filter(Boolean).join('\n\n')} title="Copia descrizione + hashtag" />
+        </div>
+        <textarea
+          className="input"
+          placeholder="Descrizione/didascalia del post…"
+          value={pm.description ?? ''}
+          onChange={(e) => setPostMeta({ description: e.target.value })}
+          rows={5}
+          style={{ width: '100%', resize: 'vertical', fontFamily: 'inherit' }}
+        />
+        <input
+          className="input"
+          placeholder="#hashtag #del #post"
+          value={pm.hashtags ?? ''}
+          onChange={(e) => setPostMeta({ hashtags: e.target.value })}
+          style={{ width: '100%', marginTop: 6 }}
+        />
+      </div>
+
+      <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+          <span className="section-title" style={{ flex: 1 }}>Primo commento</span>
+          <CopyBtn text={pm.firstComment ?? ''} title="Copia il primo commento" />
+        </div>
+        <textarea
+          className="input"
+          placeholder="Il primo commento da fissare sotto al post…"
+          value={pm.firstComment ?? ''}
+          onChange={(e) => setPostMeta({ firstComment: e.target.value })}
+          rows={8}
+          style={{ width: '100%', resize: 'vertical', fontFamily: 'inherit' }}
+        />
+      </div>
+
+      {pm.hooks && pm.hooks.length > 0 && (
+        <div>
+          <div className="section-title" style={{ marginBottom: 6 }}>Hook (scegline uno per il post)</div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {pm.hooks.map((h, i) => (
+              <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+                <div style={{ flex: 1, fontSize: 13, lineHeight: 1.45 }}>{h}</div>
+                <CopyBtn text={h} />
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div>
+        <div className="section-title" style={{ marginBottom: 4 }}>Note</div>
+        <textarea
+          className="input"
+          placeholder="Appunti liberi da tenere con questo reel…"
+          value={pm.notes ?? ''}
+          onChange={(e) => setPostMeta({ notes: e.target.value })}
+          rows={3}
+          style={{ width: '100%', resize: 'vertical', fontFamily: 'inherit' }}
+        />
+      </div>
     </div>
   )
 }

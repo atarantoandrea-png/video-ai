@@ -15,6 +15,7 @@ import {
   type EffectType,
   type Marker,
   type MediaClip,
+  type PostMeta,
   type Project,
   type Source,
   type TextClip,
@@ -208,6 +209,9 @@ interface Actions {
   freezeFrame: (clipId: string) => Promise<void>
   addMarker: () => void
   removeMarker: (id: string) => void
+  /** Merge a patch into the project's social copy (description / first comment / hooks).
+   *  Saved with the project; written by the `set_post_meta` tool and the Social panel. */
+  setPostMeta: (patch: Partial<PostMeta>) => void
   splitAtPlayhead: () => void
   moveClip: (clipId: string, newStart: number, newTrackId?: string) => void
   trimClip: (clipId: string, edge: 'start' | 'end', deltaSec: number) => void
@@ -1710,6 +1714,12 @@ export const useEditor = create<EditorStore>()(
           const { width, height } = ASPECT_PRESETS[a]
           s.project.canvas.width = width
           s.project.canvas.height = height
+        })
+      },
+
+      setPostMeta: (patch) => {
+        commit((s) => {
+          s.project.postMeta = { ...(s.project.postMeta ?? {}), ...patch }
         })
       },
 

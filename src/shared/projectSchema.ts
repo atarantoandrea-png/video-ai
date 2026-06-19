@@ -297,6 +297,24 @@ export interface Timeline {
   tracks: Track[]
 }
 
+/** Social copy that TRAVELS WITH the project: the post description + hashtags, the
+ *  pinned "first comment", and the hook options — all produced by the /reel-ai skill
+ *  and carried into the app by /reel-ai2's plan (the `set_post_meta` tool). It is NOT
+ *  rendered on the video: it's saved with the project so the user can re-open a reel
+ *  later and re-read / copy what to write on the post. */
+export interface PostMeta {
+  /** Post caption / description (keyword-rich reflection in Elisa's voice). */
+  description?: string
+  /** Hashtags line, e.g. "#ElisaSoulMedium #medium #aldilà". */
+  hashtags?: string
+  /** The pinned "first comment" — long-form reflection (the message is the focus). */
+  firstComment?: string
+  /** The 5 hook options from the brief (the user picks one for the post). */
+  hooks?: string[]
+  /** Free-form notes the user wants to keep with the reel. */
+  notes?: string
+}
+
 export interface Project {
   schemaVersion: number
   id: string
@@ -306,6 +324,8 @@ export interface Project {
   timeline: Timeline
   /** Timeline markers (chapters/notes). */
   markers: Marker[]
+  /** Social copy (description / first comment / hooks) re-readable later. Optional. */
+  postMeta?: PostMeta
   createdAt: string
   modifiedAt: string
 }

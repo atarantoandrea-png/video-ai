@@ -23,6 +23,7 @@ Il "piano" è un **array JSON di tool-call** che l'app esegue **gratis** (senza 
 - **`set_look`** `{ "clipId":"@last", "look":"none|vivid|cinema|warm|cool|bw|noir|vintage|fade|punch|pastel|sunset|teal|dreamy|mono-blue|matte|film|gold|moody|cyber|autumn|frost|crisp", "intensity"?: 0..1 }` — **FILTRO colore con nome** (look one-click stile CapCut; vale in anteprima **ED export**). È il modo consigliato per dare un colore d'insieme (es. `cinema`, `teal`, `gold`, `moody`, `bw`). · **`set_filter`** `{ "clipId":"@last", "type":"brightness|contrast|saturation|hue|sepia|grayscale|invert|sharpen|vignette|grain", "value": <num> }` — regolazione fine (brightness/contrast/saturation = delta ~ -1..1; hue = gradi -180..180; gli altri 0..1). Si somma al look.
 - **`add_caption`** `{ "text","startSec","endSec","style":"caption|title" }` / **`add_captions_bulk`** `{ "segments":[{start,end,text}] }` — **NON usarli** per i reel (il testo lo mette l'utente dopo), salvo richiesta esplicita.
 - **`ask_user`** `{ "question", "options"?:[...] }` — di norma NON serve nel piano: le domande le fai TU all'utente in chat **prima** di generare il piano (es. conferma blur). Mettilo solo se vuoi che l'app chieda a metà esecuzione.
+- **`set_post_meta`** `{ "description"?, "hashtags"?, "firstComment"?, "hooks"?: [...], "notes"? }` — **salva nel progetto la copy social del reel** (descrizione del post, hashtag, **primo commento**, i 5 hook). **NON scrive nulla sul video**: resta salvata col progetto e l'utente la rilegge/copia dalla scheda **«Social»** dell'app. Prendi i testi **dal brief** (sezioni `## Descrizione (post)`, `## Primo commento`, `## Hook`). Mettilo **una sola volta, subito prima di `finish`**.
 - **`finish`** `{ "summary": "riepilogo in italiano" }` — ultimo elemento.
 
 ## Regole per un buon piano
@@ -32,7 +33,8 @@ Il "piano" è un **array JSON di tool-call** che l'app esegue **gratis** (senza 
 3. Reframe: due persone affiancate (Zoom: consulto/intervista) → `"two-person-stack"`; una persona → `"center-face"`; in dubbio → `"auto"`; mai `"fit-contain"` con persone.
 4. **Niente captions/titoli** salvo richiesta esplicita.
 5. **Niente timecode inventati**: usa quelli del brief.
-6. Chiudi con `finish`.
+6. **Copy social**: se il brief ha `## Descrizione (post)` e/o `## Primo commento`, aggiungi **un** `set_post_meta` (con `description`, `hashtags`, `firstComment`, `hooks`) **subito prima** di `finish`. Così descrizione e commento si salvano col progetto (scheda «Social»), pronti da copiare quando l'utente pubblica.
+7. Chiudi con `finish`.
 
 ## Esempio — consulto a due (griglia tipo Zoom), 3 segmenti
 
@@ -58,7 +60,13 @@ Il "piano" è un **array JSON di tool-call** che l'app esegue **gratis** (senza 
   { "tool": "reframe_vertical", "input": { "clipId": "@last", "mode": "center-face" } },
   { "tool": "add_segment", "input": { "sourceFile": "talk.mp4", "sourceIn": 410.0, "sourceOut": 447.0 } },
   { "tool": "reframe_vertical", "input": { "clipId": "@last", "mode": "center-face" } },
-  { "tool": "finish", "input": { "summary": "2 segmenti, ~70s, 9:16, center-face." } }
+  { "tool": "set_post_meta", "input": {
+    "description": "Ecco cosa ho sentito quando…",
+    "hashtags": "#ElisaSoulMedium #medium #aldilà #lutto #spiritualità",
+    "firstComment": "Riflessione profonda nella voce di Elisa… (dal brief, lunghezza libera)",
+    "hooks": ["Hook emotivo…", "Hook curiosità…", "Hook strappalacrime…", "Hook shock…", "Hook clickbait…"]
+  } },
+  { "tool": "finish", "input": { "summary": "2 segmenti, ~70s, 9:16, center-face. Copy social salvata." } }
 ]
 ```
 
