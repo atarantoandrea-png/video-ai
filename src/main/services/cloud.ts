@@ -3,6 +3,7 @@
  * QUI nel main: la password (cifrata a riposo) non lascia mai il processo
  * principale e non c'è CORS. Il renderer parla solo via IPC.
  */
+import { promises as fsp } from 'fs'
 import { getCloudBase, getCloudPassword } from './settings'
 import type { CloudProject } from '@shared/cloud'
 
@@ -68,4 +69,26 @@ export async function cloudGet(id: string): Promise<{ ok: boolean; json?: string
 export async function cloudDelete(id: string): Promise<{ ok: boolean; error?: string }> {
   const r = await call('DELETE', '/api/projects/' + encodeURIComponent(id))
   return r.ok ? { ok: true } : { ok: false, error: r.error }
+}
+
+/** Upload a finished, rendered video file as the project's downloadable video. */
+export async function cloudUploadVideo(
+  id: string,
+  filePath: string,
+  ext: string
+): Promise<{ ok: boolean; error?: string }> {
+  const pw = getCloudPassword()
+  if (!pw) return { ok: false, error: 'no-password' }
+  try {
+    const buf = await fsp.readFile(filePath)
+    const safeExt = /^[a-z0-9]{1,5}$/i.test(ext) ? ext.toLowerCase() : 'mp4'
+    const res = await fetch(
+      getCloudBase() + '/api/projects/' + encodeURIComponent(id) + '/video?ext=' + safeExt,
+      { method: 'PUT', headers: { 'Content-Type': 'application/octet-stream', 'x-app-password': pw }, body: buf }
+    )
+    if (!res.ok) return { ok: false, error: `Errore ${res.status}` }
+    return { ok: true }
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : String(e) }
+  }
 }

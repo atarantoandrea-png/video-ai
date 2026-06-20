@@ -147,8 +147,8 @@ interface State {
   /** True while the AI assistant builds a reel: commits skip per-action history so
    *  the whole build collapses to ONE undo (beginAiBuild snapshots once up front). */
   aiBuilding: boolean
-  /** Cloud projects modal: 'login' (enter password), 'list' (open/manage), or null. */
-  cloudModal: 'login' | 'list' | null
+  /** Cloud modal: 'choose' (locale o cloud), 'login', 'list' (open/manage), or null. */
+  cloudModal: 'choose' | 'login' | 'list' | null
   /** Transient confirmation banner for cloud actions (auto-clears). */
   cloudToast: string | null
   /** A Save is waiting for the login to complete (so we auto-save right after). */
@@ -226,12 +226,14 @@ interface Actions {
   newProject: () => void
   /** Save the project to the VPS cloud (no local file). Prompts for the password if unset. */
   saveProject: () => Promise<void>
-  /** Open the cloud projects picker (download + load from the VPS). */
+  /** Open the picker that asks: local file or cloud (VPS)? */
   openProject: () => Promise<void>
+  /** Open a local .videoai file, replacing the current project. */
+  openLocalProject: () => Promise<void>
   /** Download a project from the cloud by id and load it, replacing the current one. */
   loadCloudProject: (id: string) => Promise<void>
-  /** Open/close the cloud modal ('login' or 'list'). */
-  openCloud: (mode: 'login' | 'list') => void
+  /** Open/close the cloud modal ('choose' | 'login' | 'list'). */
+  openCloud: (mode: 'choose' | 'login' | 'list') => void
   closeCloud: () => void
   /** After a successful login: resume a pending Save, else show the project list. */
   afterCloudLogin: () => Promise<void>
@@ -1154,8 +1156,34 @@ export const useEditor = create<EditorStore>()(
       },
 
       openProject: async () => {
-        const st = await window.api.cloudStatus()
-        get().openCloud(st.hasPassword ? 'list' : 'login')
+        get().openCloud('choose')
+      },
+
+      openLocalProject: async () => {
+        try {
+          const res = await window.api.openProjectFile()
+          if (!res) return
+          const parsed = migrateProject(JSON.parse(res.json))
+          for (const so of parsed.sources) {
+            so.proxyPath = null
+            so.thumbnailPath = null
+            so.timelineThumbsPath = null
+            so.timelineThumbCols = null
+          }
+          set((s) => {
+            s.project = parsed
+            s.past = []
+            s.future = []
+            s.selectedClipId = null
+            s.playhead = 0
+            s.isPlaying = false
+            s.cloudModal = null
+          })
+          kickMedia(get().project.sources)
+        } catch (e) {
+          get().setCloudToast('Apertura file locale fallita')
+          console.warn('Apertura locale fallita', e)
+        }
       },
 
       loadCloudProject: async (id) => {
@@ -1841,6 +1869,14 @@ export const useEditor = create<EditorStore>()(
             s.exporting = null
             s.lastExport = result.canceled ? null : result
           })
+          // Auto: carica il video finito sul cloud → scaricabile dal telefono/PC.
+          if (result.ok && !result.canceled && result.outPath) {
+            get().setCloudToast('Carico il video sul cloud…')
+            const r = await window.api.cloudPublishVideo(JSON.stringify(get().project), result.outPath, settings.format || 'mp4')
+            if (r.ok) get().setCloudToast('Video sul cloud ✓ — scaricabile dal telefono')
+            else if (r.error === 'no-password') get().setCloudToast('Collega il cloud (Salva ☁) per scaricarlo dal telefono')
+            else get().setCloudToast('Upload video non riuscito: ' + (r.error || ''))
+          }
         } catch (e) {
           set((s) => {
             s.exporting = null

@@ -128,6 +128,9 @@ const api = {
     ipcRenderer.invoke('cloud:get', id),
   cloudDelete: (id: string): Promise<{ ok: boolean; error?: string }> =>
     ipcRenderer.invoke('cloud:delete', id),
+  /** Save the project AND upload the finished video so it's downloadable from any device. */
+  cloudPublishVideo: (json: string, filePath: string, ext: string): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('cloud:publishVideo', json, filePath, ext),
 
   // ---- Auto-update (custom updater over GitHub Releases) ----
   /** Open a URL in the user's default browser (validated http/https in main). */

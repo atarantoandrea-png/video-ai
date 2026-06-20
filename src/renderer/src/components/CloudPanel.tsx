@@ -22,9 +22,41 @@ export function CloudPanel(): JSX.Element | null {
           background: 'var(--panel, #161b22)', border: '1px solid var(--line, #283139)', borderRadius: 14, padding: 16
         }}
       >
-        {mode === 'login' ? <CloudLogin /> : <CloudList />}
+        {mode === 'choose' ? <CloudChoose /> : mode === 'login' ? <CloudLogin /> : <CloudList />}
       </div>
     </>
+  )
+}
+
+function CloudChoose(): JSX.Element {
+  const close = useEditor((s) => s.closeCloud)
+  const openCloud = useEditor((s) => s.openCloud)
+  const openLocalProject = useEditor((s) => s.openLocalProject)
+
+  const fromCloud = async (): Promise<void> => {
+    const st = await window.api.cloudStatus()
+    openCloud(st.hasPassword ? 'list' : 'login')
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div className="section-title" style={{ flex: 1 }}>Apri un progetto</div>
+        <button className="iconbtn" onClick={close} title="Chiudi">✕</button>
+      </div>
+      <button className="btn" style={{ height: 'auto', padding: '16px', textAlign: 'left' }} onClick={() => void openLocalProject()}>
+        <div>
+          <div style={{ fontWeight: 600 }}>📁 Da file locale</div>
+          <div className="field-label" style={{ marginTop: 2 }}>Apri un file .videoai dal computer.</div>
+        </div>
+      </button>
+      <button className="btn btn--primary" style={{ height: 'auto', padding: '16px', textAlign: 'left' }} onClick={() => void fromCloud()}>
+        <div>
+          <div style={{ fontWeight: 700 }}>☁ Dal cloud (VPS)</div>
+          <div style={{ marginTop: 2, fontSize: 13, opacity: 0.85 }}>I progetti salvati sul tuo VPS, su ogni dispositivo.</div>
+        </div>
+      </button>
+    </div>
   )
 }
 

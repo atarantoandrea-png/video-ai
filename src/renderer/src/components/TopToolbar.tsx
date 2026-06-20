@@ -30,7 +30,13 @@ export function TopToolbar(): JSX.Element {
   const newProject = useEditor((s) => s.newProject)
   const saveProject = useEditor((s) => s.saveProject)
   const openProject = useEditor((s) => s.openProject)
+  const openCloud = useEditor((s) => s.openCloud)
   const [exportOpen, setExportOpen] = useState(false)
+
+  const manageCloud = async (): Promise<void> => {
+    const st = await window.api.cloudStatus()
+    openCloud(st.hasPassword ? 'list' : 'login')
+  }
 
   const aspect = currentAspect(canvasW, canvasH)
 
@@ -53,7 +59,7 @@ export function TopToolbar(): JSX.Element {
       <button className="iconbtn" title="Salva sul cloud (VPS) — ⌘S" onClick={() => void saveProject()}>
         💾
       </button>
-      <button className="iconbtn" title="Progetti nel cloud (apri / elimina)" onClick={() => void openProject()}>
+      <button className="iconbtn" title="Progetti nel cloud (apri / elimina)" onClick={() => void manageCloud()}>
         ☁
       </button>
 
