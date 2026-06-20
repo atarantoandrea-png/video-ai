@@ -151,6 +151,8 @@ interface State {
   cloudModal: 'login' | 'list' | null
   /** Transient confirmation banner for cloud actions (auto-clears). */
   cloudToast: string | null
+  /** A Save is waiting for the login to complete (so we auto-save right after). */
+  pendingCloudSave: boolean
 }
 
 interface Actions {
@@ -231,6 +233,8 @@ interface Actions {
   /** Open/close the cloud modal ('login' or 'list'). */
   openCloud: (mode: 'login' | 'list') => void
   closeCloud: () => void
+  /** After a successful login: resume a pending Save, else show the project list. */
+  afterCloudLogin: () => Promise<void>
   /** Show a transient cloud confirmation banner (auto-clears after a few seconds). */
   setCloudToast: (msg: string | null) => void
   removeTrack: (trackId: string) => void
@@ -490,6 +494,7 @@ export const useEditor = create<EditorStore>()(
       aiBuilding: false,
       cloudModal: null,
       cloudToast: null,
+      pendingCloudSave: false,
 
       init: async () => {
         try {
@@ -1112,6 +1117,11 @@ export const useEditor = create<EditorStore>()(
         commit((s) => {
           // Wipe the timeline back to one empty video + audio track, but keep the
           // imported sources so the media library is preserved. Undoable.
+          // NEW identity (id/name/postMeta) so it becomes a DISTINCT cloud project —
+          // otherwise the next Save would overwrite the one we just had open.
+          s.project.id = genId('proj')
+          s.project.name = 'Senza titolo'
+          s.project.postMeta = undefined
           s.project.timeline = { tracks: [createTrack('video', 'Video 1'), createTrack('audio', 'Audio 1')] }
           s.selectedClipId = null
           s.transformEdit = false
@@ -1126,7 +1136,10 @@ export const useEditor = create<EditorStore>()(
         try {
           const r = await window.api.cloudSave(JSON.stringify(project))
           if (r.needPassword) {
-            set((s) => void (s.cloudModal = 'login'))
+            set((s) => {
+              s.cloudModal = 'login'
+              s.pendingCloudSave = true
+            })
             return
           }
           if (!r.ok) {
@@ -1178,6 +1191,16 @@ export const useEditor = create<EditorStore>()(
 
       openCloud: (mode) => set((s) => void (s.cloudModal = mode)),
       closeCloud: () => set((s) => void (s.cloudModal = null)),
+      afterCloudLogin: async () => {
+        const pending = get().pendingCloudSave
+        set((s) => void (s.pendingCloudSave = false))
+        if (pending) {
+          set((s) => void (s.cloudModal = null))
+          await get().saveProject()
+        } else {
+          set((s) => void (s.cloudModal = 'list'))
+        }
+      },
       setCloudToast: (msg) => {
         set((s) => void (s.cloudToast = msg))
         if (msg) setTimeout(() => set((s) => void (s.cloudToast = s.cloudToast === msg ? null : s.cloudToast)), 3000)

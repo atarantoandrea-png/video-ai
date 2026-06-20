@@ -29,7 +29,7 @@ export function CloudPanel(): JSX.Element | null {
 }
 
 function CloudLogin(): JSX.Element {
-  const openCloud = useEditor((s) => s.openCloud)
+  const afterCloudLogin = useEditor((s) => s.afterCloudLogin)
   const close = useEditor((s) => s.closeCloud)
   const setCloudToast = useEditor((s) => s.setCloudToast)
   const [pw, setPw] = useState('')
@@ -40,7 +40,7 @@ function CloudLogin(): JSX.Element {
     setBusy(true); setErr('')
     const r = await window.api.cloudSetPassword(pw.trim())
     setBusy(false)
-    if (r.ok) { setCloudToast('Cloud collegato ✓'); openCloud('list') }
+    if (r.ok) { setCloudToast('Cloud collegato ✓'); void afterCloudLogin() }
     else setErr(r.error || 'Password errata')
   }
 
