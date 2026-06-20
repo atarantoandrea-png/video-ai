@@ -85,7 +85,7 @@ export function registerIpc(): void {
     const ext = format === 'mov' ? 'mov' : 'mp4'
     const saveOpts: Electron.SaveDialogOptions = {
       title: 'Esporta (alta fedeltà)',
-      defaultPath: join(projectsDir(), `${(name || 'video').replace(/[^\w-]+/g, '_')}.${ext}`),
+      defaultPath: join(app.getPath('downloads'), `${(name || 'video').replace(/[^\w-]+/g, '_')}.${ext}`),
       filters: [{ name: ext.toUpperCase(), extensions: [ext] }]
     }
     const save = win ? await dialog.showSaveDialog(win, saveOpts) : await dialog.showSaveDialog(saveOpts)
@@ -197,7 +197,7 @@ export function registerIpc(): void {
     const defaultName = `${(project.name || 'video').replace(/[^\w-]+/g, '_')}.${ext}`
     const saveOpts: Electron.SaveDialogOptions = {
       title: options.format === 'mp3' ? 'Esporta audio' : 'Esporta video',
-      defaultPath: join(projectsDir(), defaultName),
+      defaultPath: join(app.getPath('downloads'), defaultName),
       filters: [{ name: ext.toUpperCase(), extensions: [ext] }]
     }
     const save = win
