@@ -122,14 +122,16 @@ const api = {
     ipcRenderer.invoke('cloud:clearPassword'),
   cloudList: (): Promise<{ ok: boolean; items?: CloudProject[]; error?: string }> =>
     ipcRenderer.invoke('cloud:list'),
-  cloudSave: (json: string): Promise<{ ok: boolean; error?: string; needPassword?: boolean }> =>
+  cloudSave: (json: string): Promise<{ ok: boolean; id?: string; error?: string; needPassword?: boolean }> =>
     ipcRenderer.invoke('cloud:save', json),
+  /** Authenticated download URL for a project's finished video (or null if no password). */
+  cloudVideoUrl: (id: string): Promise<string | null> => ipcRenderer.invoke('cloud:videoUrl', id),
   cloudGet: (id: string): Promise<{ ok: boolean; json?: string; error?: string }> =>
     ipcRenderer.invoke('cloud:get', id),
   cloudDelete: (id: string): Promise<{ ok: boolean; error?: string }> =>
     ipcRenderer.invoke('cloud:delete', id),
   /** Save the project AND upload the finished video so it's downloadable from any device. */
-  cloudPublishVideo: (json: string, filePath: string, ext: string): Promise<{ ok: boolean; error?: string }> =>
+  cloudPublishVideo: (json: string, filePath: string, ext: string): Promise<{ ok: boolean; id?: string; error?: string }> =>
     ipcRenderer.invoke('cloud:publishVideo', json, filePath, ext),
 
   // ---- Auto-update (custom updater over GitHub Releases) ----

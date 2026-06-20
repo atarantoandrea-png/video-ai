@@ -11,7 +11,7 @@ import { ExportJob } from './ffmpeg/ExportJob'
 import { getSystemInfo } from './services/system'
 import { getApiKey, setApiKey, hasApiKey, clearApiKey, getCloudBase, setCloudPassword, hasCloudPassword } from './services/settings'
 import { createMessage } from './services/ai'
-import { cloudLogin, cloudList, cloudSave, cloudGet, cloudDelete, cloudUploadVideo } from './services/cloud'
+import { cloudLogin, cloudList, cloudSave, cloudGet, cloudDelete, cloudUploadVideo, cloudVideoUrl } from './services/cloud'
 import type { Project } from '@shared/projectSchema'
 import type { ExportRequestOptions } from '@shared/export'
 
@@ -267,17 +267,15 @@ export function registerIpc(): void {
   ipcMain.handle('cloud:save', (_e, json: string) => cloudSave(json))
   ipcMain.handle('cloud:get', (_e, id: string) => cloudGet(id))
   ipcMain.handle('cloud:delete', (_e, id: string) => cloudDelete(id))
-  // Publish a finished export: save the project + upload the rendered video for download.
+  ipcMain.handle('cloud:videoUrl', (_e, id: string) => cloudVideoUrl(id))
+  // Publish a finished export: save the project (name-based) + upload the rendered video
+  // to the SAME id the server decided, so the video isn't orphaned. Returns that id.
   ipcMain.handle('cloud:publishVideo', async (_e, json: string, filePath: string, ext: string) => {
-    let id = ''
-    try {
-      id = (JSON.parse(json) as { id?: string }).id || ''
-    } catch {
-      return { ok: false, error: 'progetto non valido' }
-    }
-    if (!id) return { ok: false, error: 'id progetto mancante' }
     const saved = await cloudSave(json)
     if (!saved.ok) return saved
-    return cloudUploadVideo(id, filePath, ext)
+    const id = saved.id
+    if (!id) return { ok: false, error: 'id progetto mancante' }
+    const up = await cloudUploadVideo(id, filePath, ext)
+    return { ...up, id }
   })
 }

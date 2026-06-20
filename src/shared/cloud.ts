@@ -6,4 +6,8 @@ export interface CloudProject {
   hasSocial: boolean
   segments: number
   sizeKB: number
+  /** Whether a finished, downloadable video has been uploaded for this project. */
+  hasVideo?: boolean
+  /** Size of that video in MB (0 if none). */
+  videoMB?: number
 }

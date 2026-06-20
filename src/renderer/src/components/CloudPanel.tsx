@@ -22,9 +22,48 @@ export function CloudPanel(): JSX.Element | null {
           background: 'var(--panel, #161b22)', border: '1px solid var(--line, #283139)', borderRadius: 14, padding: 16
         }}
       >
-        {mode === 'choose' ? <CloudChoose /> : mode === 'login' ? <CloudLogin /> : <CloudList />}
+        {mode === 'choose' ? <CloudChoose /> : mode === 'save' ? <CloudSaveName /> : mode === 'login' ? <CloudLogin /> : <CloudList />}
       </div>
     </>
+  )
+}
+
+function CloudSaveName(): JSX.Element {
+  const close = useEditor((s) => s.closeCloud)
+  const confirmCloudSave = useEditor((s) => s.confirmCloudSave)
+  const currentName = useEditor((s) => s.project.name)
+  const [name, setName] = useState(currentName || '')
+  const [busy, setBusy] = useState(false)
+
+  const submit = async (): Promise<void> => {
+    if (!name.trim()) return
+    setBusy(true)
+    await confirmCloudSave(name.trim())
+    setBusy(false)
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <div className="section-title" style={{ flex: 1 }}>Salva sul cloud</div>
+        <button className="iconbtn" onClick={close} title="Chiudi">✕</button>
+      </div>
+      <p className="field-label" style={{ lineHeight: 1.5, margin: 0 }}>
+        Dai un nome al progetto. <b>Stesso nome</b> = sovrascrive quello esistente; <b>nome nuovo</b> = nuovo progetto.
+      </p>
+      <input
+        className="input"
+        placeholder="Nome del progetto"
+        value={name}
+        autoFocus
+        onChange={(e) => setName(e.target.value)}
+        onKeyDown={(e) => { if (e.key === 'Enter' && name.trim()) void submit() }}
+        style={{ width: '100%' }}
+      />
+      <button className="btn btn--primary" disabled={busy || !name.trim()} onClick={() => void submit()}>
+        {busy ? 'Salvo…' : '💾 Salva sul cloud'}
+      </button>
+    </div>
   )
 }
 
@@ -158,9 +197,21 @@ function CloudList(): JSX.Element {
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
               <div className="field-label" style={{ marginTop: 2 }}>
-                {fmtDate(p.modifiedAt)} · {p.segments} tagli{p.hasSocial ? ' · copy ✓' : ''}
+                {fmtDate(p.modifiedAt)} · {p.segments} tagli{p.hasSocial ? ' · copy ✓' : ''}{p.hasVideo ? ` · 🎬 ${p.videoMB} MB` : ''}
               </div>
             </div>
+            {p.hasVideo && (
+              <button
+                className="iconbtn"
+                title="Scarica il video finito"
+                onClick={async () => {
+                  const url = await window.api.cloudVideoUrl(p.id)
+                  if (url) void window.api.openExternal(url)
+                }}
+              >
+                ⬇
+              </button>
+            )}
             <button className="btn" style={{ width: 'auto', padding: '8px 14px' }} onClick={() => void loadCloudProject(p.id)}>Apri</button>
             <button className="iconbtn" title="Elimina" style={{ color: 'var(--danger)' }} onClick={() => void del(p)}>🗑</button>
           </div>

@@ -54,11 +54,13 @@ export async function cloudList(): Promise<{ ok: boolean; items?: CloudProject[]
   return r.ok ? { ok: true, items: (r.data as CloudProject[]) || [] } : { ok: false, error: r.error }
 }
 
-/** Save the project (JSON string) — server keys it by project.id. */
-export async function cloudSave(json: string): Promise<{ ok: boolean; error?: string; needPassword?: boolean }> {
+/** Save the project (JSON string). The server keys it by NAME (same name overwrites,
+ *  new name creates a new one) and returns the final id. */
+export async function cloudSave(json: string): Promise<{ ok: boolean; id?: string; error?: string; needPassword?: boolean }> {
   if (!getCloudPassword()) return { ok: false, needPassword: true, error: NO_PW.error }
   const r = await call('POST', '/api/projects', json)
-  return r.ok ? { ok: true } : { ok: false, error: r.error, needPassword: r.error === 'no-password' }
+  if (!r.ok) return { ok: false, error: r.error, needPassword: r.error === 'no-password' }
+  return { ok: true, id: (r.data as { id?: string } | null)?.id }
 }
 
 export async function cloudGet(id: string): Promise<{ ok: boolean; json?: string; error?: string }> {
@@ -69,6 +71,13 @@ export async function cloudGet(id: string): Promise<{ ok: boolean; json?: string
 export async function cloudDelete(id: string): Promise<{ ok: boolean; error?: string }> {
   const r = await call('DELETE', '/api/projects/' + encodeURIComponent(id))
   return r.ok ? { ok: true } : { ok: false, error: r.error }
+}
+
+/** A direct, authenticated download URL for a project's finished video (or null). */
+export function cloudVideoUrl(id: string): string | null {
+  const pw = getCloudPassword()
+  if (!pw) return null
+  return getCloudBase() + '/api/projects/' + encodeURIComponent(id) + '/video?pw=' + encodeURIComponent(pw)
 }
 
 /** Upload a finished, rendered video file as the project's downloadable video. */

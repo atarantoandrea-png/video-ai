@@ -147,8 +147,8 @@ interface State {
   /** True while the AI assistant builds a reel: commits skip per-action history so
    *  the whole build collapses to ONE undo (beginAiBuild snapshots once up front). */
   aiBuilding: boolean
-  /** Cloud modal: 'choose' (locale o cloud), 'login', 'list' (open/manage), or null. */
-  cloudModal: 'choose' | 'login' | 'list' | null
+  /** Cloud modal: 'choose' (locale o cloud), 'save' (nome), 'login', 'list', or null. */
+  cloudModal: 'choose' | 'save' | 'login' | 'list' | null
   /** Transient confirmation banner for cloud actions (auto-clears). */
   cloudToast: string | null
   /** A Save is waiting for the login to complete (so we auto-save right after). */
@@ -224,8 +224,10 @@ interface Actions {
   addTrack: (type: TrackType) => void
   /** Start a fresh empty timeline, keeping the imported media library. Undoable. */
   newProject: () => void
-  /** Save the project to the VPS cloud (no local file). Prompts for the password if unset. */
+  /** Open the Save dialog (asks the name). Same name overwrites; new name = new project. */
   saveProject: () => Promise<void>
+  /** Confirm the cloud save with the chosen name (sets it, uploads, updates the id). */
+  confirmCloudSave: (name: string) => Promise<void>
   /** Open the picker that asks: local file or cloud (VPS)? */
   openProject: () => Promise<void>
   /** Open a local .videoai file, replacing the current project. */
@@ -1134,9 +1136,15 @@ export const useEditor = create<EditorStore>()(
       },
 
       saveProject: async () => {
-        const project = get().project
+        // Apri il dialogo che chiede il NOME (il salvataggio vero è in confirmCloudSave).
+        set((s) => void (s.cloudModal = 'save'))
+      },
+
+      confirmCloudSave: async (name) => {
+        const finalName = (name || '').trim() || 'Senza titolo'
+        set((s) => void (s.project.name = finalName))
         try {
-          const r = await window.api.cloudSave(JSON.stringify(project))
+          const r = await window.api.cloudSave(JSON.stringify(get().project))
           if (r.needPassword) {
             set((s) => {
               s.cloudModal = 'login'
@@ -1148,6 +1156,9 @@ export const useEditor = create<EditorStore>()(
             get().setCloudToast('Salvataggio fallito: ' + (r.error || 'errore'))
             return
           }
+          // Allinea l'id locale a quello deciso dal server (per nome) → niente duplicati.
+          if (r.id) set((s) => void (s.project.id = r.id as string))
+          set((s) => void (s.cloudModal = null))
           get().setCloudToast('Salvato sul cloud ✓')
         } catch (e) {
           get().setCloudToast('Salvataggio fallito')
@@ -1223,8 +1234,8 @@ export const useEditor = create<EditorStore>()(
         const pending = get().pendingCloudSave
         set((s) => void (s.pendingCloudSave = false))
         if (pending) {
-          set((s) => void (s.cloudModal = null))
-          await get().saveProject()
+          // Riprendi il salvataggio con il nome già scelto prima del login.
+          await get().confirmCloudSave(get().project.name)
         } else {
           set((s) => void (s.cloudModal = 'list'))
         }
@@ -1873,6 +1884,7 @@ export const useEditor = create<EditorStore>()(
           if (result.ok && !result.canceled && result.outPath) {
             get().setCloudToast('Carico il video sul cloud…')
             const r = await window.api.cloudPublishVideo(JSON.stringify(get().project), result.outPath, settings.format || 'mp4')
+            if (r.id) set((s) => void (s.project.id = r.id as string))
             if (r.ok) get().setCloudToast('Video sul cloud ✓ — scaricabile dal telefono')
             else if (r.error === 'no-password') get().setCloudToast('Collega il cloud (Salva ☁) per scaricarlo dal telefono')
             else get().setCloudToast('Upload video non riuscito: ' + (r.error || ''))
