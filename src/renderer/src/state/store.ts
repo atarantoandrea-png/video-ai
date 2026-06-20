@@ -147,6 +147,10 @@ interface State {
   /** True while the AI assistant builds a reel: commits skip per-action history so
    *  the whole build collapses to ONE undo (beginAiBuild snapshots once up front). */
   aiBuilding: boolean
+  /** Cloud projects modal: 'login' (enter password), 'list' (open/manage), or null. */
+  cloudModal: 'login' | 'list' | null
+  /** Transient confirmation banner for cloud actions (auto-clears). */
+  cloudToast: string | null
 }
 
 interface Actions {
@@ -218,10 +222,17 @@ interface Actions {
   addTrack: (type: TrackType) => void
   /** Start a fresh empty timeline, keeping the imported media library. Undoable. */
   newProject: () => void
-  /** Save the project to a .videoai file (native dialog). */
+  /** Save the project to the VPS cloud (no local file). Prompts for the password if unset. */
   saveProject: () => Promise<void>
-  /** Open a .videoai file, replacing the current project. */
+  /** Open the cloud projects picker (download + load from the VPS). */
   openProject: () => Promise<void>
+  /** Download a project from the cloud by id and load it, replacing the current one. */
+  loadCloudProject: (id: string) => Promise<void>
+  /** Open/close the cloud modal ('login' or 'list'). */
+  openCloud: (mode: 'login' | 'list') => void
+  closeCloud: () => void
+  /** Show a transient cloud confirmation banner (auto-clears after a few seconds). */
+  setCloudToast: (msg: string | null) => void
   removeTrack: (trackId: string) => void
   moveTrack: (trackId: string, dir: 'up' | 'down') => void
   toggleTrackMuted: (trackId: string) => void
@@ -477,6 +488,8 @@ export const useEditor = create<EditorStore>()(
       lastExport: null,
       clipboard: null,
       aiBuilding: false,
+      cloudModal: null,
+      cloudToast: null,
 
       init: async () => {
         try {
@@ -1111,16 +1124,34 @@ export const useEditor = create<EditorStore>()(
       saveProject: async () => {
         const project = get().project
         try {
-          await window.api.saveProjectFile(JSON.stringify(project), project.name)
+          const r = await window.api.cloudSave(JSON.stringify(project))
+          if (r.needPassword) {
+            set((s) => void (s.cloudModal = 'login'))
+            return
+          }
+          if (!r.ok) {
+            get().setCloudToast('Salvataggio fallito: ' + (r.error || 'errore'))
+            return
+          }
+          get().setCloudToast('Salvato sul cloud ✓')
         } catch (e) {
-          console.warn('Salvataggio progetto fallito', e)
+          get().setCloudToast('Salvataggio fallito')
+          console.warn('Salvataggio cloud fallito', e)
         }
       },
 
       openProject: async () => {
+        const st = await window.api.cloudStatus()
+        get().openCloud(st.hasPassword ? 'list' : 'login')
+      },
+
+      loadCloudProject: async (id) => {
         try {
-          const res = await window.api.openProjectFile()
-          if (!res) return
+          const res = await window.api.cloudGet(id)
+          if (!res.ok || !res.json) {
+            get().setCloudToast('Apertura fallita: ' + (res.error || 'errore'))
+            return
+          }
           const parsed = migrateProject(JSON.parse(res.json))
           // Temp-file paths from the saving machine are stale; clear & rebuild them.
           for (const so of parsed.sources) {
@@ -1136,11 +1167,20 @@ export const useEditor = create<EditorStore>()(
             s.selectedClipId = null
             s.playhead = 0
             s.isPlaying = false
+            s.cloudModal = null
           })
           kickMedia(get().project.sources)
         } catch (e) {
-          console.warn('Apertura progetto fallita', e)
+          get().setCloudToast('Apertura fallita')
+          console.warn('Apertura progetto cloud fallita', e)
         }
+      },
+
+      openCloud: (mode) => set((s) => void (s.cloudModal = mode)),
+      closeCloud: () => set((s) => void (s.cloudModal = null)),
+      setCloudToast: (msg) => {
+        set((s) => void (s.cloudToast = msg))
+        if (msg) setTimeout(() => set((s) => void (s.cloudToast = s.cloudToast === msg ? null : s.cloudToast)), 3000)
       },
 
       removeTrack: (trackId) => {

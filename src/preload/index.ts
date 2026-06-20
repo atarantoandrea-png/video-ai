@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer, webUtils } from 'electron'
 import type Anthropic from '@anthropic-ai/sdk'
 import type { Project, Source } from '@shared/projectSchema'
+import type { CloudProject } from '@shared/cloud'
 import type { SystemInfo } from '@shared/performance'
 import type { FfmpegCapabilities } from '@shared/capabilities'
 import type { ExportProgress, ExportRequestOptions, ExportResult } from '@shared/export'
@@ -111,6 +112,22 @@ const api = {
     body: Anthropic.MessageCreateParamsNonStreaming
   ): Promise<Anthropic.Message | { __error: { status: number; message: string } }> =>
     ipcRenderer.invoke('ai:createMessage', body),
+
+  // ---- Cloud progetti (videoai-cloud sul VPS) — la password resta nel main ----
+  cloudStatus: (): Promise<{ hasPassword: boolean; base: string }> =>
+    ipcRenderer.invoke('cloud:status'),
+  cloudSetPassword: (pw: string): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('cloud:setPassword', pw),
+  cloudClearPassword: (): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('cloud:clearPassword'),
+  cloudList: (): Promise<{ ok: boolean; items?: CloudProject[]; error?: string }> =>
+    ipcRenderer.invoke('cloud:list'),
+  cloudSave: (json: string): Promise<{ ok: boolean; error?: string; needPassword?: boolean }> =>
+    ipcRenderer.invoke('cloud:save', json),
+  cloudGet: (id: string): Promise<{ ok: boolean; json?: string; error?: string }> =>
+    ipcRenderer.invoke('cloud:get', id),
+  cloudDelete: (id: string): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('cloud:delete', id),
 
   // ---- Auto-update (custom updater over GitHub Releases) ----
   /** Open a URL in the user's default browser (validated http/https in main). */

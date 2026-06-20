@@ -47,11 +47,14 @@ export function TopToolbar(): JSX.Element {
       >
         ✚
       </button>
-      <button className="iconbtn" title="Apri progetto…" onClick={() => void openProject()}>
+      <button className="iconbtn" title="Apri dal cloud (VPS)…" onClick={() => void openProject()}>
         📂
       </button>
-      <button className="iconbtn" title="Salva progetto… (⌘S)" onClick={() => void saveProject()}>
+      <button className="iconbtn" title="Salva sul cloud (VPS) — ⌘S" onClick={() => void saveProject()}>
         💾
+      </button>
+      <button className="iconbtn" title="Progetti nel cloud (apri / elimina)" onClick={() => void openProject()}>
+        ☁
       </button>
 
       <input

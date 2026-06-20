@@ -10,7 +10,14 @@ import { join } from 'path'
 interface SettingsFile {
   /** base64 of safeStorage.encryptString(<anthropic api key>) */
   anthropicKeyEnc?: string
+  /** base64 of safeStorage.encryptString(<videoai-cloud password>) */
+  cloudPasswordEnc?: string
+  /** Override for the cloud base URL (defaults to DEFAULT_CLOUD_BASE). */
+  cloudBase?: string
 }
+
+/** The VPS that stores projects (videoai-cloud). Overridable via settings.cloudBase. */
+export const DEFAULT_CLOUD_BASE = 'https://videoai.178.104.199.138.sslip.io'
 
 function settingsPath(): string {
   return join(app.getPath('userData'), 'settings.json')
@@ -68,4 +75,44 @@ export function clearApiKey(): void {
   const s = readSettings()
   delete s.anthropicKeyEnc
   writeSettings(s)
+}
+
+// ---- videoai-cloud (project storage on the VPS) ----
+
+/** The cloud base URL (settings override, else the default VPS). */
+export function getCloudBase(): string {
+  return readSettings().cloudBase || DEFAULT_CLOUD_BASE
+}
+
+/** Store (or, empty, clear) the cloud password, encrypted at rest. */
+export function setCloudPassword(pw: string): { ok: boolean; error?: string } {
+  const trimmed = (pw ?? '').trim()
+  const s = readSettings()
+  if (!trimmed) {
+    delete s.cloudPasswordEnc
+    writeSettings(s)
+    return { ok: true }
+  }
+  if (!safeStorage.isEncryptionAvailable()) {
+    return { ok: false, error: 'Crittografia non disponibile su questo sistema' }
+  }
+  s.cloudPasswordEnc = safeStorage.encryptString(trimmed).toString('base64')
+  writeSettings(s)
+  return { ok: true }
+}
+
+/** Decrypt and return the stored cloud password, or null. */
+export function getCloudPassword(): string | null {
+  const s = readSettings()
+  if (!s.cloudPasswordEnc) return null
+  try {
+    return safeStorage.decryptString(Buffer.from(s.cloudPasswordEnc, 'base64'))
+  } catch {
+    return null
+  }
+}
+
+/** Whether a cloud password is stored. */
+export function hasCloudPassword(): boolean {
+  return !!readSettings().cloudPasswordEnc
 }

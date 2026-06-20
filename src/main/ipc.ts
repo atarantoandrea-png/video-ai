@@ -9,8 +9,9 @@ import { generateThumbnails, extractFrame } from './ffmpeg/thumbnails'
 import { startHifiSession, writeHifiFrame, finishHifiExport, cleanupHifiSession } from './ffmpeg/hifiExport'
 import { ExportJob } from './ffmpeg/ExportJob'
 import { getSystemInfo } from './services/system'
-import { getApiKey, setApiKey, hasApiKey, clearApiKey } from './services/settings'
+import { getApiKey, setApiKey, hasApiKey, clearApiKey, getCloudBase, setCloudPassword, hasCloudPassword } from './services/settings'
 import { createMessage } from './services/ai'
+import { cloudLogin, cloudList, cloudSave, cloudGet, cloudDelete } from './services/cloud'
 import type { Project } from '@shared/projectSchema'
 import type { ExportRequestOptions } from '@shared/export'
 
@@ -253,4 +254,17 @@ export function registerIpc(): void {
 
   // ---- AI assistant: run one Anthropic Messages request in main (SDK is Node here) ----
   ipcMain.handle('ai:createMessage', (_e, body) => createMessage(body))
+
+  // ---- Cloud progetti (videoai-cloud sul VPS) ----
+  ipcMain.handle('cloud:status', () => ({ hasPassword: hasCloudPassword(), base: getCloudBase() }))
+  ipcMain.handle('cloud:setPassword', async (_e, pw: string) => {
+    const trial = await cloudLogin(pw)
+    if (!trial.ok) return trial
+    return setCloudPassword(pw)
+  })
+  ipcMain.handle('cloud:clearPassword', () => setCloudPassword(''))
+  ipcMain.handle('cloud:list', () => cloudList())
+  ipcMain.handle('cloud:save', (_e, json: string) => cloudSave(json))
+  ipcMain.handle('cloud:get', (_e, id: string) => cloudGet(id))
+  ipcMain.handle('cloud:delete', (_e, id: string) => cloudDelete(id))
 }

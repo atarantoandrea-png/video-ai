@@ -7,6 +7,8 @@ import { Inspector } from './components/Inspector'
 import { Timeline } from './components/Timeline'
 import { ExportOverlay } from './components/ExportOverlay'
 import { ShortcutsPanel } from './components/ShortcutsPanel'
+import { CloudPanel } from './components/CloudPanel'
+import { CloudToast } from './components/CloudToast'
 import { McpBridge } from './McpBridge'
 import { timelineDuration } from '@shared/projectSchema'
 import './styles/layout.css'
@@ -32,6 +34,8 @@ export default function App(): JSX.Element {
       <Timeline />
       <ExportOverlay />
       <ShortcutsPanel />
+      <CloudPanel />
+      <CloudToast />
       <McpBridge />
     </div>
   )
