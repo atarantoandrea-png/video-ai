@@ -73,6 +73,23 @@ export async function cloudDelete(id: string): Promise<{ ok: boolean; error?: st
   return r.ok ? { ok: true } : { ok: false, error: r.error }
 }
 
+export interface RenderJob {
+  id: string
+  projectId: string
+  options: { outputScale?: number; fps?: number; quality?: 'low' | 'medium' | 'high'; format?: 'mp4' | 'mov' | 'gif' | 'mp3' }
+}
+
+/** Pending render jobs the PC should execute (requested from the phone). */
+export async function cloudRenderJobs(): Promise<RenderJob[]> {
+  const r = await call('GET', '/api/render-jobs')
+  return r.ok ? ((r.data as RenderJob[]) || []) : []
+}
+
+/** Update a render job's status (rendering/done/error). */
+export async function cloudUpdateJob(jobId: string, status: string, error?: string): Promise<void> {
+  await call('POST', '/api/render-jobs/' + encodeURIComponent(jobId) + '/status', JSON.stringify({ status, error }))
+}
+
 /** A direct, authenticated download URL for a project's finished video (or null). */
 export function cloudVideoUrl(id: string): string | null {
   const pw = getCloudPassword()

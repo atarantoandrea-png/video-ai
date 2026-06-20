@@ -4,6 +4,7 @@ import { registerIpc } from './ipc'
 import { registerMediaProtocol, registerMediaSchemePrivileges } from './mediaProtocol'
 import { registerUpdater } from './services/updater'
 import { registerHttpServer } from './httpServer'
+import { startRenderWorker } from './services/renderWorker'
 import { runSetup } from './setup'
 
 // Enable the platform (hardware) HEVC decoder so HEVC/H.265 videos (iPhone,
@@ -48,6 +49,7 @@ app.whenReady().then(() => {
   registerUpdater()
   registerHttpServer()
   runSetup()
+  startRenderWorker() // esegue gli export richiesti dal telefono (se il cloud è collegato)
 
   createWindow()
 
