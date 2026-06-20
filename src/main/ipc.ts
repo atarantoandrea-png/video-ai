@@ -1,5 +1,6 @@
-import { ipcMain, dialog, shell, BrowserWindow } from 'electron'
-import { existsSync, readFileSync, writeFileSync } from 'fs'
+import { ipcMain, dialog, shell, BrowserWindow, app } from 'electron'
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'fs'
+import { join } from 'path'
 import { probeCapabilities } from './ffmpeg/capabilities'
 import { probeSource } from './ffmpeg/probe'
 import { extractPeaks } from './ffmpeg/waveform'
@@ -14,6 +15,20 @@ import type { Project } from '@shared/projectSchema'
 import type { ExportRequestOptions } from '@shared/export'
 
 let currentExport: ExportJob | null = null
+
+/** Default folder for project saves — Documenti\Video AI\salvataggi. Lives OUTSIDE the
+ *  install dir (which the auto-updater wipes), so projects survive updates. Created on
+ *  demand; Salva/Apri puntano qui per primo. Il file .videoai contiene l'intero progetto
+ *  (tagli, look, descrizioni, primo commento, hook). */
+function projectsDir(): string {
+  const dir = join(app.getPath('documents'), 'Video AI', 'salvataggi')
+  try {
+    mkdirSync(dir, { recursive: true })
+  } catch {
+    /* if it can't be created, the dialog just opens at its default location */
+  }
+  return dir
+}
 
 const FONT_CANDIDATES = [
   '/System/Library/Fonts/Supplemental/Arial.ttf',
@@ -117,7 +132,7 @@ export function registerIpc(): void {
     const win = BrowserWindow.fromWebContents(e.sender) ?? undefined
     const opts: Electron.SaveDialogOptions = {
       title: 'Salva progetto',
-      defaultPath: `${(suggestedName || 'progetto').replace(/[^\w-]+/g, '_')}.videoai`,
+      defaultPath: join(projectsDir(), `${(suggestedName || 'progetto').replace(/[^\w-]+/g, '_')}.videoai`),
       filters: [{ name: 'Progetto Video AI', extensions: ['videoai', 'json'] }]
     }
     const save = win ? await dialog.showSaveDialog(win, opts) : await dialog.showSaveDialog(opts)
@@ -153,6 +168,7 @@ export function registerIpc(): void {
     const win = BrowserWindow.fromWebContents(e.sender) ?? undefined
     const opts: Electron.OpenDialogOptions = {
       title: 'Apri progetto',
+      defaultPath: projectsDir(),
       properties: ['openFile'],
       filters: [{ name: 'Progetto Video AI', extensions: ['videoai', 'json'] }]
     }
