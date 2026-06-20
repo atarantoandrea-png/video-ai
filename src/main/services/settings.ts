@@ -16,8 +16,9 @@ interface SettingsFile {
   cloudBase?: string
 }
 
-/** The VPS that stores projects (videoai-cloud). Overridable via settings.cloudBase. */
-export const DEFAULT_CLOUD_BASE = 'https://videoai.178.104.199.138.sslip.io'
+/** The VPS that stores projects (videoai-cloud). Overridable via settings.cloudBase.
+ *  Nuovo host (origine fresca, niente service worker vecchio) — vedi reelcloud. */
+export const DEFAULT_CLOUD_BASE = 'https://reelcloud.178.104.199.138.sslip.io'
 
 function settingsPath(): string {
   return join(app.getPath('userData'), 'settings.json')

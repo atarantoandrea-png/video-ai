@@ -1142,7 +1142,11 @@ export const useEditor = create<EditorStore>()(
 
       confirmCloudSave: async (name) => {
         const finalName = (name || '').trim() || 'Senza titolo'
-        set((s) => void (s.project.name = finalName))
+        // Ogni "Salva" è una VOCE NUOVA: id fresco → non sovrascrive mai un altro progetto.
+        set((s) => {
+          s.project.id = genId('proj')
+          s.project.name = finalName
+        })
         try {
           const r = await window.api.cloudSave(JSON.stringify(get().project))
           if (r.needPassword) {
