@@ -79,9 +79,12 @@ Arco ricucito: **HOOK (la macchina)** → **CONTESTO (nessuno ci credeva)** → 
 Ecco cosa succede quando non molli: ho rischiato tutto e ho trasformato la macchina in cui dormivo nel logo della mia azienda. Il mio percorso, senza filtri.
 hashtag: #imprenditoria #startup #motivazione #nonmollare #mindset
 
-## Primo commento
-Quello che nessuno ti dice è che il "fondo" non è la fine: è il punto da cui finalmente costruisci. Se anche tu sei nel tuo periodo "in macchina", scrivimelo qui sotto.
-# (Per i reel di Elisa, qui va una riflessione libera + il ponte al libro «La Vita Oltre il Velo» — vedi hooks-seo.md)
+## Primi commenti
+# ALMENO 3 versioni, angoli diversi, APPROFONDIMENTO (NON ripetono il video) — niente libro qui. Vedi hooks-seo.md.
+1. [allarga] Quello che nessuno dice è che il "fondo" non è la fine: è il punto da cui finalmente si costruisce, perché non hai più niente da perdere.
+2. [sposta il piano] Non conta quanto sei caduto, ma cosa decidi nei giorni in cui nessuno ti vede: lì si gioca tutto.
+3. [il perché] Tocchiamo il fondo non per punizione: è il momento in cui smettiamo di difendere ciò che non funzionava più e ricominciamo davvero.
+# (Per i reel di Elisa: attingi a cerca_conoscenza/voce_di_elisa e resta nel suo registro — vedi hooks-seo.md)
 ````
 
 ## Perché funziona (per autovalutarti)

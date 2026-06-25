@@ -70,8 +70,13 @@ Questo è il **formato esatto** dell'output della skill e l'**input** dell'AI in
 <es. "Ecco cosa succede quando... il mio punto di vista come medium. ..." — keyword congrue, no stuffing>
 hashtag: #ElisaSoulMedium #medium #aldilà #lutto #spiritualità    # 4-8, i primi branded
 
-## Primo commento            # il MESSAGGIO è il focus: lunghezza LIBERA (anche lunga), dalla conoscenza di Elisa, radicato nel QUOTIDIANO — vedi hooks-seo.md
-<riflessione profonda e UTILE nella voce di Elisa, sviluppata quanto serve il tema, portata nella vita di tutti i giorni; SOLO alla fine, piccolo, il ponte al libro «La Vita Oltre il Velo» (link in bio/storie). Il libro è secondario, mai venditore.>
+## Primi commenti            # ALMENO 3 versioni, angoli diversi — APPROFONDIMENTO, non riassunto del video — vedi hooks-seo.md
+# REGOLA: NON ripetere ciò che il video già dice (leggi i text: dei segmenti); aggiungi il "pezzo in più".
+# Attingi alla conoscenza di Elisa (cerca_conoscenza/voce_di_elisa). Niente melodramma, niente libro qui
+# (la promo sta nella «Descrizione extra»). Medio-breve (3-6 righe), 💓/🙏🏻 max 1.
+1. [angolo: allarga] <commento di approfondimento, NON ripete il video>
+2. [angolo: sposta il piano / distinzione nuova] <…>
+3. [angolo: il perché / nel quotidiano] <…>
 
 ## Descrizione extra         # testo FISSO di Elisa (promo libro) — VERBATIM, identico ogni volta, NON riscriverlo
 Buongiorno a tutti 💓 spesso sotto i miei video leggo tantissimi commenti con domande di approfondimento sui temi che tratto... io cerco sempre di rispondere a quante più persone possibili, ma non è sempre facile perché spesso siete centinaia 🙏🏻 e mi dispiace davvero tanto quando qualcuno resta senza risposta😔... per questo, se volete davvero approfondire questi temi, vi consiglio di leggere il mio libro: La Vita Oltre il Velo, dove troverete risposte alla maggior parte delle domande che solitamente leggo... Nel libro infatti ho racchiuso tutta la mia esperienza, le storie che ho vissuto, le mie riflessioni, parlando non solo di aldilà, ma anche di VITA...

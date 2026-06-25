@@ -86,5 +86,5 @@ E quando il video è pronto, per **pubblicarlo su YouTube** lancia **`/youtube-a
 - **`reference/transcription.md`** — comandi e procedura per gli scenari (b)/(c): whisperX locale o API cloud, diarizzazione, forced alignment, conversione timecode→secondi. *Leggi in Fase 1A se servono i tempi/speaker.*
 - **`reference/brief-contract.md`** — il formato ESATTO del brief (il contratto con la Parte 2). *Leggi prima della Fase 1C.*
 - **`reference/example-brief.md`** — un esempio completo lavorato (intervista → reel) con ragionamento e brief finale. *Usalo come riferimento di stile/qualità per il tuo output.*
-- **`reference/hooks-seo.md`** — i **5 hook (5 angoli)** + la **descrizione SEO** del post social, nello stile spirituale. *Leggi prima di scrivere il copy (Fase 1B, passo 10).*
+- **`reference/hooks-seo.md`** — i **5 hook (5 angoli)** + la **descrizione SEO** + **≥3 primi commenti** (approfondimento NON ripetitivo del video, dalla conoscenza di Elisa). *Leggi prima di scrivere il copy (Fase 1B, passo 10).*
 - **`reference/app-capabilities.md`** — cosa l'AI in-app sa eseguire (formati, segmenti, reframe, blur, captions, transizioni, audio). *Consulta per proporre solo cose fattibili.*

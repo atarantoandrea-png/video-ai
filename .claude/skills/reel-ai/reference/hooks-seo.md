@@ -1,7 +1,7 @@
-# hooks-seo.md — 5 HOOK (5 angoli) + 2 riflessioni (descrizione + primo commento)
+# hooks-seo.md — 5 HOOK (5 angoli) + descrizione + ≥3 primi commenti (approfondimento)
 
-Riferimento per il **copy del POST** del reel: **5 hook** (5 angoli) + **2 riflessioni profonde** (la
-descrizione e il primo commento). È il testo del **post**, **NON** il testo a schermo nel video.
+Riferimento per il **copy del POST** del reel: **5 hook** (5 angoli), la **descrizione** e **almeno 3
+versioni del primo commento** (approfondimento). È il testo del **post**, **NON** il testo a schermo nel video.
 
 Tono: **caldo, profondo, rispettoso, mai sensazionalismo cheap**. Sempre in **italiano**.
 **Privacy consulti:** mai cognomi né nomi della persona assistita; 3ª persona.
@@ -58,30 +58,43 @@ testo e/o negli **hashtag** (4-8, i primi branded: `#ElisaSoulMedium #medium #al
 
 ---
 
-## RIFLESSIONE 2 — il PRIMO COMMENTO: il MESSAGGIO è il cuore (il libro viene dopo, piccolo)
+## RIFLESSIONE 2 — i PRIMI COMMENTI: APPROFONDIMENTO, non riassunto (ALMENO 3 versioni)
 
-⚠️ **Qui il focus è la RIFLESSIONE, non il libro.** Il libro c'è — ma **alla fine, piccolo, come invito**.
-Il valore del commento è il **messaggio**: profondo, vero, utile.
+⚠️ **Il primo commento NON ripete ciò che il video già dice.** Il video tratta un fatto/argomento specifico
+(lo trovi nei `text:` verbatim dei segmenti del brief): il commento **parte da lì e AGGIUNGE il "pezzo in
+più"** — ciò che nel video NON c'è — allargando il tema. **Mai** parafrasare o ri-raccontare la clip.
 
-- **Lunghezza LIBERA — quanto serve il tema.** Adatta alla **profondità dell'argomento**: può essere breve, o
-  **anche molto lungo** (più paragrafi) se il tema lo merita. **Non comprimere** una riflessione importante in
-  due righe; se merita, **sviluppala**.
-- **Contenuto profondo, dalla conoscenza di Elisa.** Attingi alla sua **knowledge base** (`cerca_conoscenza`,
-  `voce_di_elisa`) per portare **visioni e informazioni vere** di Elisa (sul lutto, l'anima, i segni, il
-  karma, il passaggio…), purché **coerenti** col reel e **profonde** — mai riempitivo. Dai davvero qualcosa
-  a chi legge.
-- **SEMPRE radica nella VITA QUOTIDIANA (quando si può).** Non restare astratto: porta la riflessione
-  **nel quotidiano** — cosa significa in pratica, un esempio concreto, come viverlo/riconoscerlo **oggi**, nei
-  piccoli gesti. È questo che la rende utile e fa sentire vicini.
-- **Niente keyword forzate** (è il primo commento, non serve SEO): conta la verità del pensiero.
-- **Tono ed emoji di Elisa** (caldo, materno, 2ª persona; 💓 / 🙏🏻 con parsimonia).
+**Come si fa (la cosa intelligente, OBBLIGATORIA):**
+1. **Leggi i `text:` dei segmenti** → capisci ESATTAMENTE cosa è già stato detto nel reel.
+2. **Vai nella conoscenza di Elisa** (`cerca_conoscenza` + `voce_di_elisa`) sul tema → trova il **non detto**:
+   un concetto, una distinzione, un *perché*, un modo di viverlo che nel video **manca**.
+3. **Scrivi l'approfondimento su QUEL non-detto**, senza ripetere i punti già nella clip.
 
-**Solo ALLA FINE, il ponte al libro — una riga discreta, mai venditore** (riformulalo ogni volta):
+**Produci ALMENO 3 versioni**, una per **angolo diverso** (l'utente ne sceglie una). Ognuna deve aggiungere
+qualcosa di **diverso** — non 3 modi di dire la stessa cosa. Angoli tipici (adatta al tema):
+- **allargare** («non solo X, anche Y/Z…»),
+- **spostare il piano** (una distinzione o un criterio nuovo, es. «non è dimostrarlo, è sentirlo»),
+- **spiegare il perché** (il meccanismo nella visione di Elisa, es. «il sogno non è sempre concesso perché…»),
+- **portarlo nel quotidiano** (come riconoscerlo/viverlo oggi).
 
-> «…Se senti il bisogno di andare ancora più a fondo in questi temi, ho racchiuso tutto questo nel mio libro
-> **«La Vita Oltre il Velo»**, tra i più richiesti in ambito spirituale in Italia: lo trovi nel **link in
-> bio**, sotto la mia foto profilo, o nelle **storie in evidenza**. 💓»
+**Stile (regole ferree):**
+- **Semplice e diretto, profondo ma asciutto.** Voce di Elisa: calda **ma non smielata**.
+- **NIENTE melodramma né frasi che proiettano emozioni sul pubblico** — VIETATE cose tipo «me lo chiedete con
+  le lacrime agli occhi», «so quanto soffrite», «con il cuore a pezzi». Elisa **non** fa così.
+- **Niente ripetizioni** del contenuto del video.
+- **Ancorato alla conoscenza di Elisa**: concetti **veri** (mai inventati, mai motivazionale-generico).
+- **Lunghezza medio-breve**: quanto basta a dire **una** cosa in più, fatta bene (≈ 3-6 righe). Non un papiro.
+- **Emoji di Elisa** (💓 / 🙏🏻), **max 1**, sobria, di norma a fine.
+- **NIENTE libro/promo qui.** La promo del libro vive nella **«Descrizione extra»** (sezione apposita,
+  testo fisso). Il commento è **puro approfondimento**.
 
-**Regole del libro:** **secondario** rispetto al messaggio; **una sola** riga finale; **una sola call** (link
-in bio **o** storie); l'autorevolezza (*«tra i più richiesti…»*) detta **con misura**, una volta; è un
-**invito** a chi vuole approfondire, non lo scopo del commento.
+**Esempi di stile** (tema «segni dall'aldilà», 3 angoli diversi — NON ripetono l'episodio del video):
+- *A (allarga):* «Quando pensiamo ai segni immaginiamo farfalle, piume, cuori. Ma non tutti gli spiriti
+  comunicano allo stesso modo: c'è chi sposta un oggetto, chi manda un profumo, chi fa lampeggiare una luce.
+  Il segno quasi mai arriva dove lo aspettiamo, ed è per questo che spesso lo lasciamo passare 💓»
+- *B (sposta il piano):* «È un segno o è solo suggestione? Non amo le risposte secche: i nostri cari non
+  cercano di convincerci, cercano solo di farci sentire che la connessione esiste ancora. Il punto non è
+  dimostrarlo, ma cosa senti tu dentro quando accade 💓»
+- *C (il perché):* «In tanti vorrebbero un sogno. Ma il sogno non è sempre concesso: subito dopo un distacco
+  l'energia è troppo pesante, e allora arrivano i segni, il modo più semplice che hanno per restarci vicini.
+  Non è un premio di consolazione: è una connessione che cambia forma e non si spegne 💓»
