@@ -18,8 +18,8 @@ const inflight = new Map<string, Promise<string>>()
 export async function generateProxy(srcPath: string): Promise<string> {
   if (!existsSync(PROXY_DIR)) mkdirSync(PROXY_DIR, { recursive: true })
   const hash = createHash('sha1').update(srcPath).digest('hex').slice(0, 16)
-  // The suffix encodes the proxy recipe (720p): bump it to invalidate old proxies.
-  const out = join(PROXY_DIR, `${hash}-720.mp4`)
+  // The suffix encodes the proxy recipe (720p + CFR): bump it to invalidate old proxies.
+  const out = join(PROXY_DIR, `${hash}-720c.mp4`)
   if (existsSync(out)) return out
   const running = inflight.get(out)
   if (running) return running
@@ -45,6 +45,10 @@ export async function generateProxy(srcPath: string): Promise<string> {
           srcPath,
           '-vf',
           'scale=-2:720',
+          // Frame rate COSTANTE 30: i sorgenti a frame rate variabile (dirette) altrimenti
+          // fanno scivolare audio/video anche in ANTEPRIMA. -r forza CFR (frame duplicati/saltati).
+          '-r',
+          '30',
           '-c:v',
           ...vcodec,
           '-pix_fmt',

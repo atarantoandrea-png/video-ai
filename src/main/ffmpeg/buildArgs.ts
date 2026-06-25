@@ -380,6 +380,11 @@ export function buildFfmpegArgs(project: Project, opts: ExportOptions): string[]
       const chain: string[] = [
         `[${inputIndex}:v]trim=start=${sec(clip.sourceIn)}:end=${sec(clip.sourceOut)}`,
         ...(clip.reverse ? ['reverse'] : []),
+        // Normalizza a frame rate COSTANTE = canvas fps PRIMA di riposizionare: sorgenti a
+        // fps diverso (es. 25 in un progetto a 30) o a frame rate VARIABILE (tipico delle
+        // dirette/registrazioni) altrimenti scivolano rispetto all'audio (video "rallentato").
+        // No-op se la sorgente è già a `fps`.
+        `fps=${fps}`,
         // /speed compresses (>1 = faster), then shift to the clip's timeline start.
         `setpts=(PTS-STARTPTS)/${speed.toFixed(4)}+${sec(clip.timelineStart)}/TB`,
         `crop=${px(sr.w)}:${px(sr.h)}:${px(sr.x)}:${px(sr.y)}`,
