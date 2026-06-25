@@ -233,6 +233,7 @@ export const TOOLS: Anthropic.Tool[] = [
         hashtags: { type: 'string', description: 'Riga di hashtag, es. "#ElisaSoulMedium #medium"' },
         firstComment: { type: 'string', description: 'Il primo commento da fissare (lunghezza libera)' },
         hooks: { type: 'array', items: { type: 'string' }, description: 'I 5 hook tra cui scegliere' },
+        extraDescription: { type: 'string', description: 'Descrizione extra FISSA (promo libro di Elisa) sotto ogni video' },
         notes: { type: 'string', description: 'Note libere opzionali' }
       }
     }
@@ -696,6 +697,7 @@ export async function runTool(name: string, input: Record<string, unknown>, ctx:
       if (typeof input.description === 'string') patch.description = input.description
       if (typeof input.hashtags === 'string') patch.hashtags = input.hashtags
       if (typeof input.firstComment === 'string') patch.firstComment = input.firstComment
+      if (typeof input.extraDescription === 'string') patch.extraDescription = input.extraDescription
       if (typeof input.notes === 'string') patch.notes = input.notes
       if (Array.isArray(input.hooks)) patch.hooks = (input.hooks as unknown[]).filter((h): h is string => typeof h === 'string')
       if (Object.keys(patch).length === 0) return { error: 'set_post_meta: nessun campo valido (description/hashtags/firstComment/hooks/notes)' }

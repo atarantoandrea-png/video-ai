@@ -311,6 +311,8 @@ export interface PostMeta {
   firstComment?: string
   /** The 5 hook options from the brief (the user picks one for the post). */
   hooks?: string[]
+  /** Fixed "extra description" (Elisa's book promo) appended under every video. */
+  extraDescription?: string
   /** Free-form notes the user wants to keep with the reel. */
   notes?: string
 }

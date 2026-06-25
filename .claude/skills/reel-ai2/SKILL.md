@@ -52,7 +52,7 @@ Traduci il brief in una **lista JSON di tool-call**, esattamente nell'ordine del
    - **3+ persone** → metti `"center-face"` con `faceIndex` dello speaker, oppure lascia `"auto"` e segnalalo all'utente.
    - **MAI** `"fit-contain"` con persone.
 5. **PRIVACY/BLUR** — **solo** se il brief lo chiede, e **solo dopo aver chiesto conferma all'utente** (nella Fase 3, a voce). Nello stack si fa col parametro `blur` di `reframe_vertical` (`"bottom"`=persona destra/in basso, `"top"`=sinistra/in alto, `"both"`).
-6. **COPY SOCIAL** — se il brief contiene `## Descrizione (post)` e/o `## Primo commento` (con i 5 hook), aggiungi **un** `set_post_meta` (`description`, `hashtags`, `firstComment`, `hooks`) **subito prima** di `finish`. NON va sul video: si salva col progetto e l'utente lo rilegge/copia dalla scheda **«Social»** dell'app quando pubblica.
+6. **COPY SOCIAL** — se il brief contiene `## Descrizione (post)` e/o `## Primo commento` (con i 5 hook), aggiungi **un** `set_post_meta` (`description`, `hashtags`, `firstComment`, `hooks`, e `extraDescription` = la `## Descrizione extra` FISSA del brief copiata VERBATIM) **subito prima** di `finish`. NON va sul video: si salva col progetto e l'utente lo rilegge/copia dalla scheda **«Social»** dell'app quando pubblica.
 7. `finish` con un riepilogo breve in italiano.
 
 **NIENTE testo a schermo** (niente `add_caption`/captions/titoli): il testo lo mette l'utente dopo, nell'app social. Non aggiungerli a meno che l'utente non lo chieda esplicitamente.

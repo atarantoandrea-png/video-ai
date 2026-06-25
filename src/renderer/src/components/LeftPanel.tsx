@@ -3,6 +3,7 @@ import { locateClip, useEditor } from '../state/store'
 import { isMediaClip, type MediaClip, type Source } from '@shared/projectSchema'
 import { LOOKS } from '@shared/looks'
 import { REEL_TEMPLATES } from '@shared/templates'
+import { DEFAULT_EXTRA_DESCRIPTION } from '@shared/elisaExtra'
 import { mediaUrl } from '@shared/media'
 import { formatClock } from '../util/format'
 import { AiPanel } from './AiPanel'
@@ -208,6 +209,29 @@ function SocialPanel(): JSX.Element {
           rows={8}
           style={{ width: '100%', resize: 'vertical', fontFamily: 'inherit' }}
         />
+      </div>
+
+      <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+          <span className="section-title" style={{ flex: 1 }}>Descrizione extra</span>
+          <button
+            className="chip"
+            title="Ripristina il testo standard di Elisa"
+            onClick={() => setPostMeta({ extraDescription: DEFAULT_EXTRA_DESCRIPTION })}
+          >
+            ↺ Standard
+          </button>
+          <CopyBtn text={pm.extraDescription ?? DEFAULT_EXTRA_DESCRIPTION} title="Copia la descrizione extra" />
+        </div>
+        <textarea
+          className="input"
+          placeholder="Descrizione extra (promo libro)…"
+          value={pm.extraDescription ?? DEFAULT_EXTRA_DESCRIPTION}
+          onChange={(e) => setPostMeta({ extraDescription: e.target.value })}
+          rows={6}
+          style={{ width: '100%', resize: 'vertical', fontFamily: 'inherit' }}
+        />
+        <p className="field-label" style={{ marginTop: 4 }}>Testo fisso aggiunto sotto ogni video.</p>
       </div>
 
       {pm.hooks && pm.hooks.length > 0 && (
