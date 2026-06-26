@@ -18,8 +18,8 @@ const inflight = new Map<string, Promise<string>>()
 export async function generateProxy(srcPath: string): Promise<string> {
   if (!existsSync(PROXY_DIR)) mkdirSync(PROXY_DIR, { recursive: true })
   const hash = createHash('sha1').update(srcPath).digest('hex').slice(0, 16)
-  // The suffix encodes the proxy recipe (720p + CFR): bump it to invalidate old proxies.
-  const out = join(PROXY_DIR, `${hash}-720c.mp4`)
+  // The suffix encodes the proxy recipe (720p + CFR + dense GOP): bump it to invalidate old proxies.
+  const out = join(PROXY_DIR, `${hash}-720d.mp4`)
   if (existsSync(out)) return out
   const running = inflight.get(out)
   if (running) return running
@@ -54,6 +54,16 @@ export async function generateProxy(srcPath: string): Promise<string> {
           // fanno scivolare audio/video anche in ANTEPRIMA. -r forza CFR (frame duplicati/saltati).
           '-r',
           '30',
+          // Keyframe FITTI (ogni 15 frame = 0,5s, niente keyframe da scene-cut): l'anteprima
+          // di un reel salta spesso a punti lontani della stessa sorgente; con keyframe radi
+          // (default ~250) ogni salto deve decodificare fino a ~8s di video → blocco visibile.
+          // Con un keyframe ogni mezzo secondo i seek atterrano vicino e sono quasi istantanei.
+          '-g',
+          '15',
+          '-keyint_min',
+          '15',
+          '-sc_threshold',
+          '0',
           '-c:v',
           ...vcodec,
           '-pix_fmt',

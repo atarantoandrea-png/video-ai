@@ -499,6 +499,9 @@ export function migrateProject(raw: unknown): Project {
   // Pure black (or the earlier near-black) → dark grey (the editor avoids black).
   if (p.canvas && (p.canvas.backgroundColor === '#000000' || p.canvas.backgroundColor === '#15151a'))
     p.canvas.backgroundColor = '#202028'
+  // The "Trova beat" feature was removed (it cluttered the timeline and wasn't reliable);
+  // drop any beat markers it left behind (tagged kind:'beat', or older ones by their colour).
+  if (Array.isArray(p.markers)) p.markers = p.markers.filter((m) => m.kind !== 'beat' && m.color !== '#5cf3da')
   for (const src of p.sources ?? []) {
     if (src.proxyPath === undefined) src.proxyPath = null
     if (src.thumbnailPath === undefined) src.thumbnailPath = null
