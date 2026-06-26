@@ -43,7 +43,78 @@ interface MediaEl {
   url: string
   /** Web Audio gain node, so volume can exceed 100% (up to 400%). */
   gain?: GainNode
+  /** Real-time pitch-shift node for the privacy voice mask (lazily inserted). */
+  pitch?: AudioWorkletNode
+  /** Whether this element is currently routed through the pitch node (voice masked). */
+  disguised?: boolean
 }
+
+// Real-time pitch-shifter AudioWorklet (overlap-add, 2 read taps offset by half the
+// window, sin-crossfaded so the buffer wrap is inaudible). Mirrors the export's
+// pitch-DOWN voice mask so you can HEAR the disguise while editing. Loaded from a Blob
+// URL so no bundler/worklet-file wiring is needed. ratio<1 = lower pitch.
+const PITCH_WORKLET_SRC = `
+class VoiceaiPitch extends AudioWorkletProcessor {
+  static get parameterDescriptors() {
+    return [{ name: 'ratio', defaultValue: 1, minValue: 0.5, maxValue: 2, automationRate: 'k-rate' }]
+  }
+  constructor() {
+    super()
+    this.L = 4096
+    this.b0 = new Float32Array(this.L)
+    this.b1 = new Float32Array(this.L)
+    this.wp = 0
+    this.rp = 0
+  }
+  process(inputs, outputs, params) {
+    const inp = inputs[0]
+    const out = outputs[0]
+    if (!inp || !inp.length || !out || !out.length) return true
+    const i0 = inp[0]
+    const i1 = inp[1] || inp[0]
+    const o0 = out[0]
+    const o1 = out[1] || null
+    const ratio = params.ratio.length ? params.ratio[0] : 1
+    const L = this.L
+    const half = L >> 1
+    const b0 = this.b0
+    const b1 = this.b1
+    let wp = this.wp
+    let rp = this.rp
+    const n = o0.length
+    const tap = (buf, pos) => {
+      let p = pos
+      if (p >= L) p -= L
+      const a = p | 0
+      const f = p - a
+      const b = a + 1 >= L ? 0 : a + 1
+      return buf[a] * (1 - f) + buf[b] * f
+    }
+    for (let i = 0; i < n; i++) {
+      b0[wp] = i0[i]
+      b1[wp] = i1[i]
+      let phase = wp - rp
+      if (phase < 0) phase += L
+      const w1 = Math.sin((Math.PI * phase) / L)
+      let phase2 = phase + half
+      if (phase2 >= L) phase2 -= L
+      const w2 = Math.sin((Math.PI * phase2) / L)
+      let r2 = rp + half
+      if (r2 >= L) r2 -= L
+      o0[i] = tap(b0, rp) * w1 + tap(b0, r2) * w2
+      if (o1) o1[i] = tap(b1, rp) * w1 + tap(b1, r2) * w2
+      wp++
+      if (wp >= L) wp = 0
+      rp += ratio
+      if (rp >= L) rp -= L
+    }
+    this.wp = wp
+    this.rp = rp
+    return true
+  }
+}
+registerProcessor('voiceai-pitch', VoiceaiPitch)
+`
 
 interface PreviewState {
   project: Project
@@ -220,9 +291,61 @@ export class Compositor {
   private exporting = false
   private maskCanvas: HTMLCanvasElement | null = null
   private audioCtx: AudioContext | null = null
+  /** Pitch-shift worklet module load (once per AudioContext); ready flag gates node use. */
+  private pitchModulePromise: Promise<void> | null = null
+  private pitchReady = false
 
   setStateGetter(fn: () => PreviewState): void {
     this.getState = fn
+  }
+
+  /** Load the pitch-shift worklet module once (async). Until ready, the voice mask is
+   *  simply not heard in the preview (it still renders correctly on export). */
+  private ensurePitchModule(ctx: AudioContext): void {
+    if (this.pitchModulePromise) return
+    const blob = new Blob([PITCH_WORKLET_SRC], { type: 'application/javascript' })
+    const url = URL.createObjectURL(blob)
+    this.pitchModulePromise = ctx.audioWorklet
+      .addModule(url)
+      .then(() => {
+        this.pitchReady = true
+      })
+      .catch((e) => console.error('voice-mask pitch worklet failed to load', e))
+      .finally(() => URL.revokeObjectURL(url))
+  }
+
+  /** Route a source's audio through (or around) the pitch-shift node so its voice is
+   *  masked live, matching the export. Only re-wires on a state change (cheap per frame). */
+  private applyVoiceDisguise(m: MediaEl, on: boolean): void {
+    const ctx = this.audioCtx
+    if (!ctx || !m.gain) return
+    if (on === !!m.disguised) return // no change → nothing to re-wire
+    if (on && !this.pitchReady) {
+      this.ensurePitchModule(ctx) // apply on a later frame once the worklet is ready
+      return
+    }
+    try {
+      m.gain.disconnect()
+      if (on) {
+        if (!m.pitch) m.pitch = new AudioWorkletNode(ctx, 'voiceai-pitch')
+        const p = m.pitch.parameters.get('ratio')
+        if (p) p.value = 0.8 // pitch DOWN ~4 semitones, like the export
+        m.gain.connect(m.pitch)
+        m.pitch.connect(ctx.destination)
+      } else {
+        if (m.pitch) {
+          try {
+            m.pitch.disconnect()
+          } catch {
+            /* already disconnected */
+          }
+        }
+        m.gain.connect(ctx.destination)
+      }
+      m.disguised = on
+    } catch (e) {
+      console.error('voice-mask routing failed', e)
+    }
   }
 
   private started = false
@@ -327,6 +450,7 @@ export class Compositor {
     // just amplified by the gain.
     try {
       const ctx = (this.audioCtx ??= new AudioContext())
+      this.ensurePitchModule(ctx) // preload the voice-mask worklet so it's ready on toggle
       const srcNode = ctx.createMediaElementSource(video)
       const gain = ctx.createGain()
       srcNode.connect(gain)
@@ -461,6 +585,7 @@ export class Compositor {
         active.add(src.id)
         const m = this.ensureMedia(src)
         if (!m.isVideo) continue
+        this.applyVoiceDisguise(m, !!clip.voiceDisguise)
         const vid = m.el as HTMLVideoElement
         const into = rampedInto(clip, playhead)
         const desired = Math.max(0, clip.sourceIn + into)
@@ -604,6 +729,7 @@ export class Compositor {
     revealAlpha = 1
   ): void {
     const m = this.ensureMedia(src)
+    if (m.isVideo) this.applyVoiceDisguise(m, !!clip.voiceDisguise)
     const vid = m.isVideo ? (m.el as HTMLVideoElement) : null
     // Use the loaded element's intrinsic size, NOT src.width/height: when a proxy
     // is loaded its pixel dims (e.g. 304x540) differ from the original (1080x1920),
