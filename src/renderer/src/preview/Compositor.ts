@@ -43,6 +43,8 @@ interface MediaEl {
   url: string
   /** Web Audio gain node, so volume can exceed 100% (up to 400%). */
   gain?: GainNode
+  /** The MediaElementSource feeding the graph — kept so it can be disconnected on swap. */
+  srcNode?: MediaElementAudioSourceNode
   /** Real-time pitch-shift node for the privacy voice mask (lazily inserted). */
   pitch?: AudioWorkletNode
   /** Whether this element is currently routed through the pitch node (voice masked). */
@@ -325,14 +327,17 @@ export class Compositor {
       return
     }
     try {
-      m.gain.disconnect()
       if (on) {
+        // Build the pitch node FIRST; only touch the live wiring once it exists, so a
+        // construction failure can never leave the gain orphaned (= permanent silence).
         if (!m.pitch) m.pitch = new AudioWorkletNode(ctx, 'voiceai-pitch')
         const p = m.pitch.parameters.get('ratio')
         if (p) p.value = 0.8 // pitch DOWN ~4 semitones, like the export
+        m.gain.disconnect()
         m.gain.connect(m.pitch)
         m.pitch.connect(ctx.destination)
       } else {
+        m.gain.disconnect()
         if (m.pitch) {
           try {
             m.pitch.disconnect()
@@ -344,6 +349,14 @@ export class Compositor {
       }
       m.disguised = on
     } catch (e) {
+      // Re-wire failed mid-way: make sure the dry path is restored so audio never vanishes.
+      try {
+        m.gain.disconnect()
+        m.gain.connect(ctx.destination)
+        m.disguised = false
+      } catch {
+        /* nothing more we can do */
+      }
       console.error('voice-mask routing failed', e)
     }
   }
@@ -417,6 +430,15 @@ export class Compositor {
       v.removeAttribute('src')
       v.load()
       v.remove()
+      // Release the old Web Audio nodes too, or they pile up in the single
+      // AudioContext on every proxy swap / re-import (slow leak that degrades audio).
+      try {
+        existing.pitch?.disconnect()
+        existing.gain?.disconnect()
+        existing.srcNode?.disconnect()
+      } catch {
+        /* nodes already gone */
+      }
     }
     if (src.kind === 'image') {
       const img = new Image()
@@ -456,6 +478,7 @@ export class Compositor {
       srcNode.connect(gain)
       gain.connect(ctx.destination)
       media.gain = gain
+      media.srcNode = srcNode
     } catch {
       /* Web Audio unavailable — fall back to element volume (capped at 100%). */
     }
@@ -509,6 +532,12 @@ export class Compositor {
     ctx.fillRect(0, 0, this.previewW, this.previewH)
 
     const active = new Set<string>()
+    // Aggregate the voice-mask state PER SOURCE for this frame. There is one <video>
+    // (and one audio node chain) per source, but `voiceDisguise` is per CLIP — so two
+    // clips of the same source can disagree. Collect the OR here and apply it exactly
+    // once per source after the loops, instead of toggling the live audio graph once
+    // per clip every frame (which thrashed the graph and dropped the audio).
+    const disguise = new Map<string, boolean>()
     const videoClips: { clip: MediaClip; src: Source; ti: number }[] = []
     project.timeline.tracks.forEach((track, ti) => {
       if (track.type !== 'video' || track.hidden) return
@@ -517,6 +546,7 @@ export class Compositor {
         if (playhead < clip.timelineStart || playhead >= clip.timelineEnd) continue
         const src = project.sources.find((x) => x.id === clip.sourceId)
         if (!src || !src.hasVideo) continue
+        if (clip.voiceDisguise) disguise.set(src.id, true)
         videoClips.push({ clip, src, ti })
       }
     })
@@ -583,9 +613,9 @@ export class Compositor {
         if (!src || !src.hasAudio) continue
         if (playhead < clip.timelineStart || playhead >= clip.timelineEnd) continue
         active.add(src.id)
+        if (clip.voiceDisguise) disguise.set(src.id, true)
         const m = this.ensureMedia(src)
         if (!m.isVideo) continue
-        this.applyVoiceDisguise(m, !!clip.voiceDisguise)
         const vid = m.el as HTMLVideoElement
         const into = rampedInto(clip, playhead)
         const desired = Math.max(0, clip.sourceIn + into)
@@ -615,10 +645,15 @@ export class Compositor {
     })
 
     for (const [sid, m] of this.media) {
-      if (!active.has(sid) && m.isVideo) {
+      if (!m.isVideo) continue
+      if (!active.has(sid)) {
         const v = m.el as HTMLVideoElement
         if (!v.paused) v.pause()
       }
+      // Apply the voice mask ONCE per source per frame (aggregated above). The
+      // method no-ops when the state is unchanged, so this only re-wires on a real
+      // transition — no per-clip/per-frame graph thrash.
+      this.applyVoiceDisguise(m, disguise.get(sid) === true)
     }
   }
 
@@ -729,7 +764,6 @@ export class Compositor {
     revealAlpha = 1
   ): void {
     const m = this.ensureMedia(src)
-    if (m.isVideo) this.applyVoiceDisguise(m, !!clip.voiceDisguise)
     const vid = m.isVideo ? (m.el as HTMLVideoElement) : null
     // Use the loaded element's intrinsic size, NOT src.width/height: when a proxy
     // is loaded its pixel dims (e.g. 304x540) differ from the original (1080x1920),
@@ -1156,6 +1190,13 @@ export class Compositor {
         v.removeAttribute('src')
         v.load()
         v.remove()
+        try {
+          m.pitch?.disconnect()
+          m.gain?.disconnect()
+          m.srcNode?.disconnect()
+        } catch {
+          /* nodes already gone */
+        }
       }
     }
     this.media.clear()

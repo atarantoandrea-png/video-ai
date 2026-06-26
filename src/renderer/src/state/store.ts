@@ -288,6 +288,8 @@ interface Actions {
   toggleClipAudioFlag: (clipId: string, flag: 'mutedAudio' | 'denoise' | 'duck' | 'voiceDisguise') => void
   /** Place timeline markers on detected beats within the clip's span. */
   detectBeats: (clipId: string) => void
+  /** Remove all auto-generated beat markers (the ones "Trova beat" added). */
+  clearBeats: () => void
   setPlayhead: (t: number) => void
   togglePlay: () => void
   setPlaying: (p: boolean) => void
@@ -1789,8 +1791,15 @@ export const useEditor = create<EditorStore>()(
         }
         if (!beats.length) return
         commit((s) => {
-          for (const t of beats) s.project.markers.push({ id: genId('mk'), t, label: '', color: '#5cf3da' })
+          // Idempotent: drop any previous auto beats first, so re-running replaces
+          // rather than piling up duplicates.
+          s.project.markers = s.project.markers.filter((m) => m.kind !== 'beat')
+          for (const t of beats) s.project.markers.push({ id: genId('mk'), t, label: '', color: '#5cf3da', kind: 'beat' })
         })
+      },
+
+      clearBeats: () => {
+        commit((s) => void (s.project.markers = s.project.markers.filter((m) => m.kind !== 'beat')))
       },
 
       setPlayhead: (t) => set((s) => void (s.playhead = Math.max(0, t))),

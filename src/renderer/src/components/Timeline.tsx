@@ -243,11 +243,24 @@ export function Timeline(): JSX.Element {
     setPlayhead(Math.max(0, (clientX - rect.left) / pxPerSec))
   }
 
-  /** Seek, then keep seeking while the pointer is dragged (scrub). */
+  /** Seek, then keep seeking while the pointer is dragged (scrub). Pointer moves fire
+   *  faster than the display refreshes, so coalesce them to ONE seek per animation
+   *  frame — otherwise every raw move writes the store and re-renders the timeline,
+   *  which made fast scrubbing stutter. */
   const beginScrub = (clientX: number): void => {
     seek(clientX)
-    const onMove = (ev: PointerEvent): void => seek(ev.clientX)
+    let pending = 0
+    let lastX = clientX
+    const flush = (): void => {
+      pending = 0
+      seek(lastX)
+    }
+    const onMove = (ev: PointerEvent): void => {
+      lastX = ev.clientX
+      if (!pending) pending = requestAnimationFrame(flush)
+    }
     const onUp = (): void => {
+      if (pending) cancelAnimationFrame(pending)
       document.removeEventListener('pointermove', onMove)
       document.removeEventListener('pointerup', onUp)
     }

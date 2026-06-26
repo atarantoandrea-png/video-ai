@@ -102,6 +102,8 @@ function MediaInspector({ clip }: { clip: MediaClip }): JSX.Element {
   const extractAudio = useEditor((s) => s.extractAudio)
   const toggleClipAudioFlag = useEditor((s) => s.toggleClipAudioFlag)
   const detectBeats = useEditor((s) => s.detectBeats)
+  const clearBeats = useEditor((s) => s.clearBeats)
+  const hasBeats = useEditor((s) => s.project.markers.some((m) => m.kind === 'beat'))
   const setChroma = useEditor((s) => s.setChroma)
   const srcHasAudio = useEditor((s) => !!s.project.sources.find((x) => x.id === clip.sourceId)?.hasAudio)
   const maskEdit = useEditor((s) => s.maskEdit)
@@ -267,6 +269,11 @@ function MediaInspector({ clip }: { clip: MediaClip }): JSX.Element {
             <button className="chip" title="Trova i beat e aggiungi marker" onClick={() => detectBeats(clip.id)}>
               ♩ Trova beat
             </button>
+            {hasBeats && (
+              <button className="chip" title="Rimuovi tutti i marker dei beat" onClick={() => clearBeats()}>
+                ✕ Togli beat
+              </button>
+            )}
           </div>
         </div>
       )}

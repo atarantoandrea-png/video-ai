@@ -363,7 +363,10 @@ export function buildFfmpegArgs(project: Project, opts: ExportOptions): string[]
   // keyframe seek + decode starves the shared demuxer and TRUNCATES the audio tail of
   // the clip (worst on short clips: the first cut lost its last ~0.9 s → silence at the
   // start of the export). A dedicated audio `-i` decodes independently and stays gapless.
-  for (const rc of audioClips) rc.inputIndex = addInput(`a:${rc.clip.id}`, rc.source.path, seekPre(rc.clip.sourceIn))
+  // `-vn` so this dedicated input demuxes ONLY audio (it never references the video
+  // stream) — no point opening/decoding the video a second time.
+  for (const rc of audioClips)
+    rc.inputIndex = addInput(`a:${rc.clip.id}`, rc.source.path, ['-vn', ...seekPre(rc.clip.sourceIn)])
 
   const filters: string[] = []
   filters.push(
