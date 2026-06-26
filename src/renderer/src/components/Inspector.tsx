@@ -244,6 +244,13 @@ function MediaInspector({ clip }: { clip: MediaClip }): JSX.Element {
               ✧ Riduci rumore
             </button>
             <button
+              className={`chip ${clip.voiceDisguise ? 'chip--active' : ''}`}
+              title="Maschera voce: abbassa il tono per rendere chi parla irriconoscibile (privacy consulti)"
+              onClick={() => toggleClipAudioFlag(clip.id, 'voiceDisguise')}
+            >
+              🎭 Maschera voce
+            </button>
+            <button
               className={`chip ${clip.duck ? 'chip--active' : ''}`}
               title="Abbassa questo audio sotto la voce"
               onClick={() => toggleClipAudioFlag(clip.id, 'duck')}

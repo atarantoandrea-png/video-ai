@@ -90,6 +90,21 @@ describe('buildFfmpegArgs', () => {
     const args = buildFfmpegArgs(stackProject(), { outPath: '/tmp/o.mp4', useVideoToolbox: true })
     expect(args).toContain('h264_videotoolbox')
   })
+
+  it('applies the privacy voice mask (pitch-down chain) only when voiceDisguise is set', () => {
+    const plain = stackProject()
+    const fcPlain = buildFfmpegArgs(plain, { outPath: '/tmp/o.mp4', useVideoToolbox: false })[
+      buildFfmpegArgs(plain, { outPath: '/tmp/o.mp4', useVideoToolbox: false }).indexOf('-filter_complex') + 1
+    ]
+    expect(fcPlain).not.toContain('asetrate=38400')
+
+    const masked = stackProject()
+    ;(masked.timeline.tracks[0].clips[0] as { voiceDisguise?: boolean }).voiceDisguise = true
+    const args = buildFfmpegArgs(masked, { outPath: '/tmp/o.mp4', useVideoToolbox: false })
+    const fc = args[args.indexOf('-filter_complex') + 1]
+    expect(fc).toContain('asetrate=38400') // pitch down
+    expect(fc).toContain('atempo=1.2500') // restore tempo
+  })
 })
 
 describe('export integration (spawns ffmpeg)', () => {

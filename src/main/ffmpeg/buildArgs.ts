@@ -80,6 +80,13 @@ function toFfColorA(hex: string, alpha: number): string {
   return `${toFfColor(hex)}@${clamp01n(alpha).toFixed(3)}`
 }
 
+// Privacy voice mask: pitch the voice DOWN ~4 semitones while keeping the original
+// tempo, so the speaker stays intelligible but unrecognisable (pairs with face-blur for
+// anonymising people in consultations). aresample first NORMALISES to 48 kHz so the shift
+// ratio is the same whatever the source rate; asetrate=0.8×48k lowers pitch AND formants
+// (timbre changes too → harder to recognise); the final atempo restores the duration.
+const VOICE_DISGUISE_CHAIN = ['aresample=48000', 'asetrate=38400', 'aresample=48000', 'atempo=1.2500']
+
 /**
  * Build the drawtext filter chain for one text clip, approximating the preview's
  * Canva-style look in ffmpeg: per-line layers, chosen font, colour, highlight box,
@@ -516,6 +523,7 @@ export function buildFfmpegArgs(project: Project, opts: ExportOptions): string[]
         `asetpts=PTS-STARTPTS`,
         ...(aSpeed !== 1 ? atempoChain(aSpeed) : []),
         ...(clip.denoise ? ['afftdn=nr=12:nf=-25'] : []),
+        ...(clip.voiceDisguise ? VOICE_DISGUISE_CHAIN : []),
         `volume=${clip.volume.toFixed(3)}`
       ]
       if (clip.fadeInSec > 0) aChain.push(`afade=t=in:st=0:d=${sec(clip.fadeInSec)}`)
@@ -577,6 +585,7 @@ export function buildFfmpegArgs(project: Project, opts: ExportOptions): string[]
           `asetpts=PTS-STARTPTS`,
           ...(aSpeed !== 1 ? atempoChain(aSpeed) : []),
           ...(clip.denoise ? ['afftdn=nr=12:nf=-25'] : []),
+          ...(clip.voiceDisguise ? VOICE_DISGUISE_CHAIN : []),
           `volume=${clip.volume.toFixed(3)}`
         ]
         if (clip.fadeInSec > 0) aChain.push(`afade=t=in:st=0:d=${sec(clip.fadeInSec)}`)

@@ -285,7 +285,7 @@ interface Actions {
   toggleReverse: (clipId: string) => void
   /** Detach a video clip's audio onto its own audio track (and mute the video's). */
   extractAudio: (clipId: string) => void
-  toggleClipAudioFlag: (clipId: string, flag: 'mutedAudio' | 'denoise' | 'duck') => void
+  toggleClipAudioFlag: (clipId: string, flag: 'mutedAudio' | 'denoise' | 'duck' | 'voiceDisguise') => void
   /** Place timeline markers on detected beats within the clip's span. */
   detectBeats: (clipId: string) => void
   setPlayhead: (t: number) => void

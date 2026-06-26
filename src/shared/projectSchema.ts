@@ -196,6 +196,9 @@ export interface MediaClip extends ClipBase {
   mutedAudio?: boolean
   /** FFT noise reduction (afftdn) on this clip's audio. */
   denoise?: boolean
+  /** Privacy voice mask: pitch the audio DOWN so the speaker is unrecognisable but
+   *  still intelligible (pairs with face-blur for anonymising people in consultations). */
+  voiceDisguise?: boolean
   /** Duck this clip's audio under the other (voice) tracks. */
   duck?: boolean
   /** Opacity ramp at the clip's head/tail, in seconds (0 = none). */
