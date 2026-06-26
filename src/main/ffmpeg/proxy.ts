@@ -1,5 +1,5 @@
 import { execFile } from 'child_process'
-import { existsSync, mkdirSync } from 'fs'
+import { existsSync, mkdirSync, renameSync, rmSync } from 'fs'
 import { createHash } from 'crypto'
 import { tmpdir } from 'os'
 import { join } from 'path'
@@ -24,6 +24,11 @@ export async function generateProxy(srcPath: string): Promise<string> {
   const running = inflight.get(out)
   if (running) return running
 
+  // Encode to a unique temp file and rename onto `out` only on success. A proxy
+  // killed mid-encode (app closed / crash) otherwise leaves a truncated .mp4 with
+  // no `moov` atom at the final path: existsSync() then trusts it forever and the
+  // <video> can't decode it → permanently black preview that never regenerates.
+  const tmp = `${out}.${process.pid}.part`
   const job = (async (): Promise<string> => {
     const ffmpeg = getFfmpegPath()
     const caps = await probeCapabilities()
@@ -59,18 +64,32 @@ export async function generateProxy(srcPath: string): Promise<string> {
           '128k',
           '-movflags',
           '+faststart',
-          out
+          // The output path ends in `.part`, so ffmpeg can't infer the container —
+          // force mp4 explicitly.
+          '-f',
+          'mp4',
+          tmp
         ],
         { maxBuffer: 1 << 24 },
         (err) => (err ? reject(err) : resolve())
       )
     })
+    // Publish atomically: the full file only ever appears at `out` once complete.
+    renameSync(tmp, out)
     return out
   })()
 
   inflight.set(out, job)
   try {
     return await job
+  } catch (e) {
+    // Drop the partial temp file so a failed/aborted encode never lingers.
+    try {
+      rmSync(tmp, { force: true })
+    } catch {
+      /* best-effort cleanup */
+    }
+    throw e
   } finally {
     inflight.delete(out)
   }
