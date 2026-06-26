@@ -75,7 +75,9 @@ describe('buildFfmpegArgs', () => {
   it('builds a coherent arg list for a 2-person vertical stack', () => {
     const args = buildFfmpegArgs(stackProject(), { outPath: '/tmp/out.mp4', useVideoToolbox: false })
     expect(args[0]).toBe('-y')
-    expect(args.filter((a) => a === '-i').length).toBe(2)
+    // 2 video inputs (top/bottom crops) + 2 DEDICATED audio inputs: audio never shares
+    // a clip's video `-i`, else the video branch's seek/decode truncates the audio tail.
+    expect(args.filter((a) => a === '-i').length).toBe(4)
     const fc = args[args.indexOf('-filter_complex') + 1]
     expect(fc).toContain('crop=960:1080:0:0') // left half of source
     expect(fc).toContain('crop=960:1080:960:0') // right half of source

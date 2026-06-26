@@ -351,7 +351,12 @@ export function buildFfmpegArgs(project: Project, opts: ExportOptions): string[]
         : seekPre(rc.clip.sourceIn)
     rc.inputIndex = addInput(rc.clip.id, rc.source.path, pre)
   }
-  for (const rc of audioClips) rc.inputIndex = addInput(rc.clip.id, rc.source.path, seekPre(rc.clip.sourceIn))
+  // Audio gets its OWN input (`a:` key), never the video clip's `-i`. When one input
+  // feeds both a `[i:v]trim` branch and a `[i:a]atrim` branch, the video branch's
+  // keyframe seek + decode starves the shared demuxer and TRUNCATES the audio tail of
+  // the clip (worst on short clips: the first cut lost its last ~0.9 s → silence at the
+  // start of the export). A dedicated audio `-i` decodes independently and stays gapless.
+  for (const rc of audioClips) rc.inputIndex = addInput(`a:${rc.clip.id}`, rc.source.path, seekPre(rc.clip.sourceIn))
 
   const filters: string[] = []
   filters.push(
