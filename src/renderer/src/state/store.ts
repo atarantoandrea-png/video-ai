@@ -226,8 +226,9 @@ interface Actions {
   newProject: () => void
   /** Open the Save dialog (asks the name). Same name overwrites; new name = new project. */
   saveProject: () => Promise<void>
-  /** Confirm the cloud save with the chosen name (sets it, uploads, updates the id). */
-  confirmCloudSave: (name: string) => Promise<void>
+  /** Confirm the cloud save with the chosen name and an optional publish date
+   *  ('YYYY-MM-DD', or null for none) — sets them, uploads, updates the id. */
+  confirmCloudSave: (name: string, scheduledDate?: string | null) => Promise<void>
   /** Open the picker that asks: local file or cloud (VPS)? */
   openProject: () => Promise<void>
   /** Open a local .videoai file, replacing the current project. */
@@ -1142,12 +1143,15 @@ export const useEditor = create<EditorStore>()(
         set((s) => void (s.cloudModal = 'save'))
       },
 
-      confirmCloudSave: async (name) => {
+      confirmCloudSave: async (name, scheduledDate) => {
         const finalName = (name || '').trim() || 'Senza titolo'
+        const date = scheduledDate && /^\d{4}-\d{2}-\d{2}$/.test(scheduledDate) ? scheduledDate : null
         // Ogni "Salva" è una VOCE NUOVA: id fresco → non sovrascrive mai un altro progetto.
         set((s) => {
           s.project.id = genId('proj')
           s.project.name = finalName
+          if (date) s.project.scheduledDate = date
+          else delete s.project.scheduledDate
         })
         try {
           const r = await window.api.cloudSave(JSON.stringify(get().project))

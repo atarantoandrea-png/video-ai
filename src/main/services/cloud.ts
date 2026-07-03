@@ -73,6 +73,19 @@ export async function cloudDelete(id: string): Promise<{ ok: boolean; error?: st
   return r.ok ? { ok: true } : { ok: false, error: r.error }
 }
 
+/** Set (or clear, with null) a project's publish date for the editorial calendar. */
+export async function cloudSetSchedule(
+  id: string,
+  scheduledDate: string | null
+): Promise<{ ok: boolean; error?: string }> {
+  const r = await call(
+    'PATCH',
+    '/api/projects/' + encodeURIComponent(id) + '/schedule',
+    JSON.stringify({ scheduledDate })
+  )
+  return r.ok ? { ok: true } : { ok: false, error: r.error }
+}
+
 export interface RenderJob {
   id: string
   projectId: string

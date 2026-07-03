@@ -11,7 +11,7 @@ import { ExportJob } from './ffmpeg/ExportJob'
 import { getSystemInfo } from './services/system'
 import { getApiKey, setApiKey, hasApiKey, clearApiKey, getCloudBase, setCloudPassword, hasCloudPassword } from './services/settings'
 import { createMessage } from './services/ai'
-import { cloudLogin, cloudList, cloudSave, cloudGet, cloudDelete, cloudUploadVideo, cloudVideoUrl } from './services/cloud'
+import { cloudLogin, cloudList, cloudSave, cloudGet, cloudDelete, cloudSetSchedule, cloudUploadVideo, cloudVideoUrl } from './services/cloud'
 import type { Project } from '@shared/projectSchema'
 import type { ExportRequestOptions } from '@shared/export'
 
@@ -267,6 +267,7 @@ export function registerIpc(): void {
   ipcMain.handle('cloud:save', (_e, json: string) => cloudSave(json))
   ipcMain.handle('cloud:get', (_e, id: string) => cloudGet(id))
   ipcMain.handle('cloud:delete', (_e, id: string) => cloudDelete(id))
+  ipcMain.handle('cloud:setSchedule', (_e, id: string, date: string | null) => cloudSetSchedule(id, date))
   ipcMain.handle('cloud:videoUrl', (_e, id: string) => cloudVideoUrl(id))
   // Publish a finished export: save the project (name-based) + upload the rendered video
   // to the SAME id the server decided, so the video isn't orphaned. Returns that id.

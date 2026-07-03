@@ -130,6 +130,9 @@ const api = {
     ipcRenderer.invoke('cloud:get', id),
   cloudDelete: (id: string): Promise<{ ok: boolean; error?: string }> =>
     ipcRenderer.invoke('cloud:delete', id),
+  /** Set ('YYYY-MM-DD') or clear (null) a project's publish date for the calendar. */
+  cloudSetSchedule: (id: string, date: string | null): Promise<{ ok: boolean; error?: string }> =>
+    ipcRenderer.invoke('cloud:setSchedule', id, date),
   /** Save the project AND upload the finished video so it's downloadable from any device. */
   cloudPublishVideo: (json: string, filePath: string, ext: string): Promise<{ ok: boolean; id?: string; error?: string }> =>
     ipcRenderer.invoke('cloud:publishVideo', json, filePath, ext),

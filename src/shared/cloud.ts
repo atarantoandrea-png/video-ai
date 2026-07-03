@@ -3,6 +3,8 @@ export interface CloudProject {
   id: string
   name: string
   modifiedAt: string | null
+  /** Publish date for the editorial calendar ('YYYY-MM-DD'), or null if not scheduled. */
+  scheduledDate?: string | null
   hasSocial: boolean
   segments: number
   sizeKB: number

@@ -333,6 +333,9 @@ export interface Project {
   markers: Marker[]
   /** Social copy (description / first comment / hooks) re-readable later. Optional. */
   postMeta?: PostMeta
+  /** Publish date for the editorial calendar, as 'YYYY-MM-DD' (local day). Optional:
+   *  when unset the project shows up as "senza data" and can be dated later. */
+  scheduledDate?: string
   createdAt: string
   modifiedAt: string
 }
