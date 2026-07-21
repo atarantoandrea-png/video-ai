@@ -218,6 +218,10 @@ interface Actions {
   /** Merge a patch into the project's social copy (description / first comment / hooks).
    *  Saved with the project; written by the `set_post_meta` tool and the Social panel. */
   setPostMeta: (patch: Partial<PostMeta>) => void
+  /** Wipe the social copy entirely (description / first comment / hooks / …). Called at
+   *  the start of every AI/plan reel build so a new reel starts from a blank copy slate
+   *  instead of inheriting the previous reel's (postMeta only merges, never replaces). */
+  resetSocialCopy: () => void
   splitAtPlayhead: () => void
   moveClip: (clipId: string, newStart: number, newTrackId?: string) => void
   trimClip: (clipId: string, edge: 'start' | 'end', deltaSec: number) => void
@@ -1839,6 +1843,12 @@ export const useEditor = create<EditorStore>()(
       setPostMeta: (patch) => {
         commit((s) => {
           s.project.postMeta = { ...(s.project.postMeta ?? {}), ...patch }
+        })
+      },
+
+      resetSocialCopy: () => {
+        commit((s) => {
+          s.project.postMeta = undefined
         })
       },
 

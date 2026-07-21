@@ -92,6 +92,9 @@ export const useAi = create<AiState>((set, get) => {
       set({ running: true, _abort: abort, _curAsst: null })
       bump({ role: 'user', text: `Brief incollato — ${trimmed.split('\n').length} righe. Costruisco il reel…` })
       useEditor.getState().beginAiBuild()
+      // Reel nuovo = copy pulita: azzera la copy del reel precedente prima del build, così
+      // i campi non riscritti dal set_post_meta di QUESTO reel non restano quelli vecchi.
+      useEditor.getState().resetSocialCopy()
       try {
         const summary = await runAgent({
           brief: trimmed,
@@ -134,6 +137,9 @@ export const useAi = create<AiState>((set, get) => {
       set({ running: true, _abort: abort, _curAsst: null })
       bump({ role: 'user', text: `Piano da Claude — ${plan.length} azioni. Monto il reel GRATIS (senza crediti API)…` })
       useEditor.getState().beginAiBuild()
+      // Reel nuovo = copy pulita: azzera la copy del reel precedente prima del build, così
+      // i campi non riscritti dal set_post_meta di QUESTO reel non restano quelli vecchi.
+      useEditor.getState().resetSocialCopy()
       const ctx: ToolContext = {
         askUser: (question, options) =>
           new Promise<string>((resolve) => {
