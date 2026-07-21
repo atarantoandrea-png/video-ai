@@ -631,6 +631,16 @@ function EffectControl({
         value={value}
         onChange={(e) => onChange({ [def.param]: parseFloat(e.target.value) })}
       />
+      {fx.type === 'gblur' && (
+        <label className="check-row" title="Sfocatura molto più forte — utile per nascondere un volto/una zona anche quando il reel viene ingrandito su un telefono ad alta risoluzione">
+          <input
+            type="checkbox"
+            checked={!!fx.params.boost}
+            onChange={(e) => onChange({ boost: e.target.checked ? 1 : 0 })}
+          />
+          🔺 Potenzia (sfocatura molto forte)
+        </label>
+      )}
     </div>
   )
 }

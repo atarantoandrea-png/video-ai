@@ -99,8 +99,23 @@ export interface Effect {
   id: string
   type: EffectType
   enabled: boolean
-  /** Effect-specific scalar params, e.g. { sigma: 12 } for gblur. */
+  /** Effect-specific scalar params, e.g. { sigma: 12 } for gblur. A gblur may also carry
+   *  `boost: 1` — the "Potenzia" toggle — which multiplies the applied sigma by
+   *  BLUR_BOOST_FACTOR in both the preview and the export (see below). */
   params: Record<string, number>
+}
+
+/** "Potenzia sfocatura": when a gblur effect has params.boost, its sigma is multiplied by
+ *  this factor when rendered. Lets the blur go VERY strong (so a face/zone stays
+ *  unrecognisable even when the reel is zoomed on a high-resolution phone) without
+ *  changing the familiar 0–40 intensity slider. Applied identically in preview
+ *  (Compositor) and export (buildArgs) so what you see is what you get. */
+export const BLUR_BOOST_FACTOR = 3
+
+/** Effective gblur sigma for rendering: the slider value, tripled when "Potenzia" is on. */
+export function effectiveBlurSigma(params: Record<string, number>): number {
+  const sigma = params.sigma ?? 8
+  return params.boost ? sigma * BLUR_BOOST_FACTOR : sigma
 }
 
 export type TransitionPreset =

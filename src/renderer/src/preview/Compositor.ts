@@ -1,5 +1,6 @@
 import { resolveClipLayout } from '@shared/geometry'
 import {
+  effectiveBlurSigma,
   isMediaClip,
   timelineDuration,
   type MediaClip,
@@ -261,7 +262,7 @@ function buildFilter(clip: MediaClip): string {
   if (lk) parts.push(lk)
   for (const fx of clip.effects) {
     if (!fx.enabled) continue
-    if (fx.type === 'gblur') parts.push(`blur(${fx.params.sigma ?? 8}px)`)
+    if (fx.type === 'gblur') parts.push(`blur(${effectiveBlurSigma(fx.params)}px)`)
     else if (fx.type === 'brightness') parts.push(`brightness(${1 + (fx.params.value ?? 0)})`)
     else if (fx.type === 'contrast') parts.push(`contrast(${1 + (fx.params.value ?? 0)})`)
     else if (fx.type === 'saturation') parts.push(`saturate(${1 + (fx.params.value ?? 0)})`)

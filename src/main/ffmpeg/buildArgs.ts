@@ -1,5 +1,6 @@
 import { existsSync } from 'fs'
 import {
+  effectiveBlurSigma,
   isMediaClip,
   timelineDuration,
   type MediaClip,
@@ -247,7 +248,7 @@ function effectFilters(clip: MediaClip): string[] {
   for (const fx of clip.effects) {
     if (!fx.enabled) continue
     const v = fx.params.value ?? 0
-    if (fx.type === 'gblur') out.push(`gblur=sigma=${(fx.params.sigma ?? 8).toFixed(2)}`)
+    if (fx.type === 'gblur') out.push(`gblur=sigma=${effectiveBlurSigma(fx.params).toFixed(2)}`)
     else if (fx.type === 'brightness') out.push(`eq=brightness=${v.toFixed(3)}`)
     else if (fx.type === 'contrast') out.push(`eq=contrast=${(1 + v).toFixed(3)}`)
     else if (fx.type === 'saturation') out.push(`eq=saturation=${(1 + v).toFixed(3)}`)
