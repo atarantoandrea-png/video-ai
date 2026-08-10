@@ -15,7 +15,7 @@ Il "piano" è un **array JSON di tool-call** che l'app esegue **gratis** (senza 
 - **`add_segment`** `{ "sourceFile": "video.mp4", "sourceIn": <s>, "sourceOut": <s> }` — accoda un taglio sulla traccia video principale. Tempi in **secondi nel sorgente**. Una chiamata per segmento, nell'ordine del brief.
 - **`reframe_vertical`** `{ "clipId": "@last", "mode": "...", "faceIndex"?: <n>, "blur"?: "none|top|bottom|both", "cropRect"?: {x,y,w,h} }` — reframe orizzontale→verticale.
   - `mode`: `"two-person-stack"` (due affiancati → impila), `"center-face"` (una persona, zoom sul volto), `"auto"` (decide dai volti), `"fit-contain"` (intero con barre — evita con persone), `"manual-crop"` (con `cropRect` 0..1).
-  - `blur` SOLO con `two-person-stack`: `"bottom"`=persona destra/in basso, `"top"`=sinistra/in alto, `"both"`. Usa solo dopo conferma utente.
+  - `blur` SOLO con `two-person-stack`: `"bottom"`=persona destra/in basso, `"top"`=sinistra/in alto, `"both"`. Sfoca **l'INTERO riquadro** di quella persona (rettangolo a copertura piena) con **blur al MASSIMO** (sigma 80) → vedi **REGOLA BLUR** in fondo. Solo dopo conferma utente.
 - **`detect_people`** `{ "clipId": "@last", "timeSec"?: <s> }` — quante persone/volti e dove (per decidere il layout con 3+ persone).
 - **`blur_person`** `{ "clipId": "@last", "faceIndex"?: <n> }` oppure `{ "clipId":"@last", "region": {x,y,w,h}, "shape"?: "rectangle"|"ellipse", "strength"?: <8..80> }` — sfoca una persona/area. Con `region` di **default copre il RIQUADRO INTERO** (maschera **rettangolare**) con **blur massimo** (sigma 48): ideale per oscurare un **tile Zoom** (persona a sinistra `{x:0,y:0,w:0.5,h:1}`, a destra `{x:0.5,y:0,w:0.5,h:1}`, in alto `{x:0,y:0,w:1,h:0.5}`, in basso `{x:0,y:0.5,w:1,h:0.5}`). `shape:"ellipse"` = ovale morbido; `strength` regola il blur. **Solo dopo conferma utente.**
 - **`add_transition`** `{ "clipId": "@last", "preset"?: "fade|wipeleft|...|dissolve", "durSec"?: 0.4 }` — transizione verso la clip successiva.
@@ -71,4 +71,25 @@ Il "piano" è un **array JSON di tool-call** che l'app esegue **gratis** (senza 
 ]
 ```
 
-> Privacy: se il brief chiede di sfocare una persona nello stack, **chiedi conferma all'utente in chat**, poi aggiungi `"blur":"bottom"` (o `"top"`/`"both"`) all'`input` del `reframe_vertical` di quel segmento — non serve un tool separato.
+## ⚠️ REGOLA BLUR — legge di Andrea, non negoziabile
+
+Quando si sfoca una persona (privacy), vale **sempre** questo, senza bisogno che venga richiesto:
+
+1. **Si sfoca TUTTA la persona, non il volto.** Mai ellissi/ovali sulla faccia, mai «copro gli occhi»,
+   mai maschere ritagliate: si oscura **l'intero riquadro** in cui compare (tutto il suo tile Zoom, dalla
+   testa ai piedi, sfondo compreso), con una **maschera rettangolare a copertura piena**.
+2. **Blur al MASSIMO.** `sigma 80` (il tetto). Il riquadro deve risultare **irriconoscibile**: non si deve
+   vedere praticamente niente — né il viso, né i vestiti, né cosa c'è dietro.
+3. **Meglio sfocare di troppo che di meno.** Nel dubbio si allarga la regione e si alza il blur.
+   Se un file si chiama «… no volto» / «oscurata» / «viso coperto», quella persona va sfocata: non si chiede.
+
+**Come si ottiene**
+- Nello **stack a due**: `"blur":"bottom"` (destra/in basso) o `"top"` (sinistra/in alto) dentro
+  `reframe_vertical` — l'app applica da sé rettangolo pieno + sigma 80 su quella metà.
+- Su un **riquadro qualsiasi**: `blur_person` con `region` = il tile intero, `shape:"rectangle"`,
+  `strength: 80` (es. persona a destra `{x:0.5,y:0,w:0.5,h:1}`, a sinistra `{x:0,y:0,w:0.5,h:1}`).
+- ⚠️ `blur_person` **non** sa puntare la clip di sotto **dopo** un `two-person-stack` (`@last` = quella
+  in alto): nello stack usa **sempre** il parametro `blur` di `reframe_vertical`.
+
+**Prima di sfocare**, chiedi conferma all'utente in chat (chi va oscurato). Il *come* invece non si chiede:
+è sempre intero + massimo.

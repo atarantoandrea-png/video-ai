@@ -86,7 +86,7 @@ export const TOOLS: Anthropic.Tool[] = [
         blur: {
           type: 'string',
           enum: ['none', 'top', 'bottom', 'both'],
-          description: "SOLO per two-person-stack: sfoca la persona in alto (sinistra) o in basso (destra) con una regione fissa robusta. Usa dopo conferma utente."
+          description: "SOLO per two-person-stack: oscura la persona in alto (sinistra) o in basso (destra). Sfoca il suo riquadro INTERO (rettangolo a copertura piena, non il solo volto) col blur al MASSIMO: dev'essere irriconoscibile. Usa dopo conferma utente."
         },
         cropRect: {
           type: 'object',
@@ -346,17 +346,32 @@ function twoPersonStackGeom(
   return { topId: clipId, bottomId }
 }
 
-/** Robust face blur for one half of a stack: a fixed ellipse over the person's face
- *  area (no per-frame tracking, so it survives hands-on-face). */
+/** Privacy blur for one half of a stack.
+ *  REGOLA (Andrea): si oscura la persona INTERAMENTE — tutto il suo riquadro, non solo il
+ *  volto — e col blur al MASSIMO, così non si riconosce praticamente niente. Quindi:
+ *  maschera RETTANGOLARE a copertura piena della sua metà + sigma max. Niente ellissi sulla
+ *  faccia (lasciavano scoperti corpo, vestiti e sfondo) e niente tracking per-frame. */
 function blurStackHalf(clipId: string, isBottom: boolean): void {
   const ed = useEditor.getState()
-  ed.makeBlurRegion(clipId) // dup on a new track + gaussian blur + ellipse mask
+  ed.makeBlurRegion(clipId) // dup on a new track + gaussian blur
   const blurId = useEditor.getState().selectedClipId
   if (!blurId) return
-  const cy = isBottom ? 0.66 : 0.18 // face sits in the upper part of the person's half
-  const w = 0.6
-  const h = 0.34
-  ed.setMask(blurId, { shape: 'ellipse', x: 0.5 - w / 2, y: cy - h / 2, w, h, feather: 0.45, invert: false })
+  // Coordinate CANVAS: metà alta (sinistra) o metà bassa (destra). Sconfino un filo oltre la
+  // giunzione e uso un feather minimo, così non resta alcun bordo nitido.
+  ed.setMask(blurId, {
+    shape: 'rectangle',
+    x: 0,
+    y: isBottom ? 0.49 : 0,
+    w: 1,
+    h: 0.51,
+    feather: 0.02,
+    invert: false
+  })
+  // Blur al massimo consentito (sigma 8..80): il riquadro dev'essere irriconoscibile.
+  ed.updateClip(blurId, (c) => {
+    const fx = (c as MediaClip).effects.find((e) => e.type === 'gblur')
+    if (fx) fx.params.sigma = 80
+  })
 }
 
 function setContain(clipId: string): void {

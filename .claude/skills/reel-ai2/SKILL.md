@@ -52,6 +52,7 @@ Traduci il brief in una **lista JSON di tool-call**, esattamente nell'ordine del
    - **3+ persone** → metti `"center-face"` con `faceIndex` dello speaker, oppure lascia `"auto"` e segnalalo all'utente.
    - **MAI** `"fit-contain"` con persone.
 5. **PRIVACY/BLUR** — **solo** se il brief lo chiede, e **solo dopo aver chiesto conferma all'utente** (nella Fase 3, a voce). Nello stack si fa col parametro `blur` di `reframe_vertical` (`"bottom"`=persona destra/in basso, `"top"`=sinistra/in alto, `"both"`).
+   ⚠️ **REGOLA BLUR (legge di Andrea)**: si sfoca **TUTTA la persona, non il volto** — l'intero riquadro in cui compare, maschera **rettangolare a copertura piena**, e **blur al MASSIMO** (sigma 80), così non si riconosce **praticamente niente**. Mai ellissi sulla faccia. Meglio sfocare di troppo che di meno. Dettagli in `reference/plan-format.md` → «REGOLA BLUR».
 6. **COPY SOCIAL** — se il brief contiene `## Descrizione (post)` e/o `## Primi commenti` (con i 5 hook), aggiungi **un** `set_post_meta` (`description`, `hashtags`, `firstComment` = **tutte le 3 versioni** dei primi commenti separate, `hooks`, e `extraDescription` = la `## Descrizione extra` FISSA del brief copiata VERBATIM) **subito prima** di `finish`. NON va sul video: si salva col progetto e l'utente lo rilegge/copia dalla scheda **«Social»** dell'app quando pubblica.
 7. `finish` con un riepilogo breve in italiano.
 
