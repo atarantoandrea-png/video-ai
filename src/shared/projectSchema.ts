@@ -323,6 +323,9 @@ export interface Timeline {
  *  rendered on the video: it's saved with the project so the user can re-open a reel
  *  later and re-read / copy what to write on the post. */
 export interface PostMeta {
+  /** Post title (short, for the user's own reference / video file naming — not all
+   *  platforms show a title on a reel, but the user wants one saved with the project). */
+  title?: string
   /** Post caption / description (keyword-rich reflection in Elisa's voice). */
   description?: string
   /** Hashtags line, e.g. "#ElisaSoulMedium #medium #aldilà". */

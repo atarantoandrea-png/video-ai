@@ -225,10 +225,11 @@ export const TOOLS: Anthropic.Tool[] = [
   {
     name: 'set_post_meta',
     description:
-      "Salva NEL PROGETTO la copy social del reel (NON la scrive sul video): descrizione del post, hashtag, primo commento e i 5 hook. Resta salvata col progetto, così riaprendo il reel l'utente la rilegge/copia nella scheda «Social». Prendi questi testi dal «Reel Build Brief» (sezioni Descrizione, Primo commento, Hook). Chiamalo una sola volta, prima di finish.",
+      "Salva NEL PROGETTO la copy social del reel (NON la scrive sul video): titolo, descrizione del post, hashtag, primo commento e i 5 hook. Resta salvata col progetto, così riaprendo il reel l'utente la rilegge/copia nella scheda «Social». Prendi questi testi dal «Reel Build Brief» (sezioni Descrizione, Primo commento, Hook). Chiamabile ANCHE da solo (senza segmenti/tagli), per aggiornare solo titolo/descrizione/commento di un progetto già montato senza toccare la timeline. Chiamalo una sola volta, prima di finish.",
     input_schema: {
       type: 'object',
       properties: {
+        title: { type: 'string', description: 'Titolo del post/reel (breve, per riferimento e riconoscimento del progetto)' },
         description: { type: 'string', description: 'Descrizione/didascalia del post' },
         hashtags: { type: 'string', description: 'Riga di hashtag, es. "#ElisaSoulMedium #medium"' },
         firstComment: { type: 'string', description: 'Il primo commento da fissare (lunghezza libera)' },
@@ -709,13 +710,14 @@ export async function runTool(name: string, input: Record<string, unknown>, ctx:
 
     case 'set_post_meta': {
       const patch: Record<string, unknown> = {}
+      if (typeof input.title === 'string') patch.title = input.title
       if (typeof input.description === 'string') patch.description = input.description
       if (typeof input.hashtags === 'string') patch.hashtags = input.hashtags
       if (typeof input.firstComment === 'string') patch.firstComment = input.firstComment
       if (typeof input.extraDescription === 'string') patch.extraDescription = input.extraDescription
       if (typeof input.notes === 'string') patch.notes = input.notes
       if (Array.isArray(input.hooks)) patch.hooks = (input.hooks as unknown[]).filter((h): h is string => typeof h === 'string')
-      if (Object.keys(patch).length === 0) return { error: 'set_post_meta: nessun campo valido (description/hashtags/firstComment/hooks/notes)' }
+      if (Object.keys(patch).length === 0) return { error: 'set_post_meta: nessun campo valido (title/description/hashtags/firstComment/hooks/notes)' }
       ed.setPostMeta(patch as Partial<PostMeta>)
       return { ok: true, saved: Object.keys(patch) }
     }

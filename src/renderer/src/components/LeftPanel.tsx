@@ -158,7 +158,7 @@ function SocialPanel(): JSX.Element {
   const postMeta = useEditor((s) => s.project.postMeta)
   const setPostMeta = useEditor((s) => s.setPostMeta)
   const pm = postMeta ?? {}
-  const empty = !pm.description && !pm.hashtags && !pm.firstComment && !(pm.hooks && pm.hooks.length) && !pm.notes
+  const empty = !pm.title && !pm.description && !pm.hashtags && !pm.firstComment && !(pm.hooks && pm.hooks.length) && !pm.notes
 
   return (
     <div className="scroll" style={{ flex: 1, padding: 12, display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -173,6 +173,20 @@ function SocialPanel(): JSX.Element {
           compaiono e si salvano col progetto.
         </div>
       )}
+
+      <div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+          <span className="section-title" style={{ flex: 1 }}>Titolo</span>
+          <CopyBtn text={pm.title ?? ''} title="Copia il titolo" />
+        </div>
+        <input
+          className="input"
+          placeholder="Titolo del reel/post…"
+          value={pm.title ?? ''}
+          onChange={(e) => setPostMeta({ title: e.target.value })}
+          style={{ width: '100%' }}
+        />
+      </div>
 
       <div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
